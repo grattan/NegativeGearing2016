@@ -6,7 +6,7 @@ vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
 }, FALSE)
 
 install.packages("hutils", repos = "https://cran.rstudio.com")
-install.packages("devtools", repos = "https://cran.rstudio.com", dependencies = TRUE, quiet = TRUE)
+install.packages("devtools", repos = "https://cran.rstudio.com", quiet = TRUE)
 install.packages("grattan", repos = "https://cran.rstudio.com", quiet = TRUE)
 install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies = TRUE)
 
@@ -19,16 +19,21 @@ install.packages(c("taxstats", "taxstats1516"),
                  type = "source")
 
 packages_ <-
-  c("bindrcpp", "hildaData", "hutils", "ggrepel", "testthat", 
+  c("bindrcpp", "hutils", "ggrepel", "testthat", 
     "magrittr", "tidyr", "usethis", "devtools", "expm", "Hmisc", 
     "Formula", "lattice", "foreign", "survey", "survival", "Matrix", 
     "grid", "zoo", "httr", "rsdmx", "readr", "openxlsx", "readxl", 
     "xtable", "grattan", "directlabels", "scales", "ggplot2", "gridExtra", 
     "dplyr", "haven", "devEMF", "knitr", 
     "data.table", "sessioninfo")
-install.packages(packages_, repos = "https://cran.rstudio.com", dependencies = TRUE)
 
-knitr::knit("CGT_and_neg_gearing_parent.Rnw")
+# Remove already installed packages
+packages_ <- packages_[!nzchar(find.package(packages_))]
+
+install.packages(packages_, repos = "https://cran.rstudio.com")
+
+# Wait until we work out hilda
+# knitr::knit("CGT_and_neg_gearing_parent.Rnw")
 
 
 
