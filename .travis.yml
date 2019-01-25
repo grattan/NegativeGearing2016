@@ -28,7 +28,7 @@ before_script:
 - tar xzf biber-linux_x86_64.tar.gz
 - export PATH=$PATH:$PWD
 - tlmgr update biber chngcntr
-- Rscript do_make.R
+- Rscript travis-make.R
 - pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.Rnw > /dev/null
 - biber CGT_and_neg_gearing_parent
 - pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.Rnw > /dev/null
