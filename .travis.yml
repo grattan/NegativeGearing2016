@@ -41,6 +41,8 @@ before_script:
 #- biber CGT_and_neg_gearing_parent
 #- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
 #- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
+script: 
+- Rscript -e '1 + 1'
 deploy:
   provider: releases
   api_key:
