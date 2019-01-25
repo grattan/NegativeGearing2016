@@ -22,6 +22,14 @@ before_install:
 - tlmgr update --all
 - sudo apt-get update
 - sudo apt-get install texlive-bibtex-extra
+- sudo apt-get install r-cran-rcpp
+- sudo apt-get install r-cran-bh
+- sudo apt-get install r-cran-stringi
+- sudo apt-get install r-cran-readr
+- sudo apt-get install r-cran-devtools
+- sudo apt-get install r-cran-survey
+- sudo apt-get install r-cran-dplyr
+- sudo apt-get install r-cran-survival
 install: echo Installation step
 before_script:
 - wget http://mirrors.ctan.org/biblio/biber/binaries/Linux/biber-linux_x86_64.tar.gz

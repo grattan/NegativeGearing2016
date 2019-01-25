@@ -5,9 +5,9 @@ vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
   grepl("parent", x) && file.remove(x)
 }, FALSE)
 
-install.packages("hutils", repos = "https://cran.rstudio.com", dependencies = FALSE, quiet = TRUE)
+install.packages("hutils", repos = "https://cran.rstudio.com")
 install.packages("devtools", repos = "https://cran.rstudio.com", dependencies = TRUE, quiet = TRUE)
-install.packages("grattan", repos = "https://cran.rstudio.com", dependencies = FALSE, quiet = TRUE)
+install.packages("grattan", repos = "https://cran.rstudio.com", quiet = TRUE)
 install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies = TRUE)
 
 devtools::install_github(paste0("hughparsonage/", c("hutilscpp", "grattanCharts")), 
@@ -15,7 +15,7 @@ devtools::install_github(paste0("hughparsonage/", c("hutilscpp", "grattanCharts"
                          quiet = TRUE)
 
 install.packages(c("taxstats", "taxstats1516"),
-                 repos = "https://hughparsonage.github.io/drat",
+                 repos = "https://hughparsonage.github.io/tax-drat",
                  type = "source")
 
 packages_ <-
