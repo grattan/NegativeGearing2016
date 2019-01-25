@@ -2,15 +2,17 @@
 
 # First remove all but the CGT_
 vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
-  grepl("pattern", x) && file.remove(x)
+  grepl("parent", x) && file.remove(x)
 }, FALSE)
 
-install.packages("hutils", repos = "https://cran.rstudio.com", dependencies = TRUE, quiet = TRUE)
+install.packages("hutils", repos = "https://cran.rstudio.com", dependencies = FALSE, quiet = TRUE)
 install.packages("devtools", repos = "https://cran.rstudio.com", dependencies = TRUE, quiet = TRUE)
-install.packages("grattan", repos = "https://cran.rstudio.com", dependencies = TRUE, quiet = TRUE)
+install.packages("grattan", repos = "https://cran.rstudio.com", dependencies = FALSE, quiet = TRUE)
 install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies = TRUE)
 
-devtools::install_github(c("hutilscpp", "grattanCharts"), quiet = TRUE)
+devtools::install_github(paste0("hughparsonage/", c("hutilscpp", "grattanCharts")), 
+                         quick = TRUE,
+                         quiet = TRUE)
 
 install.packages(c("taxstats", "taxstats1516"),
                  repos = "https://hughparsonage.github.io/drat",
