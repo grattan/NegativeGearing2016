@@ -30,7 +30,9 @@ packages_ <-
 # Remove already installed packages
 packages_ <- packages_[!nzchar(find.package(packages_))]
 
-install.packages(packages_, repos = "https://cran.rstudio.com")
+if (length(packages_)) {
+  install.packages(packages_, repos = "https://cran.rstudio.com")
+}
 
 # Wait until we work out hilda
 # knitr::knit("CGT_and_neg_gearing_parent.Rnw")
