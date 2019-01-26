@@ -12,10 +12,12 @@ install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies =
 devtools::install_github(paste0("hughparsonage/", c("hutilscpp", "grattanCharts")), 
                          quick = TRUE,
                          quiet = TRUE)
-
-install.packages(c("taxstats", "taxstats1516"),
-                 repos = "https://hughparsonage.github.io/tax-drat",
-                 type = "source")
+if (!requireNamespace("taxstats", quietly = TRUE) || 
+    !requireNamespace("taxstats1516", quietly = TRUE)) {
+  install.packages(c("taxstats", "taxstats1516"),
+                   repos = "https://hughparsonage.github.io/tax-drat",
+                   type = "source")
+}
 
 packages_ <-
   c("bindrcpp", "hutils", "ggrepel", "testthat", 
