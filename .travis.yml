@@ -27,7 +27,7 @@ before_script:
 - tlmgr update biber chngcntr
 - sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell
 - sudo apt-get install r-cran-survey
-- sudo apt-get install r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-tidyxl r-cran-haven
+- sudo apt-get install r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven
 - sudo apt-get install r-cran-survival
 - Rscript travis-make.R
 
