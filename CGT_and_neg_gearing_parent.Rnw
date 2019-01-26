@@ -125,7 +125,6 @@ library(dplyr)
 library(gridExtra)
 library(ggplot2)
 library(scales)
-library(directlabels)
 library(grattan)
 library(xtable)
 library(readxl)
@@ -3365,7 +3364,7 @@ density_other <-
   .[Net_rent_amt >= 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 
-if (!identical(Sys.getenv("TRAVIS"), "true")) {
+if (!identical(Sys.getenv("TRAVIS"), "true") && is_knitting()) {
   grattanCharts:::chart_data(bind_rows("NG" = data_frame(Taxable_Income = density_NG$x, 
                                                          Density = density_NG$y), 
                                        "Not_NG" = data_frame(Taxable_Income = density_other$x, 
@@ -5423,7 +5422,7 @@ shade_cell <- function(x){
 
 EMTR_Appendix_Table %>%
   .[, lapply(.SD, shade_cell), 
-    keyby = c("Marginal tax rate", "Return type", "CGT treatment", "\\phantom{.}")] %>%
+    keyby = .(`Marginal tax rate`, `Return type`, `CGT treatment`, `\\phantom{.}`)] %>%
   {suppressWarnings(print_2heading_xtable(., 
                                           sanitize.text.function = function(x) x, 
                                           tabular.environment = "tabular", 
