@@ -31,8 +31,12 @@ packages_ <-
 
 # Remove already installed packages
 packages_ <- packages_[!nzchar(find.package(packages_))]
+cat("packages_\t", packages_, "\n")
+if (!requireNamespace("showtext", quietly = TRUE)) {
+  install.packages("showtext")
+}
 
-if (length(packages_)) {
+if (length(packages_) > 0) {
   install.packages(packages_, repos = "https://cran.rstudio.com")
 }
 

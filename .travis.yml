@@ -28,11 +28,8 @@ before_script:
 - tar xzf biber-linux_x86_64.tar.gz
 - export PATH=$PATH:$PWD
 - tlmgr update biber chngcntr
-- sudo apt-get install r-cran-rcpp
-- sudo apt-get install r-cran-bh
-- sudo apt-get install r-cran-stringi
+- sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell
 - sudo apt-get install r-cran-readr
-- sudo apt-get install r-cran-devtools
 - sudo apt-get install r-cran-survey
 - sudo apt-get install r-cran-dplyr
 - sudo apt-get install r-cran-survival
