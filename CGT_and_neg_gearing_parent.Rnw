@@ -80,8 +80,33 @@ options(xtable.sanitize.text.function = function(x) {
 },
         xtable.sanitize.rownames.function = identity,
         xtable.sanitize.colnames.function = identity)
+if (is_knitting()) {
+  mem_usage_tempfile <- tempfile("mem")
+  invisible(file.create("memory-usage.txt"))
+}
+knitr::knit_hooks$set(do_mem = function(before) {
+  if (before) {
+    utils::Rprofmem(mem_usage_tempfile)
+  } else {
+    utils::Rprofmem(NULL)
+    .mem_used <-
+      profmem::readRprofmem(mem_usage_tempfile) %$%
+      sum(as.double(bytes), na.rm = TRUE) %>%
+      divide_by(1024^3) %>%
+      round(1) %>%
+      formatC(digits = 1, width = 4, format = "f")
+    write(
+      paste0(.mem_used,
+             "\t",
+             knitr::opts_current$get(name = "label")),
+      file = "memory-usage.txt",
+      ncolumns = 1,
+      append = TRUE)
+  }
+})
 knitr::opts_chunk$set(fig.show='hide',
-                      fig.path= atlas <- "CGT-NG-atlas/")
+                      fig.path= atlas <- "CGT-NG-atlas/",
+                      do_mem = TRUE)
 @
 
 <<loadPackages, cache=FALSE>>=
@@ -3733,29 +3758,30 @@ Ultimately, the government should not shy away from a sound policy because it ge
 
 <<Impact_of_NG_on_house_prices>>=
 rental_losses <- 
-  sample_files_all %>% 
-  filter(Net_rent_amt < 0) %>%
-  group_by(fy.year) %>%
-  summarise(tot_avg_loss = -1 * sum(as.double(Net_rent_amt * WEIGHT))) %>%
-  ungroup %>%
-  mutate(real_tot_avg_loss = cpi_inflator(tot_avg_loss, from_fy = fy.year, to_fy = "2013-14"))
+  sample_files_all[Net_rent_amt < 0, .(Net_rent_amt, WEIGHT, fy.year)] %>%
+  .[, Net_rent_amt_Wt := -1 * Net_rent_amt * WEIGHT] %>%
+  .[, .(tot_avg_loss = sum(Net_rent_amt_Wt)),
+    keyby = "fy.year"] %>%
+  .[, real_tot_avg_loss := cpi_inflator(tot_avg_loss, from_fy = .BY[[1L]], to_fy = TARGET.FY), 
+    keyby = "fy.year"]
 
 NG_tax_exps <-
-  sample_files_all %>%
-  mutate(FYYR = fy.year) %>%
-  group_by(fy.year) %>%
-  mutate(current_tax = income_tax(Taxable_Income, fy.year = FYYR),
-         subseqt_tax = income_tax(if_else(Net_rent_amt < 0, 
-                                         Taxable_Income - Net_rent_amt,
-                                         Taxable_Income), fy.year = FYYR),
-         diff = subseqt_tax - current_tax) %>%
-  group_by(fy.year) %>%
-  summarise(avg.diff = sum(diff * WEIGHT))
+  sample_files_all[, .(fy.year, Taxable_Income, Net_rent_amt, WEIGHT)] %>%
+  .[, current_tax := income_tax(Taxable_Income, fy.year = .BY[[1L]]), keyby = "fy.year"] %>%
+  .[, subseqt_tax := income_tax(if_else(Net_rent_amt < 0, 
+                                        Taxable_Income - Net_rent_amt,
+                                        Taxable_Income),
+                                fy.year = .BY[[1L]]),
+    keyby = "fy.year"] %>%
+  .[, diff := WEIGHT * (subseqt_tax - current_tax)] %>%
+  .[, .(tot.diff = sum(diff)), keyby = "fy.year"] %T>% 
+  fwrite("tsv/NG_tax_exps.tsv", sep = "\t") %>%
+  .[]
 
 NG_tax_exps.real <- 
   NG_tax_exps %>%
-  ungroup %>% 
-  mutate(avg.diff.real = cpi_inflator(avg.diff, from_fy = fy.year, to_fy = "2013-14")) %$%
+  .[, avg.diff.real := cpi_inflator(tot.diff, from_fy = .BY[[1]], to_fy = TARGET.FY), 
+    keyby = "fy.year"] %$%
   mean(avg.diff.real)
 
 present.value_benefit_from_NG <-
@@ -3775,7 +3801,8 @@ housing_finance_commitments.metadata <-
   #       "Data_without_metadata"
   #
   # 
-  read_excel("ABSP_567108_Housing_Finance_Table8.xlsx", sheet = "Metadata") %>%
+  read_excel("ABSP_567108_Housing_Finance_Table8.xlsx",
+             sheet = "Metadata") %>%
   as.data.table %>%
   selector(cols = c("Series ID", "Long_name", "Series Type")) %>%
   setnames(c("series_id", "Long_name", "Series_Type")) %>%
@@ -3783,7 +3810,8 @@ housing_finance_commitments.metadata <-
   .[]
 
 housing_finance_commitments <-
-  read_excel("ABS_Cat5671-0_Lending_Finance_Table8_Finance_Commitments_For_housing.xlsx", sheet = "Data_no_metadata") %>%
+  read_excel("ABS_Cat5671-0_Lending_Finance_Table8_Finance_Commitments_For_housing.xlsx",
+             sheet = "Data_no_metadata") %>%
   gather(series, value, -Date) %>%
   as.data.table %>%
   setnames("series", "series_id") %>%
@@ -3796,33 +3824,33 @@ housing_finance_commitments <-
 if (exists("res_dwelling_values") && !is.null(res_dwelling_values)){
 value_dwelling_stock_2014 <- 
   res_dwelling_values %>% 
-  filter(label_ASGS_2011 == "Australia",
-         label_MEASURE == "Value of dwelling stock: Owned by non households ($m)") %>%
-  arrange(obsTime) %$%
+  .[label_ASGS_2011 == "Australia"] %>%
+  .[label_MEASURE == "Value of dwelling stock: Owned by non households ($m)"] %>%
+  setkey(obsTime) %$%
   last(obsValue) * 10^6
 } else {
   value_dwelling_stock_2014 <- 5400 * 10^9
 }
 
-read_excel("ASX_Returns_by_asset_class.xlsx") %>% 
+RoR_proprty <-
+  read_excel("ASX_Returns_by_asset_class.xlsx") %>% 
   filter(`Asset class` == "Residential investment property") %$%
-  `After tax highest marginal tax rate` / 100 ->
-  RoR_proprty
+  `After tax highest marginal tax rate` / 100
 
 value.of.ng.by.yr <- 
-  sample_files_all %>%
-  mutate(benefit_due_NG = income_tax(pmax(Taxable_Income, Taxable_Income - Net_rent_amt), 
-                                     fy.year = fy.year) -  income_tax(Taxable_Income, 
-                                                                      fy.year = fy.year)) %>%
-  group_by(fy.year) %>%
-  summarise(total_benefit = sum(benefit_due_NG * WEIGHT)) %>%
-  ungroup %>%
-  mutate(total_benefit_real = cpi_inflator(total_benefit, from_fy = fy.year, to_fy = "2014-15"))
+  sample_files_all[, .(Taxable_Income, Net_rent_amt, fy.year, WEIGHT)] %>%
+  .[, benefit_due_NG := income_tax(pmaxV(Taxable_Income, Taxable_Income - Net_rent_amt), 
+                                   fy.year = .BY[[1L]]) - income_tax(Taxable_Income, 
+                                                                     fy.year = .BY[[1]]),
+    keyby = "fy.year"] %>%
+  .[, .(total_benefit = sum(benefit_due_NG * WEIGHT)), keyby = "fy.year"] %>%
+  .[, total_benefit_real := cpi_inflator(total_benefit, from_fy = .BY[[1L]], to_fy = TARGET.FY),
+    keyby = "fy.year"]
 
 value_of_NG_one_year <- 
   value.of.ng.by.yr %>%
-  filter(fy.year == "2012-13") %$%
-  total_benefit
+  .[fy.year == "2012-13"] %>%
+  .[['total_benefit']]
 
 value_of_NG_perpertuity <- value_of_NG_one_year / RoR_proprty
 value_of_NG_10yrs <-
@@ -4580,6 +4608,7 @@ sample_file %>%
       theme(legend.position = "right")
   }
 @
+
 <<density-salary-by-PP-losses, fig.height=11, out.height="11in", dev=c("my_pdf", "png"), fig.ext = c("pdf", "png")>>=
 sample_file %>%
   merge(occupation_decoder, by = "Occ_code") %>%
@@ -4658,6 +4687,7 @@ target_sample_file %>%
            ETP_txbl_amt,
            Tot_ded_amt,
            Tot_inc_amt,
+           Taxable_Income,
            WEIGHT,
            shallow = TRUE) %>%
   .[, quarantined_losses := pminC(Net_rent_amt, 0) + pminC(Net_farm_management_amt, 0) - Net_fincl_invstmt_lss_amt - NPP_loss_claimed - PP_loss_claimed] %>%
@@ -4716,7 +4746,7 @@ Capping the total amount of losses that can be deducted each year for negatively
 \Caption{Those on high salaries are much more likely to be negatively gearing}{Incidence of negative gearing}{fig:NG-vs-salary}
 % dev omit emf due to alpha
 <<NG-vs-salary>>=
-sample_file[Sw_amt %between% c(0, 250e3), .(Sw_amt, NG = Net_rent_amt < 0)] %>%
+sample_file[Sw_amt %between% c(0, 250e3), .(Sw_amt, NG = as.double(Net_rent_amt < 0))] %>%
   setnames("Sw_amt", "Salary") %>%
   grplot(aes(x = Salary, y = NG)) + 
   geom_smooth(colour = DarkOrange, size = 1.5) +
@@ -4825,6 +4855,7 @@ if (hilda_used) {
       set(o, j = "Year", value = Year)
       setnames(o, paste0(W, "oifrntp"), "FY_rental_property_profit_or_loss")
       setnames(o, paste0(W, "lnwte"), "WEIGHT")
+      gc(full = TRUE, verbose = FALSE)
       o
     }) %>%
     rbindlist(use.names = TRUE, fill = TRUE)
@@ -4849,13 +4880,14 @@ if (!hilda_used && file.exists("tsv/xwaveid_with_NG_then_profit.tsv")) {
     .[, filled_down := na.locf(Profit_loss, na.rm = FALSE), keyby = "xwaveid"] %>%
     .[, loss := filled_down == "Loss"] %>%
     .[, next_Profit := shift(filled_down, type = "lead", fill = "Loss"), keyby = "xwaveid"] %>%
-  .[, nextIsProfit := next_Profit %in% c("Break even", "Profit")] %>%
-  .[, rw := any(and(loss, nextIsProfit)), 
-    keyby = "xwaveid"] %>%
-  .[(rw)] %T>%
-  fwrite("tsv/xwaveid_with_NG_then_profit.tsv", 
-         sep = "\t", 
-         na = "NA")
+    .[, nextIsProfit := next_Profit %in% c("Break even", "Profit")] %>%
+    .[, rw := any(and(loss, nextIsProfit)), 
+      keyby = "xwaveid"] %>%
+    .[(rw)] %T>%
+    fwrite("tsv/xwaveid_with_NG_then_profit.tsv", 
+           sep = "\t", 
+           na = "NA") %>%
+    .[]
 }
 
 if (!hilda_used && file.exists("tsv/hilda_rp_who_negatively_gearing.tsv")) {
