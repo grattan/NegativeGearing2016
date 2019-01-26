@@ -30,7 +30,12 @@ packages_ <-
     "data.table", "sessioninfo")
 
 # Remove already installed packages
-packages_ <- packages_[!nzchar(find.package(packages_))]
+packages_to_install <- packages_
+for (i in seq_along(packages_)) {
+  packages_to_install[i] <- if (!length(find.package(packages_[i], quiet = TRUE))) "" else "(installed)"
+}
+packages_ <- packages_[packages_to_install == ""]
+
 cat("packages_\t", packages_, "\n")
 if (!requireNamespace("showtext", quietly = TRUE)) {
   install.packages("showtext")
