@@ -106,10 +106,11 @@ knitr::knit_hooks$set(do_mem = function(before) {
 })
 knitr::opts_chunk$set(fig.show='hide',
                       fig.path= atlas <- "CGT-NG-atlas/",
-                      do_mem = TRUE)
+                      do_mem = Sys.getenv("TRAVIS") == "")
 @
 
 <<loadPackages, cache=FALSE>>=
+library(testthat)
 library(hutilscpp)  # hughparsonage/hutilscpp
 library(haven)
 library(knitr)
@@ -130,7 +131,6 @@ library(httr)
 library(zoo)
 library(survey)
 library(foreign)
-library(Hmisc)
 library(expm)
 library(devtools)
 library(tidyr)
@@ -158,7 +158,6 @@ sample_files_all <-
         sample_file_1516[, "fy.year" := "2015-16"],
         use.names = TRUE,
         fill = TRUE)
-library(testthat)
 library(ggrepel)
 @
 
@@ -5331,10 +5330,18 @@ data.table::CJ(
   mutate(`CGT treatment` = if_else(Indexed, "Indexed", paste(latex_percent(CGT_discount, digits = 0, percentage_symbol = "\\%"), "discount"))) %>%
   select(-Indexed, -CGT_discount) %T>%
   {grattanCharts:::chart_data(.)} %>%
-  mutate_each(funs(digit1_01_TeX)) %>%
-  mutate_each(funs(omit_repeated)) %>%
+  as.data.table %>%
+  .[, lapply(.SD, digit1_01_TeX)] %>%
+  .[, lapply(.SD, omit_repeated)] %>%
   setnames(old = grep("_[a-z]", names(.), value = TRUE), 
-           new = sapply(gsub("_([a-z])", " \\1", grep("_[a-z]", names(.), value = TRUE)), capitalize)) %>% .[] %>%
+           new = sub("^([a-z])",
+                     "\\U\\1\\E",
+                     (gsub("_([a-z])", 
+                           " \\1", 
+                           grep("_[a-z]",
+                                names(.), 
+                                value = TRUE))))) %>% 
+  .[] %>%
   # mutate_each(funs(shade_cell), -`Marginal tax rate`, -`Return type`, -`CGT treatment`) %>%
   # Increase space between groups by putting a newline with -6pt height (-9pt) for smaller
   mutate(`\\phantom{.}` = if_else(!is.na(`Marginal tax rate`) & `Marginal tax rate` != first(`Marginal tax rate`), 
