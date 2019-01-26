@@ -9,7 +9,10 @@ install.packages("hutils", repos = "https://cran.rstudio.com")
 install.packages("grattan", repos = "https://cran.rstudio.com", quiet = TRUE)
 install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies = TRUE)
 
-devtools::install_github(paste0("hughparsonage/", c("hutilscpp", "grattanCharts")), 
+devtools::install_github(paste0("hughparsonage/", 
+                                c("hutilscpp",
+                                  "hildaExtra",
+                                  "grattanCharts")), 
                          quick = TRUE,
                          quiet = TRUE)
 if (!requireNamespace("taxstats", quietly = TRUE) || 
