@@ -1,12 +1,11 @@
 
 
-# First remove all but the CGT_
+# First remove all but the CGT_parent
 vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
-  grepl("parent", x) && file.remove(x)
+  !grepl("parent", x) && file.remove(x)
 }, FALSE)
 
 install.packages("hutils", repos = "https://cran.rstudio.com")
-install.packages("devtools", repos = "https://cran.rstudio.com", quiet = TRUE)
 install.packages("grattan", repos = "https://cran.rstudio.com", quiet = TRUE)
 install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies = TRUE)
 
