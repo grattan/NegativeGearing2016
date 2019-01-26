@@ -1,5 +1,55 @@
 % !TeX program = pdflatex
-\documentclass{grattan}
+\documentclass{grattan}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 
 \usepackage{ocgx}
 
@@ -38,6 +88,7 @@
         \texttt{latest.sample.fy} = 2015-16}
 
 \renewcommand{\classification}{}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
 %\clearpage
@@ -204,9 +255,9 @@ A capital gain is the increase in the value of an asset. Capital gains are taxed
 
 The purpose of providing a tax discount for capital gains is to reduce the bias income tax creates against savings and investment. But this efficiency benefit needs to be balanced against the costs. 
 
-Tax concessions for capital gains reduce government revenue collections. Other, more distorting taxes, must then be higher. They also distort investment choices because other forms of investment income ñ such as bank interest ñ are taxed without discount. Tax concessions for capital gains undermine the integrity of the income tax system by creating opportunities for artificial transactions to reduce income tax. They also reduce the progressivity of the tax system because capital gains are far less evenly distributed than other forms of income. 
+Tax concessions for capital gains reduce government revenue collections. Other, more distorting taxes, must then be higher. They also distort investment choices because other forms of investment income ‚Äì such as bank interest ‚Äì are taxed without discount. Tax concessions for capital gains undermine the integrity of the income tax system by creating opportunities for artificial transactions to reduce income tax. They also reduce the progressivity of the tax system because capital gains are far less evenly distributed than other forms of income. 
 
-Given these costs and benefits, is the capital gains discount set at the right level? While retaining some discount can be justified ñ primarily because a part of the capital gain is produced by inflation that in principle should not be taxed ñ the current discount is too generous given the range of competing considerations.
+Given these costs and benefits, is the capital gains discount set at the right level? While retaining some discount can be justified ‚Äì primarily because a part of the capital gain is produced by inflation that in principle should not be taxed ‚Äì the current discount is too generous given the range of competing considerations.
 
 
 \section{The size and distribution of capital gains}
@@ -242,7 +293,7 @@ Between 1985 and 1999, real capital gains (sale proceeds minus the original purc
 As recommended by the Ralph Review of Business Taxation, the Howard Government removed indexation adjustments so that tax was applied on nominal gains. To offset the removal of the indexation concession, capital gains tax was discounted by 50 per cent for individuals and 33 per cent for superannuation funds for assets held for more than a year. Capital gains of small unincorporated businesses, but not large businesses, are also discounted by 50 per cent. Small businesses also receive a range of other CGT concessions. When this regime was introduced, it was argued that it would stimulate capital markets and make the Australian regime more internationally competitive.
 \end{smallbox}
 
-For individuals and unincorporated small businesses, 50 per cent of their capital gains on assets held for more than one year are excluded from income. This means the effective tax rate paid on these gains is half the rate applied to other forms of income. Owner-occupied housing is an exception ñ capital gains on homes are not taxed at all. 
+For individuals and unincorporated small businesses, 50 per cent of their capital gains on assets held for more than one year are excluded from income. This means the effective tax rate paid on these gains is half the rate applied to other forms of income. Owner-occupied housing is an exception ‚Äì capital gains on homes are not taxed at all. 
 
 Superannuation funds pay tax on capital gains at 10 per cent (a discount to the 15 per cent they pay on earnings). 
 
@@ -384,7 +435,7 @@ On the other hand, the theoretical ideal implicitly assumes losses and gains are
 \caption{Assumptions for \Vref{fig:EMTR-savings}}
 \small
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 22:04:40 2019
+% Sat Jan 26 23:28:41 2019
 \begin{tabularx}{\linewidth}{llrrrrrrr}
   \toprule
    &  &  &  &  & \multicolumn{4}{c}{\textbf{Constant}}\\
@@ -761,7 +812,7 @@ Reducing the capital gains tax discount and limiting scope for loss write offs b
 
 Some investors will switch to other investment opportunities that offer higher post-tax returns. Others might choose to spend more and invest less. But some will also continue to invest in the housing market, and either borrow less, or simply accept a lower return on investment.
 
-But the extent to which investors will vacate the property market will ultimately depend on how much post-tax returns fall, and how sensitive is investor demand for property to changes in returns (what economists would call the ``elasticity of demandî).
+But the extent to which investors will vacate the property market will ultimately depend on how much post-tax returns fall, and how sensitive is investor demand for property to changes in returns (what economists would call the ``elasticity of demand‚Äù).
 
 Our analysis shows that the effective tax increases from our proposed changes to negative gearing and capital gains tax are relatively modest (Chapter 5). 
 As a result, the changes in after tax returns are unlikely to have much effect on demand for investment property. Other investments that generate capital gains, such as shares, will also be subject to a more stringent tax treatment under most proposed changes to tax arrangements (Chapter 5). Other investments that will be relatively more attractive after the change -- for example, superannuation and bank deposits -- have a very different profile of risk, return and liquidity, which is likely to limit the extent of switching. 
@@ -808,7 +859,7 @@ If these lost benefits (\$30.8~billion + \$29.5~billion) were fully capitalized 
 
 
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 22:04:56 2019
+% Sat Jan 26 23:28:57 2019
 \begin{tabularx}{\linewidth}{lRRRR}
   \toprule
    &  & \multicolumn{3}{c}{\textbf{Return}}\\
@@ -882,7 +933,7 @@ The absence of a detectable rental response is also consistent with overseas emp
 
 Beyond these historical lessons, economic theory predicts that limiting negative gearing should not change rents much. 
 
-Limiting or abolishing negative gearing will reduce the post-tax investment returns for negatively geared property investors. There will be a one-off decrease in house prices as investors reduce their willingness to pay. As house prices fall, rental yields -- rents after tax as a proportion of prices -- will rise at least partially restoring the attractiveness of property investment vis- ‡-vis other investments. 
+Limiting or abolishing negative gearing will reduce the post-tax investment returns for negatively geared property investors. There will be a one-off decrease in house prices as investors reduce their willingness to pay. As house prices fall, rental yields -- rents after tax as a proportion of prices -- will rise at least partially restoring the attractiveness of property investment vis- √†-vis other investments. 
 
 Existing negatively geared investors will have larger post-tax losses to service. Some may want to increase rents to maintain their returns. But rents are determined by dynamics of demand and supply, not by the returns that owners are seeking. In property markets -- just like other markets -- returns determine asset prices, not the other way around. Rents do not increase just to ensure that buyers of assets get their money back.
 
@@ -927,7 +978,7 @@ contribution to the budget bottom line.
 % Jim QC
 % eval=FALSE due no access to HILDA
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 22:05:06 2019
+% Sat Jan 26 23:29:07 2019
 \begin{tabularx}{\linewidth}{rr}
   \toprule
 {\textbf{Investment properties owned}} & {\textbf{Households}} \\ 
@@ -956,7 +1007,7 @@ contribution to the budget bottom line.
 
 \begin{table}
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 22:05:06 2019
+% Sat Jan 26 23:29:07 2019
 \begin{tabularx}{\linewidth}{rr}
   \toprule
   \midrule
@@ -972,7 +1023,7 @@ contribution to the budget bottom line.
 \begin{table*}
 \caption{Taxpayers with wage and salary income claiming business losses by occupation}\label{tbl:bizlosses}
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 22:05:07 2019
+% Sat Jan 26 23:29:08 2019
 \begin{tabularx}{\linewidth}{lrrrrr}
   \toprule
 {\textbf{Occupation}} & {\textbf{Type}} & {\textbf{No. claiming losses}} & {\textbf{\%}} & {\textbf{Average loss}} & {\textbf{Average salary}} \\ 
@@ -1126,7 +1177,7 @@ Capping losses is politically attractive because a smaller percentage of landlor
 \begin{table}
 \caption{Budgetary impact of caps to negative gearing}\label{tbl:cap-NG}
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 22:05:22 2019
+% Sat Jan 26 23:29:23 2019
 \begin{tabularx}{\linewidth}{rrrS}
   \toprule
 {\textbf{Threshold}} & {\textbf{Costing}} & {\textbf{Number affected}} & {\textbf{\%}} \\ 
@@ -1264,7 +1315,7 @@ Internationally, there are a range of approaches to taxing capital gains. Most c
 \renewcommand{\arraystretch}{1.0}
 \twocolumn
 \chapter{Effective tax rates by investment return and tax bracket}
-Effective tax rates measure the tax paid on investment returns as a share of the pre-tax returns. Effective tax rates vary by the investorís tax rate and the level of returns. When looking at effective tax rate on real returns (returns adjusted for inflation) or on `excess returns' (returns above the risk free rate) the level of inflation and the returns will also affect the effective tax rate paid by the investor. 
+Effective tax rates measure the tax paid on investment returns as a share of the pre-tax returns. Effective tax rates vary by the investor‚Äôs tax rate and the level of returns. When looking at effective tax rate on real returns (returns adjusted for inflation) or on `excess returns' (returns above the risk free rate) the level of inflation and the returns will also affect the effective tax rate paid by the investor. 
 
 \Vref{fig:EMTR-savings} presents effective rates for two different return scenarios for an investor in the 47\,c tax bracket. \Vref{tbl:Real-EMTR-appendix} below presents calculations for a broader range of return scenarios and investor tax brackets. 
 
@@ -1274,22 +1325,397 @@ Effective tax rates measure the tax paid on investment returns as a share of the
 
 
 
+\begin{table*}
+\centering
+\captionsetup{justification=centering}
+\caption[Effective marginal tax rates for a rental property]{Effective marginal tax rates for a rental property}\label{tbl:Real-EMTR-appendix}
+\newcolumntype{Q}{@{}l@{}}
+\begin{tikzpicture}
+\begin{ocg}{ocgBlack}{ocgBlack}{1}
+ \node (BlackNode) {%
+
+
+% latex table generated in R 3.5.2 by xtable 1.8-3 package
+% Sat Jan 26 23:30:33 2019
+\begin{tabular}{Qlllrrrrr}
+  \toprule
+   &  &  &  & \multicolumn{5}{c}{\textbf{Nominal annual capital gain}}\\
+ \cmidrule(lr){5-9}
+ \textbf{\phantom{.}} & \textbf{Marginal tax rate} & \textbf{Return type} & \textbf{CGT treatment} & \textbf{4.0\%} & \textbf{5.0\%} & \textbf{6.0\%} & \textbf{8.0\%} & \textbf{10.0\%}\\
+ \midrule
+ & 34.5 & real & 50\% discount & 33.9 & 29.4 & 26.2 & 21.7 & 18.7 \\ 
+   &  &  & Indexed & 34.3 & 32.6 & 31.1 & 28.5 & 26.2 \\ 
+   &  &  & 25\% discount & 39.6 & 35.0 & 31.7 & 26.9 & 23.6 \\ 
+   &  &  & 0\% discount & 45.5 & 40.9 & 37.4 & 32.4 & 28.8 \\ 
+  &\phantom{.}\\[-9pt] &  & excess & 50\% discount & 61.0 & 46.2 & 37.8 & 28.4 & 23.1 \\ 
+   &  &  & Indexed & 61.7 & 51.2 & 44.9 & 37.2 & 32.4 \\ 
+   &  &  & 25\% discount & 71.3 & 55.1 & 45.8 & 35.2 & 29.1 \\ 
+   &  &  & 0\% discount & 82.0 & 64.3 & 54.1 & 42.4 & 35.5 \\ 
+  &\phantom{.}\\[-6pt] & 39.0 & real & 50\% discount & 38.5 & 33.4 & 29.8 & 24.7 & 21.3 \\ 
+   &  &  & Indexed & 38.8 & 37.0 & 35.4 & 32.5 & 30.0 \\ 
+   &  &  & 25\% discount & 45.1 & 39.9 & 36.1 & 30.7 & 27.0 \\ 
+   &  &  & 0\% discount & 51.9 & 46.7 & 42.8 & 37.1 & 33.1 \\ 
+  &\phantom{.}\\[-9pt] &  & excess & 50\% discount & 69.2 & 52.5 & 43.0 & 32.3 & 26.3 \\ 
+   &  &  & Indexed & 69.8 & 58.1 & 51.1 & 42.5 & 37.1 \\ 
+   &  &  & 25\% discount & 81.1 & 62.7 & 52.2 & 40.2 & 33.3 \\ 
+   &  &  & 0\% discount & 93.5 & 73.4 & 61.9 & 48.6 & 40.9 \\ 
+  &\phantom{.}\\[-6pt] & 47.0 & real & 50\% discount & 46.7 & 40.6 & 36.2 & 30.1 & 26.0 \\ 
+   &  &  & Indexed & 46.8 & 44.8 & 43.1 & 39.9 & 37.1 \\ 
+   &  &  & 25\% discount & 54.9 & 48.8 & 44.2 & 37.7 & 33.2 \\ 
+   &  &  & 0\% discount & 63.6 & 57.4 & 52.8 & 46.0 & 41.1 \\ 
+  &\phantom{.}\\[-9pt] &  & excess & 50\% discount & 84.0 & 63.8 & 52.3 & 39.4 & 32.1 \\ 
+   &  &  & Indexed & 84.2 & 70.5 & 62.2 & 52.2 & 45.8 \\ 
+   &  &  & 25\% discount & 98.9 & 76.6 & 63.8 & 49.3 & 41.0 \\ 
+   &  &  & 0\% discount & 114.5 & 90.2 & 76.2 & 60.2 & 50.8 \\ 
+   \bottomrule
+\end{tabular}
+
+};%
+\end{ocg}
+\begin{ocg}{ocgColored}{ocgColored}{0}
+\node (Coloured) {%
+% latex table generated in R 3.5.2 by xtable 1.8-3 package
+% Sat Jan 26 23:30:33 2019
+\begin{tabular}{Qlllrrrrr}
+  \toprule
+   &  &  &  & \multicolumn{5}{c}{\textbf{Nominal annual capital gain}}\\
+ \cmidrule(lr){5-9}
+ \textbf{\phantom{.}} & \textbf{Marginal tax rate} & \textbf{Return type} & \textbf{CGT treatment} & \textbf{4.0\%} & \textbf{5.0\%} & \textbf{6.0\%} & \textbf{8.0\%} & \textbf{10.0\%}\\
+ \midrule
+ & 34.5 & real & 50\% discount & \cellcolor{Color3}{33.9} & \cellcolor{Color2}{29.4} & \cellcolor{Color2}{26.2} & \cellcolor{Color2}{21.7} & \cellcolor{Color2}{18.7} \\ 
+   &  &  & Indexed & \cellcolor{Color3}{34.3} & \cellcolor{Color2}{32.6} & \cellcolor{Color2}{31.1} & \cellcolor{Color2}{28.5} & \cellcolor{Color2}{26.2} \\ 
+   &  &  & 25\% discount & \cellcolor{Color3}{39.6} & \cellcolor{Color3}{35.0} & \cellcolor{Color2}{31.7} & \cellcolor{Color2}{26.9} & \cellcolor{Color2}{23.6} \\ 
+   &  &  & 0\% discount & \cellcolor{Color3}{45.5} & \cellcolor{Color3}{40.9} & \cellcolor{Color3}{37.4} & \cellcolor{Color2}{32.4} & \cellcolor{Color2}{28.8} \\ 
+  &\phantom{.}\\[-9pt] &  & excess & 50\% discount & \cellcolor{Color4}{61.0} & \cellcolor{Color3}{46.2} & \cellcolor{Color3}{37.8} & \cellcolor{Color2}{28.4} & \cellcolor{Color2}{23.1} \\ 
+   &  &  & Indexed & \cellcolor{Color4}{61.7} & \cellcolor{Color4}{51.2} & \cellcolor{Color3}{44.9} & \cellcolor{Color3}{37.2} & \cellcolor{Color2}{32.4} \\ 
+   &  &  & 25\% discount & \cellcolor{Color5}{71.3} & \cellcolor{Color4}{55.1} & \cellcolor{Color3}{45.8} & \cellcolor{Color3}{35.2} & \cellcolor{Color2}{29.1} \\ 
+   &  &  & 0\% discount & \cellcolor{Color5}{82.0} & \cellcolor{Color4}{64.3} & \cellcolor{Color4}{54.1} & \cellcolor{Color3}{42.4} & \cellcolor{Color3}{35.5} \\ 
+  &\phantom{.}\\[-6pt] & 39.0 & real & 50\% discount & \cellcolor{Color3}{38.5} & \cellcolor{Color3}{33.4} & \cellcolor{Color2}{29.8} & \cellcolor{Color2}{24.7} & \cellcolor{Color2}{21.3} \\ 
+   &  &  & Indexed & \cellcolor{Color3}{38.8} & \cellcolor{Color3}{37.0} & \cellcolor{Color3}{35.4} & \cellcolor{Color2}{32.5} & \cellcolor{Color2}{30.0} \\ 
+   &  &  & 25\% discount & \cellcolor{Color3}{45.1} & \cellcolor{Color3}{39.9} & \cellcolor{Color3}{36.1} & \cellcolor{Color2}{30.7} & \cellcolor{Color2}{27.0} \\ 
+   &  &  & 0\% discount & \cellcolor{Color4}{51.9} & \cellcolor{Color3}{46.7} & \cellcolor{Color3}{42.8} & \cellcolor{Color3}{37.1} & \cellcolor{Color2}{33.1} \\ 
+  &\phantom{.}\\[-9pt] &  & excess & 50\% discount & \cellcolor{Color5}{69.2} & \cellcolor{Color4}{52.5} & \cellcolor{Color3}{43.0} & \cellcolor{Color2}{32.3} & \cellcolor{Color2}{26.3} \\ 
+   &  &  & Indexed & \cellcolor{Color5}{69.8} & \cellcolor{Color4}{58.1} & \cellcolor{Color4}{51.1} & \cellcolor{Color3}{42.5} & \cellcolor{Color3}{37.1} \\ 
+   &  &  & 25\% discount & \cellcolor{Color5}{81.1} & \cellcolor{Color4}{62.7} & \cellcolor{Color4}{52.2} & \cellcolor{Color3}{40.2} & \cellcolor{Color2}{33.3} \\ 
+   &  &  & 0\% discount & \cellcolor{Color6}{93.5} & \cellcolor{Color5}{73.4} & \cellcolor{Color4}{61.9} & \cellcolor{Color3}{48.6} & \cellcolor{Color3}{40.9} \\ 
+  &\phantom{.}\\[-6pt] & 47.0 & real & 50\% discount & \cellcolor{Color3}{46.7} & \cellcolor{Color3}{40.6} & \cellcolor{Color3}{36.2} & \cellcolor{Color2}{30.1} & \cellcolor{Color2}{26.0} \\ 
+   &  &  & Indexed & \cellcolor{Color3}{46.8} & \cellcolor{Color3}{44.8} & \cellcolor{Color3}{43.1} & \cellcolor{Color3}{39.9} & \cellcolor{Color3}{37.1} \\ 
+   &  &  & 25\% discount & \cellcolor{Color4}{54.9} & \cellcolor{Color3}{48.8} & \cellcolor{Color3}{44.2} & \cellcolor{Color3}{37.7} & \cellcolor{Color2}{33.2} \\ 
+   &  &  & 0\% discount & \cellcolor{Color4}{63.6} & \cellcolor{Color4}{57.4} & \cellcolor{Color4}{52.8} & \cellcolor{Color3}{46.0} & \cellcolor{Color3}{41.1} \\ 
+  &\phantom{.}\\[-9pt] &  & excess & 50\% discount & \cellcolor{Color6}{84.0} & \cellcolor{Color4}{63.8} & \cellcolor{Color4}{52.3} & \cellcolor{Color3}{39.4} & \cellcolor{Color2}{32.1} \\ 
+   &  &  & Indexed & \cellcolor{Color6}{84.2} & \cellcolor{Color5}{70.5} & \cellcolor{Color4}{62.2} & \cellcolor{Color4}{52.2} & \cellcolor{Color3}{45.8} \\ 
+   &  &  & 25\% discount & \cellcolor{Color6}{98.9} & \cellcolor{Color5}{76.6} & \cellcolor{Color4}{63.8} & \cellcolor{Color3}{49.3} & \cellcolor{Color3}{41.0} \\ 
+   &  &  & 0\% discount & \cellcolor{black}{\textcolor{white}{114.5}} & \cellcolor{Color6}{90.2} & \cellcolor{Color5}{76.2} & \cellcolor{Color4}{60.2} & \cellcolor{Color4}{50.8} \\ 
+   \bottomrule
+\end{tabular}
+
+};%
+\end{ocg}
+\end{tikzpicture}
+\footnotesize
+\begin{tabular}{lp{0.5\textwidth}}
+\footnotesize Notes: & {\footnotesize Inflation 2.5\%. Property earns 3\%\ nominal rent in addition to the capital growth and which is reinvested in the property till maturity. Risk free rate 4.5\%. Property is held for 15 years then disposed and capital gain realized without losses.\hfill{\switchocg{ocgBlack ocgColored}{\textcolor{DarkOrange}{\textbf{Click to colour cells.}}}}}
+\end{tabular}
+\end{table*}
+
+
+\onecolumn
+\chapter{Session info of $\mathsf{R}$ used for compilation}
+\begin{multicols*}{2}
+This report was woven from  \textrm{\LaTeX2e} and $\mathsf{R}$ by \textbf{knitr}. 
+
+\textrm{\LaTeX2e} is a document preparation system implemented as a macro package for Donald E.\ Knuth's \textrm{\TeX} typesetting program. \textrm{\LaTeX} was originally conceived by Leslie Lamport. 
+
+$\mathsf{R}$ is a language and environment for statistical computing derived from the S programming language of John Chambers. $\mathsf{R}$ was created by Ross Ihaka and Robert Gentlement at the University of Auckland. 
+
+\textbf{knitr} a general-purpose package for dynamic, literate report generation in $\mathsf{R}$ developed from Sweave. Yihui Xie is the author and developer of \textbf{knitr}. 
+
+The authors are indebted to the creators.
+
+The \verb=devtools::session_info()= is printed below.
+% \eject
+% \phantom{.}
+% \vfill
+% \phantom{.}
+\end{multicols*}
+
+
+\begin{table*}[!htb]
+\centering
+\caption{Platform}
+% latex table generated in R 3.5.2 by xtable 1.8-3 package
+% Sat Jan 26 23:30:34 2019
+\begin{tabularx}{\linewidth}{l}
+  \toprule
+ R version 3.5.2 (2018-12-20) \\ 
+  Windows 10 x64 \\ 
+  x86\_64, mingw32 \\ 
+  RTerm \\ 
+  (EN) \\ 
+  English\_Australia.1252 \\ 
+  English\_Australia.1252 \\ 
+  Australia/Sydney \\ 
+  2019-01-26 \\ 
+   \bottomrule
+\end{tabularx}
+
+\end{table*}
+
+% for longtable
+
+
+
+% latex table generated in R 3.5.2 by xtable 1.8-3 package
+% Sat Jan 26 23:30:34 2019
+\begin{longtable}{lllll}
+\caption{Packages} \\ 
+  \toprule
+{\textbf{package}} & {\textbf{date}} & {\textbf{source}} & {\textbf{md5ok}} & {\textbf{att}} \\ 
+  \hline 
+\endhead 
+\hline 
+&\multicolumn{2}{l}{\footnotesize ${}^*$ attached} & \multicolumn{2}{r}{\footnotesize Continued on next page} 
+\endfoot 
+\endlastfoot 
+assertthat & 2017-04-11 & CRAN (R 3.5.1) & TRUE &  \\ 
+  backports & 2018-12-14 & CRAN (R 3.5.2) & TRUE &  \\ 
+  bindr & 2018-03-13 & CRAN (R 3.5.1) & TRUE &  \\ 
+  bindrcpp & 2018-03-29 & CRAN (R 3.5.1) & TRUE & * \\ 
+  bitops & 2013-08-17 & CRAN (R 3.5.0) & TRUE &  \\ 
+  callr & 2018-12-21 & CRAN (R 3.5.2) & TRUE &  \\ 
+  cellranger & 2016-07-27 & CRAN (R 3.5.1) & TRUE &  \\ 
+  cli & 2018-09-25 & CRAN (R 3.5.1) & TRUE &  \\ 
+  colorspace & 2016-12-14 & CRAN (R 3.5.1) & TRUE &  \\ 
+  crayon & 2017-09-16 & CRAN (R 3.5.1) & TRUE &  \\ 
+  data.table & 2018-09-30 & CRAN (R 3.5.1) & TRUE & * \\ 
+  desc & 2018-05-01 & CRAN (R 3.5.1) & TRUE &  \\ 
+  devtools & 2018-10-26 & CRAN (R 3.5.1) & TRUE & * \\ 
+  digest & 2018-10-10 & CRAN (R 3.5.1) & TRUE &  \\ 
+  directlabels & 2018-05-25 & CRAN (R 3.5.1) & TRUE & * \\ 
+  dplyr & 2018-11-10 & CRAN (R 3.5.1) & TRUE & * \\ 
+  evaluate & 2018-10-09 & CRAN (R 3.5.1) & TRUE &  \\ 
+  expm & 2018-09-22 & CRAN (R 3.5.1) & TRUE & * \\ 
+  fastmatch & 2017-01-28 & CRAN (R 3.5.0) & TRUE &  \\ 
+  forcats & 2018-02-19 & CRAN (R 3.5.1) & TRUE &  \\ 
+  foreign & 2018-07-20 & CRAN (R 3.5.1) & TRUE & * \\ 
+  fs & 2018-08-23 & CRAN (R 3.5.1) & TRUE &  \\ 
+  ggplot2 & 2018-10-25 & CRAN (R 3.5.1) & TRUE & * \\ 
+  ggrepel & 2018-05-09 & CRAN (R 3.5.1) &  & * \\ 
+  glue & 2018-07-17 & CRAN (R 3.5.1) & TRUE &  \\ 
+  grattan & 2019-01-09 & local &  & * \\ 
+  grattanCharts & 2019-01-01 & local & TRUE & * \\ 
+  gridExtra & 2017-09-09 & CRAN (R 3.5.1) & TRUE & * \\ 
+  gtable & 2016-02-26 & CRAN (R 3.5.1) & TRUE &  \\ 
+  haven & 2018-11-22 & CRAN (R 3.5.1) & TRUE & * \\ 
+  hildaData & 2019-01-21 & local & TRUE & * \\ 
+  hms & 2018-03-10 & CRAN (R 3.5.1) & TRUE &  \\ 
+  httr & 2018-12-11 & CRAN (R 3.5.2) & TRUE & * \\ 
+  hutils & 2019-01-12 & local & TRUE & * \\ 
+  hutilscpp & 2019-01-25 & local &  & * \\ 
+  knitr & 2018-12-10 & CRAN (R 3.5.2) & TRUE & * \\ 
+  labeling & 2014-08-23 & CRAN (R 3.5.0) & TRUE &  \\ 
+  lattice & 2018-11-04 & CRAN (R 3.5.1) & TRUE &  \\ 
+  lazyeval & 2017-10-29 & CRAN (R 3.5.1) & TRUE &  \\ 
+  lubridate & 2018-04-11 & CRAN (R 3.5.1) & TRUE &  \\ 
+  magrittr & 2014-11-22 & CRAN (R 3.5.1) & TRUE & * \\ 
+  Matrix & 2018-11-01 & CRAN (R 3.5.1) & TRUE & * \\ 
+  memoise & 2017-04-21 & CRAN (R 3.5.1) & TRUE &  \\ 
+  mgcv & 2018-11-21 & CRAN (R 3.5.1) & TRUE &  \\ 
+  munsell & 2018-06-12 & CRAN (R 3.5.1) & TRUE &  \\ 
+  nlme & 2018-04-07 & CRAN (R 3.5.1) & TRUE &  \\ 
+  openxlsx & 2018-05-26 & CRAN (R 3.5.1) & TRUE & * \\ 
+  pillar & 2018-12-15 & CRAN (R 3.5.2) & TRUE &  \\ 
+  pkgbuild & 2018-10-16 & CRAN (R 3.5.1) & TRUE &  \\ 
+  pkgconfig & 2018-08-16 & CRAN (R 3.5.1) & TRUE &  \\ 
+  pkgload & 2018-10-29 & CRAN (R 3.5.1) & TRUE &  \\ 
+  plyr & 2016-06-08 & CRAN (R 3.5.1) & TRUE &  \\ 
+  prettyunits & 2015-07-13 & CRAN (R 3.5.1) & TRUE &  \\ 
+  processx & 2018-12-05 & CRAN (R 3.5.1) & TRUE &  \\ 
+  profmem & 2018-01-30 & CRAN (R 3.5.1) & TRUE &  \\ 
+  ps & 2018-12-21 & CRAN (R 3.5.2) & TRUE &  \\ 
+  purrr & 2018-05-29 & CRAN (R 3.5.1) & TRUE &  \\ 
+  quadprog & 2013-04-17 & CRAN (R 3.5.0) & TRUE &  \\ 
+  R6 & 2018-10-04 & CRAN (R 3.5.1) & TRUE &  \\ 
+  Rcpp & 2018-11-07 & CRAN (R 3.5.1) & TRUE &  \\ 
+  RCurl & 2018-07-15 & CRAN (R 3.5.1) & TRUE &  \\ 
+  readr & 2018-12-21 & CRAN (R 3.5.2) & TRUE & * \\ 
+  readxl & 2018-12-19 & CRAN (R 3.5.2) & TRUE & * \\ 
+  remotes & 2018-10-30 & CRAN (R 3.5.1) & TRUE &  \\ 
+  reshape2 & 2017-12-11 & CRAN (R 3.5.1) & TRUE &  \\ 
+  rlang & 2018-10-25 & CRAN (R 3.5.1) & TRUE &  \\ 
+  rprojroot & 2018-01-03 & CRAN (R 3.5.1) & TRUE &  \\ 
+  rsdmx & 2018-09-21 & CRAN (R 3.5.1) & TRUE & * \\ 
+  SampleFile1415 & 2018-07-06 & local & TRUE &  \\ 
+  SampleFile1516 & 2018-11-30 & local & TRUE &  \\ 
+  scales & 2018-08-09 & CRAN (R 3.5.1) & TRUE & * \\ 
+  sessioninfo & 2018-11-05 & CRAN (R 3.5.1) & TRUE & * \\ 
+  showtext & 2018-01-16 & CRAN (R 3.5.1) & TRUE &  \\ 
+  showtextdb & 2017-09-11 & CRAN (R 3.5.1) & TRUE &  \\ 
+  stringi & 2018-07-20 & CRAN (R 3.5.1) & TRUE &  \\ 
+  stringr & 2018-05-10 & CRAN (R 3.5.1) & TRUE &  \\ 
+  survey & 2018-12-17 & CRAN (R 3.5.2) & TRUE & * \\ 
+  survival & 2018-11-26 & CRAN (R 3.5.1) & TRUE & * \\ 
+  sysfonts & 2018-10-11 & CRAN (R 3.5.1) & TRUE &  \\ 
+  taxstats & 2018-12-02 & local & TRUE & * \\ 
+  taxstats1516 & 2018-05-23 & local & TRUE & * \\ 
+  testthat & 2018-10-13 & CRAN (R 3.5.1) & TRUE & * \\ 
+  tibble & 2018-01-22 & CRAN (R 3.5.1) & TRUE &  \\ 
+  tidyr & 2018-10-28 & CRAN (R 3.5.1) & TRUE & * \\ 
+  tidyselect & 2018-10-11 & CRAN (R 3.5.1) & TRUE &  \\ 
+  usethis & 2018-08-14 & CRAN (R 3.5.1) & TRUE & * \\ 
+  withr & 2018-03-15 & CRAN (R 3.5.1) & TRUE &  \\ 
+  xfun & 2018-10-23 & CRAN (R 3.5.1) & TRUE &  \\ 
+  XML & 2018-08-19 & CRAN (R 3.5.1) & TRUE &  \\ 
+  xtable & 2018-08-29 & CRAN (R 3.5.1) & TRUE & * \\ 
+  zip & 2017-04-25 & CRAN (R 3.5.1) & TRUE &  \\ 
+  zoo & 2018-09-19 & CRAN (R 3.5.1) & TRUE & * \\ 
+   \bottomrule
+\end{longtable}
+
+
+\clearpage
+\section{Attached packages}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{c}\hlstd{(}\hlstr{"bindrcpp"}\hlstd{,} \hlstr{"hildaData"}\hlstd{,} \hlstr{"hutils"}\hlstd{,} \hlstr{"ggrepel"}\hlstd{,} \hlstr{"testthat"}\hlstd{,} \hlstr{"taxstats"}\hlstd{,}
+\hlstr{"magrittr"}\hlstd{,} \hlstr{"tidyr"}\hlstd{,} \hlstr{"usethis"}\hlstd{,} \hlstr{"devtools"}\hlstd{,} \hlstr{"expm"}\hlstd{,} \hlstr{"Hmisc"}\hlstd{,}
+\hlstr{"Formula"}\hlstd{,} \hlstr{"lattice"}\hlstd{,} \hlstr{"foreign"}\hlstd{,} \hlstr{"survey"}\hlstd{,} \hlstr{"survival"}\hlstd{,} \hlstr{"Matrix"}\hlstd{,}
+\hlstr{"grid"}\hlstd{,} \hlstr{"zoo"}\hlstd{,} \hlstr{"httr"}\hlstd{,} \hlstr{"rsdmx"}\hlstd{,} \hlstr{"readr"}\hlstd{,} \hlstr{"openxlsx"}\hlstd{,} \hlstr{"readxl"}\hlstd{,}
+\hlstr{"xtable"}\hlstd{,} \hlstr{"grattan"}\hlstd{,} \hlstr{"directlabels"}\hlstd{,} \hlstr{"scales"}\hlstd{,} \hlstr{"ggplot2"}\hlstd{,} \hlstr{"gridExtra"}\hlstd{,}
+\hlstr{"dplyr"}\hlstd{,} \hlstr{"haven"}\hlstd{,} \hlstr{"hutilscpp"}\hlstd{,} \hlstr{"grattanCharts"}\hlstd{,} \hlstr{"knitr"}\hlstd{,}
+\hlstr{"data.table"}\hlstd{,} \hlstr{"sessioninfo"}\hlstd{,} \hlstr{"stats"}\hlstd{,} \hlstr{"graphics"}\hlstd{,} \hlstr{"grDevices"}\hlstd{,}
+\hlstr{"utils"}\hlstd{,} \hlstr{"datasets"}\hlstd{,} \hlstr{"methods"}\hlstd{,} \hlstr{"base"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+##  [1] "bindrcpp"      "hildaData"     "hutils"        "ggrepel"      
+##  [5] "testthat"      "taxstats"      "magrittr"      "tidyr"        
+##  [9] "usethis"       "devtools"      "expm"          "Hmisc"        
+## [13] "Formula"       "lattice"       "foreign"       "survey"       
+## [17] "survival"      "Matrix"        "grid"          "zoo"          
+## [21] "httr"          "rsdmx"         "readr"         "openxlsx"     
+## [25] "readxl"        "xtable"        "grattan"       "directlabels" 
+## [29] "scales"        "ggplot2"       "gridExtra"     "dplyr"        
+## [33] "haven"         "hutilscpp"     "grattanCharts" "knitr"        
+## [37] "data.table"    "sessioninfo"   "stats"         "graphics"     
+## [41] "grDevices"     "utils"         "datasets"      "methods"      
+## [45] "base"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\twocolumn
+\chapter{Benchmarking 2013-14 sample file benchmarks}
+TBD
+
+
+\chapter{Markov diagram for negative quarantining}
+\begin{figure*}
+\centering
+\begin{tikzpicture}[-latex, auto, node distance = 2.8cm, on grid, semithick, state/.style = {draw, rounded corners, minimum height = 24pt}, every loop/.style={-latex}]
+\node[state] (A) {$0$};
+\node[state, right of=A] (B) {$1$};
+\node[right of=B] (C) {\dots};
+\node[above right of=B] (C1) {};
+\node[state, right of=C] (D) {$n-1$};
+\node[above left of =D] (C2) {};
+\node[state, right of=D] (E) {$n$};
+\node[state, right of=E] (F) {$n+1$};
+\node[above right of=F] (G1) {};
+\node[right of=F] (G) {\dots};
+\node[state, right of=G] (H) {$h$};
+\node[above left of =H] (G2) {};
+
+\path (A) edge[out = 45, in = 135] node[anchor = south]{$1$} (B);
+\path (B) edge[out = -135, in = -45] node[anchor = north]{$p$} (A);
+
+\path (B) edge[out = 90, in = 180] node[anchor = south east]{$1 - p$} (C1);
+\path (C2) edge[out = 0, in = 90] node[anchor = south west]{$1 - p$} (D);
+
+\path (D) edge[out = 45, in = 135] node[anchor = south]{$1 - p$} (E);
+\path (E) edge[out = 45, in = 135] node[anchor = south]{$1 - p$} (F);
+\path (D) edge[out = -145, in = -55] node[anchor = south]{$p$} (A);
+\path (E) edge[out = -145, in = -65] node[anchor = south]{$p$} (A);
+\path (F) edge[out = -145, in = -75] node[anchor = south]{$p$} (A);
+
+\path (F) edge[out = 90, in = 180] node[anchor = south east]{$1 - p$} (G1);
+\path (G2) edge[out = 0, in = 90] node[anchor = south west]{$1 - p$} (H);
+
+\path (H) edge[out = -145, in = -85] node[anchor = south]{$p$} (A);
+\path (H) edge [loop right, draw, -latex] node[anchor = west]{$1 - p$} (A);
+\end{tikzpicture}
+\end{figure*}
+\begin{figure*}
+\Caption{Positive gearing absorbing ($M4$)}{Diagram of model. $q = {}$ probability of negatively gearing if a property investor}{fig:Markov-M4}
+\begin{tikzpicture}[-latex, auto, node distance = 2.8cm, on grid, semithick, state/.style = {draw, rounded corners, minimum height = 24pt}, every loop/.style={-latex}]
+\node[state] (1) {$\ell = 1$};
+\node[left of = 1, align = right] (0) {Negative gearing};
+\node[state, below of = 1] (2) {$\ell = 1$};
+\node[left of = 2, align = right] (0A) {Positive gearing};
+\node[state, right of = 1] (3) {$\ell = 2$};
+\node[right of = 3] (dot1) {\dots};
+\node[state, below of = 3] (4) {$\ell = 2$};
+
+\path (1) edge node[anchor = south]{$q$} (3);
+\path (1) edge node[anchor = west]{$1 - q$}(2);
+\path (3) edge node[anchor = south]{$q$} (dot1);
+\path (3) edge node[anchor = west]{$1 - q$}(4);
+
+\path (2) edge[loop below] node[anchor=north]{$1$} (2L);
+\path (4) edge[loop below] node[anchor=north]{$1$} (4L);
+\end{tikzpicture}
+\end{figure*}
+
+\begin{figure*}
+\Caption{Positive gearing absorbing, age-based ($MA$)}{Diagram of model. $q_x = {}$ probability of negatively gearing, given a property investor at age $x$}{fig:Markov-MA}
+\begin{tikzpicture}[-latex, auto, node distance = 2.8cm, on grid, semithick, state/.style = {draw, rounded corners, minimum height = 30pt}, every loop/.style={-latex}]
+\node[state] (1) {$\ell = 1$};
+\node[left of = 1, align = right] (0) {Negative gearing};
+\node[state, below of = 1] (2) {$\ell = 1$};
+\node[left of = 2, align = right] (0A) {Positive gearing};
+\node[state, right of = 1] (3) {$\ell = 2$};
+\node[right of = 3] (dot1) {\dots};
+\node[state, below of = 3] (4) {$\ell = 2$};
+
+\path (1) edge node[anchor = south]{$q_a$} (3);
+\path (1) edge node[anchor = west]{$1 - q_a$}(2);
+\path (3) edge node[anchor = south]{$q_{a + 1}$} (dot1);
+\path (3) edge node[anchor = west]{$1 - q_{a + 1}$}(4);
+
+\path (2) edge[loop below] node[anchor=north]{$1$} (2L);
+\path (4) edge[loop below] node[anchor=north]{$1$} (4L);
+
+\node[state, right of = dot1] (6) {$\ell = 6$};
+\node[state, below of = 6] (7) {$\ell = 6$}; 
+\node[right of = 6] (dot2) {\dots};
+\node[state, right of = dot2] (11) {$\ell = m + 1$};
+\node[state, below of = 11] (12) {$\ell = m + 1$};
+\node[right of = 11] (dot3) {\dots};
+
+\path (dot1) edge node[anchor = south]{$q_{a + 4}$} (6);
+
+\path (6) edge node[anchor = south]{$q_{a + 5}$} (dot2);
+\path (6) edge node[anchor = west]{$1 - q_{a + 5}$}(7);
+
+\path (7) edge[loop below] node[anchor=north]{$1$} (7L);
+
+\path (dot2) edge node[anchor = south]{$q_{a + m - 1}$} (11);
+\path (11) edge node[anchor = south]{$q_{a + m}$} (dot3);
+\path (11) edge node[anchor = west]{$1 - q_{a + m}$} (12);
+
+\path (12) edge[loop below] node[anchor=north]{$1$} (12L);
+\end{tikzpicture}
+
+\notes{$q_i = q_j$ for all $i,j \in \{a, a + 1, \dots, a + 4\}$ when $a = 0\mod 5$.}
+\end{figure*}
+
+
+% citations
+\input{tex/package_cite_input}
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+\end{document}

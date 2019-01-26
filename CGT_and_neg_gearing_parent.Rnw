@@ -5079,7 +5079,7 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
 # pessimistic: Loss NA NA Proift ==> Loss    Profit Profit Profit
 
 cumsum_reset <- function(x) {
-  x * ave(x, c(0, cumsum(diff(x) != 0)), FUN = seq_along)
+  as.integer(x * ave(x, c(0, cumsum(diff(x) != 0)), FUN = seq_along))
 }
 
 truth_durations <- function(cond) {
@@ -5146,21 +5146,36 @@ hilda_rp_who_negatively_gearing %>%
 hilda_surv_data_weights <- 
   merge(hilda_surv_data, weights_by_waveid)
 
-hilda_survo <- survfit(Surv(optimistic_avg_spell, censor_status) ~ 1, data = hilda_surv_data_weights, weights = lon_weight)
-hilda_survp <- survfit(Surv(pessimistic_avg_spell, censor_status) ~ 1, data = hilda_surv_data_weights, weights = lon_weight)
+hilda_survo <- survfit(Surv(optimistic_avg_spell, censor_status) ~ 1, 
+                       data = hilda_surv_data_weights,
+                       weights = lon_weight)
+hilda_survp <- survfit(Surv(pessimistic_avg_spell, censor_status) ~ 1,
+                       data = hilda_surv_data_weights, 
+                       weights = lon_weight)
 
-bind_rows(
-  "high" = data_frame(years = hilda_survp$time, survival = hilda_survp$surv, survival_upper = hilda_survp$upper, survival_lower = hilda_survp$lower),
-   "low" = data_frame(years = hilda_survo$time, survival = hilda_survo$surv, survival_upper = hilda_survo$upper, survival_lower = hilda_survo$lower), 
-   "low" = data_frame(years = 0, survival = 1, survival_upper = 1, survival_lower = 1), 
-   "high" = data_frame(years = 0, survival = 1, survival_upper = 1, survival_lower = 1), 
-  .id = "imputer"
+list(
+  "high" = data.table(years = hilda_survp$time,
+                      survival = hilda_survp$surv, 
+                      survival_upper = hilda_survp$upper,
+                      survival_lower = hilda_survp$lower),
+   "low" = data.table(years = hilda_survo$time, 
+                      survival = hilda_survo$surv,
+                      survival_upper = hilda_survo$upper,
+                      survival_lower = hilda_survo$lower), 
+   "low" = data.table(years = 0, survival = 1, survival_upper = 1, survival_lower = 1), 
+   "high" = data.table(years = 0, survival = 1, survival_upper = 1, survival_lower = 1)
 ) %>% 
-  grplot(aes(x = years, y = survival, ymin = survival_lower, ymax = survival_upper, colour = imputer, group = imputer)) + 
+  rbindlist(idcol = "imputer") %>%
+  grplot(aes(x = years,
+             y = survival,
+             ymin = survival_lower,
+             ymax = survival_upper, 
+             colour = imputer, 
+             group = imputer)) + 
   geom_line() +
   geom_ribbon(alpha = 0.2, color = NA) +
-  scale_y_continuous(label = percent, expand = c(0,0), limits = c(0,1)) +
-  scale_x_continuous(breaks = c(0, 1, 2, 5, 10, 15), limits = c(0, 16), expand = c(0,0))
+  scale_y_continuous(label = percent, expand = c(0, 0), limits = c(0, 1)) +
+  scale_x_continuous(breaks = c(0, 1, 2, 5, 10, 15), limits = c(0, 16), expand = c(0, 0))
 @
 \includegraphics[width=\columnwidth]{\Sexpr{atlas}/NG-survival-curve-1}
 \notes{Probably wrong: Individuals suffering from left- or right-censoring were simply omitted!}
@@ -5296,9 +5311,9 @@ percent1_01_TeX <- function(x){
 @
 <<digit_01_TeX>>=
 digit1_01_TeX <- function(x){
-  if (is.numeric(x) && between(x, 0, 1)){
+  if (is.numeric(x) && between(x, 0, 1)) {
     formatC(round(100*x, 1), 
-                   format = "f", flag = "#", digits = 1, width = 3)
+            format = "f", flag = "#", digits = 1, width = 3)
   } else {
     x
   }
@@ -5314,33 +5329,45 @@ data.table::CJ(
   Indexed = c(TRUE, FALSE), 
   return_type = c("real", "excess")
 ) %>%
-  filter(!(Indexed & CGT_discount != 0.00)) %>%  # if indexed, CGT is ignored, so just choose keep one CGT discount
-  rowwise %>%
-  mutate(
-    emtr = emtr_rental(return_type = return_type, 
-                       CGT.discount = CGT_discount, 
-                       marginal.tax.rate = marginal_tax_rate,
-                       inflation = 0.025,
-                       risk.free.rate = 0.045,
-                       capital.gains = capital_gain_return, 
-                       gearing_ratio = 0, 
-                       cgt_indexed = Indexed)
-  ) %>%
-  arrange(desc(capital_gain_return)) %>%
+  .[(!(Indexed & CGT_discount != 0.00))] %>%  # if indexed, CGT is ignored, so just choose keep one CGT discount
+  .[, I := .I] %>%
+  .[, emtr := emtr_rental(return_type = return_type, 
+                          CGT.discount = CGT_discount, 
+                          marginal.tax.rate = marginal_tax_rate,
+                          inflation = 0.025,
+                          risk.free.rate = 0.045,
+                          capital.gains = capital_gain_return, 
+                          gearing_ratio = 0, 
+                          cgt_indexed = Indexed),
+    keyby = "I"] %>%
+  .[order(-capital_gain_return)] %>%
   # cosmetics
-  mutate(capital_gain_return = paste0("Nominal annual capital gain__", formatC(100*capital_gain_return, flag = "#", format = "f", digits = 1), percentage_symbol = "\\%")) %>%
+  .[, capital_gain_return := paste0("Nominal annual capital gain__", 
+                                    formatC(100*capital_gain_return, 
+                                            flag = "#",
+                                            format = "f",
+                                            digits = 1),
+                                    percentage_symbol = "\\%")] %>%
+  .[, I := NULL] %>%
+  as_tibble %>%
   spread(capital_gain_return, emtr) %>% 
   ungroup %>%
   arrange(marginal_tax_rate, desc(return_type), `Nominal annual capital gain__5.0\\%`) %>%
-  mutate(`CGT treatment` = if_else(Indexed, "Indexed", paste(latex_percent(CGT_discount, digits = 0, percentage_symbol = "\\%"), "discount"))) %>%
-  select(-Indexed, -CGT_discount) %T>%
-  {grattanCharts:::chart_data(.)} %>%
+  mutate(`CGT treatment` = if_else(Indexed, "Indexed", 
+                                   paste(latex_percent(CGT_discount,
+                                                       digits = 0, 
+                                                       percentage_symbol = "\\%"),
+                                         "discount"))) %>%
   as.data.table %>%
+  .[, "Indexed" := NULL] %>%
+  .[, "CGT_discount" := NULL] %T>%
+  {grattanCharts:::chart_data(.)} %>%
+  .[] %>%
   .[, lapply(.SD, digit1_01_TeX)] %>%
   .[, lapply(.SD, omit_repeated)] %>%
   setnames(old = grep("_[a-z]", names(.), value = TRUE), 
            new = sub("^([a-z])",
-                     "\\U\\1\\E",
+                     "\\U\\1\\E", perl = TRUE,
                      (gsub("_([a-z])", 
                            " \\1", 
                            grep("_[a-z]",

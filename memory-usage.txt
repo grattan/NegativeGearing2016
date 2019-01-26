@@ -116,3 +116,14 @@
  0.0	haley-box
  0.0	percent1_01_TeX
  0.0	digit_01_TeX
+ 0.0	EMTR_Appendix_Table
+ 0.0	emtr-long-appendix
+ 0.0	emtr-long-appendix-cellcolored
+ 0.0	sessionInfo
+ 0.0	platform_info
+ 0.0	addtorow
+ 0.0	loaded_packages
+ 0.0	the_attached_packages
+ 0.0	packcageCitation
+ 0.0	Is-HILDA-used
+ 0.0	FINISH-TIME
