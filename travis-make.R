@@ -29,6 +29,7 @@ packages_ <-
     "grid", "zoo", "httr", "rsdmx", "readr", "openxlsx", "readxl", 
     "xtable", "grattan", "directlabels", "scales", "ggplot2", "gridExtra", 
     "dplyr", "haven", "knitr", 
+    "lubridate",
     "showtext", "sysfonts",
     "data.table", "sessioninfo")
 
