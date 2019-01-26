@@ -3872,16 +3872,6 @@ value_without_NG <- value_of_dwelling_stock_expected_2025 - value_of_NG_10yrs
 change_in_price_due_to_NG_upper <-
   (value_of_dwelling_stock_expected_2025 -  value_without_NG / (1 + RoR_proprty)^10 ) / (value_of_dwelling_stock_expected_2025)
 
-if (on_travis) {
-  rm(sample_files_all)
-  rm(sample_file)
-  rm(target_sample_file)
-  rm(policy)
-  gc()
-}
-
-
-
 @
 
 <<Owner_occupiers_loans_are_being_outnumbered_by_investors>>=
@@ -5440,7 +5430,13 @@ EMTR_Appendix_Table %>%
                                           xtable.align = "lQlllrrrrr",
                                           floating = FALSE))}
   
-  
+if (on_travis) {
+  rm(sample_files_all)
+  rm(sample_file)
+  rm(target_sample_file)
+  rm(policy)
+  gc()
+}
 @
 };%
 \end{ocg}
