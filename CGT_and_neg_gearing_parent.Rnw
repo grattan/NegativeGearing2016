@@ -28,6 +28,10 @@ TARGET.FY <- "2017-18"
 use.sample.fy <- "2015-16"  # deprecated
 latest.sample.fy <- "2015-16"
 
+# HILDA
+hilda_year <- 2017L
+wave <- letters[hilda_year - 2000L]
+
 # Warnings need to be accounted for.
 options(warn = 2)
 
@@ -140,6 +144,7 @@ library(ggrepel)
 @
 
 <<loadHILDA>>=
+library(hildaExtra)  # hughparsonage/hildaExtra
 RQ("hildaData",
    {
      warning("hildaData unavailable")
@@ -304,8 +309,39 @@ target_sample_file <-
 @
 
 <<Import-HILDA, cache=TRUE>>=
-hilda_w14_hh <- unique(as.data.table(hildaData::Combined_n150c, by = "nhhrhid"))
-hilda_used <- TRUE
+hilda_hh <- 
+  if (hilda_used) {
+    switch (wave, 
+            "n" = hildaData::Combined_n150c,
+            "q" = hildaData2017::Combined_q170c) %>%
+      # copy
+      as.data.table %>%
+      setnames(paste0(wave, "hhrhid"),
+               "id_hh") %>%
+      unique(by = "id_hh") %>%
+      selector(cols = c("id_hh", "xwaveid",
+                        paste0(wave, c(if (wave == "n") "hweqini", "hhwth"))),
+               shallow = TRUE) %>%
+      .[]
+  } else {
+    data.table()
+  }
+hilda_w14_hh <-
+  if (hilda_used) {
+    hildaData::Combined_n150c %>%
+      as.data.table %>% 
+      select_grep(c("hhrhid", "hhwth$", "hweqini", "oprntn")) %>%
+      .[, lapply(.SD, make_negatives_NA), keyby = "nhhrhid"] %>%
+      .[, .(nhhwth = sum(nhhwth, na.rm = TRUE)), keyby = c(grep("(hhrhid|hhwth)$", 
+                                                                names(.),
+                                                                value = TRUE, 
+                                                                invert = TRUE))] %T>%
+      fwrite("tsv/hilda_w14_hh.tsv", sep = "\t", na = "NA") %>%
+      .[]
+  } else {
+    fread("tsv/hilda_w14_hh.tsv", sep = "\t", na.strings = "NA")
+  }
+
 @
 
 <<Import-HILDA-all-waves-step-1, eval=reload_all_data, cache=FALSE>>=
@@ -2948,8 +2984,8 @@ individual_dividends <-
 # 23756809916
 
 hh_equity_tot <- 
-  hilda_w14_hh %$%
-  sum(nhweqini * nhhwth)  # Equity investments * WEIGHT
+  hilda_w14_hh %>%
+  .[, sum(nhweqini * nhhwth)]  # Equity investments * WEIGHT
 @
 Total lending to individuals for share investments is at most \$19 billion, compared to individuals' direct share holdings of around \$550~billion,\footnote{The ATO reported that the 2013-14 dividend income for individuals was \Sexpr{texNum(individual_dividends, dollar = TRUE)}. The HILDA survey showed in the same year \Sexpr{texNum(hh_equity_tot, dollar = TRUE)} for household wealth in equities.}  and compared to borrowings of \$548~billion from banks for housing investor lending. 
 
@@ -4720,7 +4756,7 @@ An alternative proposal would limit the number of properties on which investors 
 <<prop_landlords_n_properties>>=
 prop_landlords_geq_n_properties <- function(n) {
   # Access to HILDA restricts function readability
-  if (exists("hilda_w14_hh")){
+  if (hilda_used && exists("hilda_w14_hh")){
     hilda_w14_hh %>%
       group_by(Owns_n_other_properties = noprntn) %>%
       summarise(population = sum(nhhwth)) %>%
@@ -4756,79 +4792,101 @@ In addition to raising more than \Sexpr{texNum(total_cost_of_proposed_policy, do
 # [1] [-1] Not asked           [2] Loss                 [3] Break-even           [1] Profit              
 # [5] [-3] Dont know           [-4] Refused/Not stated 
 # 13 Levels: [-10] Non-responding person  [-9] Non-responding household  [-8] No SCQ  ... [3] Break-even 
-hilda_all_waves_rp <-
-  lapply(1:15, function(y) {
-    Year <- 2000L + y
-    W <- letters[y]
-    Data <- as.data.table(getExportedValue("hildaData", paste0("Combined_", W, "150c")))
-    the_cols <- c("xwaveid", paste0(W, c("oifrntp", "lnwte")))
-     
-    if (!all(hasName(Data, the_cols))) {
-      if (Year == 2001) {
-        return(data.table())
-      } 
-      cat(Year)
-    }
-    
-    o <- 
-      selector(Data,
-               cols = the_cols,
-               shallow = TRUE)
-    o[, Year := 0L]
-    set(o, j = "Year", value = Year)
-    setnames(o, paste0(W, "oifrntp"), "FY_rental_property_profit_or_loss")
-    setnames(o, paste0(W, "lnwte"), "WEIGHT")
-    o
-  }) %>%
-  rbindlist(use.names = TRUE, fill = TRUE)
-
+if (hilda_used) {
+  hilda_all_waves_rp <-
+    lapply(1:15, function(y) {
+      Year <- 2000L + y
+      W <- letters[y]
+      Data <- as.data.table(getExportedValue("hildaData", paste0("Combined_", W, "150c")))
+      the_cols <- c("xwaveid", paste0(W, c("oifrntp", "lnwte")))
+      
+      if (!all(hasName(Data, the_cols))) {
+        if (Year == 2001) {
+          return(data.table())
+        } 
+        cat(Year)
+      }
+      
+      o <- 
+        selector(Data,
+                 cols = the_cols,
+                 shallow = TRUE)
+      o[, Year := 0L]
+      set(o, j = "Year", value = Year)
+      setnames(o, paste0(W, "oifrntp"), "FY_rental_property_profit_or_loss")
+      setnames(o, paste0(W, "lnwte"), "WEIGHT")
+      o
+    }) %>%
+    rbindlist(use.names = TRUE, fill = TRUE)
+}
 # Which RPs have a loss followed by a Profit
-xwaveid_with_NG_then_profit <- 
-  hilda_all_waves_rp %>%
-  .[, Profit_loss := if_else(grepl("Loss", FY_rental_property_profit_or_loss, fixed = TRUE), 
-                             "Loss", 
-                             if_else(grepl("Profit", FY_rental_property_profit_or_loss, fixed = TRUE),
-                                     "Profit", 
-                                     if_else(grepl("Break.even", FY_rental_property_profit_or_loss), 
-                                             "Break even", 
-                                             NA_character_)))] %>%
-  setkey(xwaveid, Year) %>%
-  .[, filled_down := na.locf(Profit_loss, na.rm = FALSE), keyby = "xwaveid"] %>%
-  .[, loss := filled_down == "Loss"] %>%
-  .[, next_Profit := shift(filled_down, type = "lead", fill = "Loss"), keyby = "xwaveid"] %>%
+if (!hilda_used && file.exists("tsv/xwaveid_with_NG_then_profit.tsv")) {
+  xwaveid_with_NG_then_profit <- fread("tsv/xwaveid_with_NG_then_profit.tsv", 
+                                       sep = "\t",
+                                       na.strings = "NA")
+} else {
+  
+  xwaveid_with_NG_then_profit <-
+    hilda_all_waves_rp %>%
+    .[, Profit_loss := if_else(grepl("Loss", FY_rental_property_profit_or_loss, fixed = TRUE), 
+                               "Loss", 
+                               if_else(grepl("Profit", FY_rental_property_profit_or_loss, fixed = TRUE),
+                                       "Profit", 
+                                       if_else(grepl("Break.even", FY_rental_property_profit_or_loss), 
+                                               "Break even", 
+                                               NA_character_)))] %>%
+    setkey(xwaveid, Year) %>%
+    .[, filled_down := na.locf(Profit_loss, na.rm = FALSE), keyby = "xwaveid"] %>%
+    .[, loss := filled_down == "Loss"] %>%
+    .[, next_Profit := shift(filled_down, type = "lead", fill = "Loss"), keyby = "xwaveid"] %>%
   .[, nextIsProfit := next_Profit %in% c("Break even", "Profit")] %>%
   .[, rw := any(and(loss, nextIsProfit)), 
     keyby = "xwaveid"] %>%
-  .[(rw)]
+  .[(rw)] %T>%
+  fwrite("tsv/xwaveid_with_NG_then_profit.tsv", 
+         sep = "\t", 
+         na = "NA")
+}
 
-hilda_rp_who_negatively_gearing <-
-  xwaveid_with_NG_then_profit %>%
-  .[, 
-    # Returns NA by design
-    loss_event := Profit_loss %in% c("Profit", "Break even") & shift(Profit_loss, type = "lead") == "Loss"] %>%
-  .[, fill_down := na.locf(Profit_loss, na.rm = FALSE)] %>%
-  .[, fill_up   := na.locf(Profit_loss, na.rm = FALSE, fromLast = TRUE)] %>%
-  .[, left_censored := if_else(Year == min(Year), 
-                               TRUE, 
-                               coalesce(first(fill_up, order_by = Year) == "Loss",
-                                        FALSE))] %>%
-  .[, right_censored := if_else(Year == max(Year), 
-                                TRUE, 
-                                if_else(!is.na(last(fill_down, order_by = Year)), 
-                                        last(fill_down, order_by = Year) == "Loss",
-                                        is.na(last(fill_down, order_by = Year))))] %>% 
-  .[]
-    #0 = right censored
-    #1 = event at time
-    #2 = left censored
-    #3 = interval censored  
-    #  optimistic: Loss NA NA Profit ==> Loss    Loss   Loss   Profit
-    # pessimistic: Loss NA NA Proift ==> Loss    Profit Profit Profit
-    # event_interval_optimistic = if_else(loss_event,
-    #                                    1, 
-    #                                    
-    # )
+if (!hilda_used && file.exists("tsv/hilda_rp_who_negatively_gearing.tsv")) {
+  hilda_rp_who_negatively_gearing <- fread("tsv/hilda_rp_who_negatively_gearing.tsv", 
+                                           sep = "\t",
+                                           na.strings = "NA")
+} else {
+  
+  hilda_rp_who_negatively_gearing <-
+    xwaveid_with_NG_then_profit %>%
+    .[, 
+      # Returns NA by design
+      loss_event := Profit_loss %in% c("Profit", "Break even") & shift(Profit_loss, type = "lead") == "Loss"] %>%
+    .[, fill_down := na.locf(Profit_loss, na.rm = FALSE)] %>%
+    .[, fill_up   := na.locf(Profit_loss, na.rm = FALSE, fromLast = TRUE)] %>%
+    .[, left_censored := if_else(Year == min(Year), 
+                                 TRUE, 
+                                 coalesce(first(fill_up, order_by = Year) == "Loss",
+                                          FALSE))] %>%
+    .[, right_censored := if_else(Year == max(Year), 
+                                  TRUE, 
+                                  if_else(!is.na(last(fill_down, order_by = Year)), 
+                                          last(fill_down, order_by = Year) == "Loss",
+                                          is.na(last(fill_down, order_by = Year))))] %>% 
+    .[] %T>%
+    fwrite("tsv/hilda_rp_who_negatively_gearing.tsv", 
+           sep = "\t",
+           na = "NA") %>%
+    .[]
+  #0 = right censored
+  #1 = event at time
+  #2 = left censored
+  #3 = interval censored  
+  #  optimistic: Loss NA NA Profit ==> Loss    Loss   Loss   Profit
+  # pessimistic: Loss NA NA Proift ==> Loss    Profit Profit Profit
+  # event_interval_optimistic = if_else(loss_event,
+  #                                    1, 
+  #                                    
+  # )
   # Survival analysis
+}
 
 # Check this!
 weights_by_waveid <- 
@@ -4838,7 +4896,7 @@ weights_by_waveid <-
   setkey(xwaveid, Year) %>%
   .[, .(lon_weight = last(WEIGHT)), keyby = .(xwaveid)] %>%
   .[]
-  
+
 @
 
 <<ggsurv-NG>>=

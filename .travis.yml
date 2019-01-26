@@ -37,12 +37,13 @@ before_script:
 - export PATH=$PATH:$PWD
 - tlmgr update biber chngcntr
 - Rscript travis-make.R
-#- pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex > /dev/null
-#- biber CGT_and_neg_gearing_parent
-#- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
-#- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
+
 script: 
-- Rscript -e '1 + 1'
+- Rscript -e 'knitr::knit("CGT_and_neg_gearing_parent.Rnw")'
+- pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex > /dev/null
+- biber CGT_and_neg_gearing_parent
+- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
+- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
 deploy:
   provider: releases
   api_key:
