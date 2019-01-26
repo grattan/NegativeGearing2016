@@ -4628,14 +4628,11 @@ However, many of the losses being claimed may not serve this policy purpose. Aro
 
 <<bizLosses-for-NPP>>=
 n_bizlosses_NPP <- 
-  sample_file %>%
-  filter(Net_NPP_BI_amt < 0) %$% 
-  sum(WEIGHT)
+  sample_file[Net_NPP_BI_amt < 0,  sum(WEIGHT)]
 
 avg_loss_claimed_NPP <- 
-  sample_file %>%
-  filter(Net_NPP_BI_amt < 0) %$%
-  mean(-Net_NPP_BI_amt)
+  sample_file[Net_NPP_BI_amt < 0,  mean(Net_NPP_BI_amt)]
+avg_loss_claimed_NPP <- -1 * avg_loss_claimed_NPP
 @
 
 About \Sexpr{texNum(n_bizlosses_NPP)} taxpayers claimed an average of \Sexpr{texNum(avg_loss_claimed_NPP, dollar = TRUE)} of non-farm business losses. It is likely that many of these people were individual contractors in fields related to their main job. Some of the losses may simply be taxpayers claiming lifestyle costs where they will be less scrutinised. Tax returns require less detail for costs claimed as part of running a business rather than in incurring wage and salary income (for example, travel costs do not need to be separately disclosed). 
@@ -4651,6 +4648,15 @@ For most investors, the changes will mainly affect the timing, not the amount, o
 
 <<costing-quarantining-losses>>=
 target_sample_file %>%
+  selector(Net_rent_amt,
+           Net_farm_management_amt, 
+           Net_fincl_invstmt_lss_amt,
+           NPP_loss_claimed,
+           PP_loss_claimed,
+           Sw_amt, 
+           Alow_ben_amt,
+           ETP_txbl_amt,
+           shallow = TRUE) %>%
   mutate(quarantined_losses = pminC(Net_rent_amt, 0) + pminC(Net_farm_management_amt, 0) - Net_fincl_invstmt_lss_amt - NPP_loss_claimed - PP_loss_claimed, 
          quarantined_income = Sw_amt + Alow_ben_amt + ETP_txbl_amt,
          Other_Income = Tot_inc_amt - quarantined_income - quarantined_losses, 
@@ -4659,8 +4665,8 @@ target_sample_file %>%
                                    pmaxC(Other_Income + quarantined_losses, 0)), 
          accumulated_loss = new_Other_Income - Other_Income, 
          new_Taxable_Income = pmaxC(quarantined_income + new_Other_Income - Tot_ded_amt, 0)) %>% 
-  mutate(old_tax = income_tax(Taxable_Income, "2015-16"), 
-         new_tax = income_tax(new_Taxable_Income, "2015-16"), 
+  mutate(old_tax = income_tax(Taxable_Income, latest.sample.fy), 
+         new_tax = income_tax(new_Taxable_Income, latest.sample.fy), 
          tax_increase = new_tax - old_tax
   ) %>% .[] %$% 
   sum(tax_increase * WEIGHT)
@@ -4707,11 +4713,10 @@ Capping the total amount of losses that can be deducted each year for negatively
 \begin{figure}
 \Caption{Those on high salaries are much more likely to be negatively gearing}{Incidence of negative gearing}{fig:NG-vs-salary}
 % dev omit emf due to alpha
-<<NG-vs-salary, dev = c('my_pdf', 'png'), fig.ext = c("pdf", "png")>>=
-sample_file_1314 %>%
-  filter(between(Sw_amt, 0, 250e3)) %>%
-  rename(Salary = Sw_amt) %>%
-  grplot(aes(x = Salary, y = as.numeric(Net_rent_amt < 0))) + 
+<<NG-vs-salary>>=
+sample_file[Sw_amt %between% c(0, 250e3), .(Sw_amt, NG = Net_rent_amt < 0)] %>%
+  setnames("Sw_amt", "Salary") %>%
+  grplot(aes(x = Salary, y = NG)) + 
   geom_smooth(colour = DarkOrange, size = 1.5) +
   scale_y_continuous(label = percent, expand = c(0,0)) + 
   scale_x_continuous(label = grattan_dollar) + 
@@ -4729,14 +4734,15 @@ Capping losses is politically attractive because a smaller percentage of landlor
 \caption{Budgetary impact of caps to negative gearing}\label{tbl:cap-NG}
 <<Results, results = 'asis'>>=
 long_term = 10L
-data_frame(Threshold = c(seq(0, -20e3, by = -5e3), -50e3), -Inf) %>%
-  rowwise %>%
-  mutate(Costing = grattan_dollar(round(cost_NG_limited_to(Threshold))),
-         `Number affected` = comma(round(number_affected(Threshold))), 
-         `\\%` = latex_percent(number_affected(Threshold) / (sum(sample_file_1314$Gross_rent_amt > 0) * 50), percentage_symbol = "\\%")) %>%
-  mutate(Threshold = paste0("$-$\\$", if_else(is.infinite(Threshold), "$\\infty$", comma(abs(Threshold)))),
-         Costing = sub("$", "\\$", Costing, fixed = TRUE)) %>%
-  select(Threshold, Costing, `Number affected`, `\\%`) %>%
+data.table(Threshold = c(seq(0, -20e3, by = -5e3), -50e3), -Inf) %>%
+  .[, .(Costing = grattan_dollar(round(cost_NG_limited_to(.BY[[1]]))),
+        `Number affected` = comma(round(number_affected(.BY[[1]]))), 
+        `\\%` = latex_percent(number_affected(.BY[[1]]) / (sample_file_1314[, sum(Gross_rent_amt > 0)] * 50),
+                              percentage_symbol = "\\%")),
+    keyby = 'Threshold'] %>%
+  .[, Threshold := paste0("$-$\\$", if_else(is.infinite(Threshold), "$\\infty$", comma(abs(Threshold))))] %>%
+  .[, Costing := sub("$", "\\$", Costing, fixed = TRUE)] %>%
+  selector(cols = c("Threshold", 'Costing', "Number affected", "\\%")) %>%
   # warns about not recognizing siuntix align operator
   {suppressWarnings(xtable(., align = "rrrrS"))} %>% 
   print.xtable(include.rownames = FALSE,
