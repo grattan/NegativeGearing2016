@@ -28,7 +28,7 @@ packages_ <-
     "Formula", "lattice", "foreign", "survey", "survival", "Matrix", 
     "grid", "zoo", "httr", "rsdmx", "readr", "openxlsx", "readxl", 
     "xtable", "grattan", "directlabels", "scales", "ggplot2", "gridExtra", 
-    "dplyr", "haven", "devEMF", "knitr", 
+    "dplyr", "haven", "knitr", 
     "showtext", "sysfonts",
     "data.table", "sessioninfo")
 

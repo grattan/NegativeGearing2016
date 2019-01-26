@@ -140,7 +140,7 @@ library(ggrepel)
 <<loadHILDA>>=
 RQ("hildaData",
    {
-     warning("hildaData unavailable")
+     message("hildaData unavailable")
      hilda_used <<- FALSE
    },
    {
