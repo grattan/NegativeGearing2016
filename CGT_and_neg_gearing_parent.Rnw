@@ -3336,10 +3336,12 @@ density_other <-
   .[Net_rent_amt >= 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 
-grattanCharts:::chart_data(bind_rows("NG" = data_frame(Taxable_Income = density_NG$x, 
-                                                       Density = density_NG$y), 
-                                     "Not_NG" = data_frame(Taxable_Income = density_other$x, 
-                                                           Density = density_other$y)))
+if (!identical(Sys.getenv("TRAVIS"), "true")) {
+  grattanCharts:::chart_data(bind_rows("NG" = data_frame(Taxable_Income = density_NG$x, 
+                                                         Density = density_NG$y), 
+                                       "Not_NG" = data_frame(Taxable_Income = density_other$x, 
+                                                             Density = density_other$y)))
+}
 
 sample_file_1314 %>%
   .[Taxable_Income < 210e3] %>%
