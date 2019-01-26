@@ -3317,29 +3317,23 @@ A lot of the public debate has centred on claims that most taxpayers negatively 
 \Caption{More taxpayers on higher incomes negatively gear}{Distribution of taxable incomes by negative gearing status, 2013-14}{fig:tx-inc-distr-by-NG}
 % dev omit emf due to alpha
 
-<<tx-inc-distr-by-NG, dev = c('my_pdf', 'png'), fig.ext = c("pdf", "png")>>=
+<<tx-inc-distr-by-NG>>=
 median_tx_inc_by_NG <- 
-  sample_file_1314 %>%
-  group_by(NG = Net_rent_amt < 0) %>%
-  summarise(median = median(Taxable_Income)) %>%
-  arrange(NG)
+  sample_file_1314[, .(median = median(Taxable_Income)),
+                   keyby = .(NG = Net_rent_amt < 0)]
 
 
 # For density annotations
 density_NG <- 
   sample_file_1314 %>%
-  selector(Net_rent_amt, Taxable_Income,
-           shallow = TRUE) %>%
-  filter(Net_rent_amt < 0, 
-          Taxable_Income < 210e3) %$%
+  selector(Net_rent_amt, Taxable_Income) %>%
+  .[Net_rent_amt < 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 
 density_other <- 
-  sample_file_1314 %>% 
-  selector(Net_rent_amt, Taxable_Income,
-           shallow = TRUE) %>%
-  filter(Net_rent_amt >= 0, 
-         Taxable_Income < 210e3) %$%
+  sample_file_1314 %>%
+  selector(Net_rent_amt, Taxable_Income) %>%
+  .[Net_rent_amt >= 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 
 grattanCharts:::chart_data(bind_rows("NG" = data_frame(Taxable_Income = density_NG$x, 
