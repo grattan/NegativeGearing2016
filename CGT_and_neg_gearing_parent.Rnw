@@ -61,14 +61,9 @@ cache_most <- FALSE #&& !reload_all_data
 <<knitrOpts, echo=FALSE, results='hide', include=FALSE>>=
 library(knitr)
 library(grattanCharts)
-library(devEMF)
 START.TIME <- Sys.time()
 my_pdf <- function(file, width, height){
   pdf(file = file, width, height = height)
-}
-
-my_emf <- function(file, width, height){
-  emf(file = file, width = width, height = height)
 }
 
 # knitr chunk opts
@@ -94,9 +89,8 @@ library(hutilscpp)  # hughparsonage/hutilscpp
 library(haven)
 library(knitr)
 library(data.table)
-options("datatable.integer64" = "double")
+options("datatable.integer64" = "double")  # Reading billions remain numeric
 library(dplyr)
-library(devEMF)
 library(gridExtra)
 library(ggplot2)
 library(scales)
@@ -5444,7 +5438,7 @@ c("bindrcpp", "hildaData", "hutils", "ggrepel", "testthat", "taxstats",
 "Formula", "lattice", "foreign", "survey", "survival", "Matrix", 
 "grid", "zoo", "httr", "rsdmx", "readr", "openxlsx", "readxl", 
 "xtable", "grattan", "directlabels", "scales", "ggplot2", "gridExtra", 
-"dplyr", "haven", "hutilscpp", "grattanCharts", "devEMF", "knitr", 
+"dplyr", "haven", "hutilscpp", "grattanCharts", "knitr", 
 "data.table", "sessioninfo", "stats", "graphics", "grDevices", 
 "utils", "datasets", "methods", "base")
 @

@@ -39,6 +39,7 @@ before_script:
 - Rscript travis-make.R
 
 script: 
+- set -e
 - Rscript -e 'knitr::knit("CGT_and_neg_gearing_parent.Rnw")'
 - pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex > /dev/null
 - biber CGT_and_neg_gearing_parent
