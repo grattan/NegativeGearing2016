@@ -11,7 +11,7 @@ install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies =
 
 devtools::install_github(paste0("hughparsonage/", 
                                 c("hutilscpp",
-                                  "hildaExtra",
+                                  # "hildaExtra",
                                   "grattanCharts")), 
                          quick = TRUE,
                          quiet = TRUE)

@@ -138,7 +138,6 @@ library(ggrepel)
 @
 
 <<loadHILDA>>=
-library(hildaExtra)  # hughparsonage/hildaExtra
 RQ("hildaData",
    {
      warning("hildaData unavailable")
@@ -148,6 +147,19 @@ RQ("hildaData",
      library(hildaData)
      hilda_used <<- TRUE
    })
+@
+
+<<make_negatives_NA>>=
+make_negatives_NA <- function(v) {
+  if (is.numeric(v)){
+    if (is.integer(v)){
+      v[v < 0] <- NA_integer_
+    } else {
+      v[v < 0] <- NA_real_
+    }
+  }
+  v
+}
 @
 
 <<prohibit_quiet_censoring>>=

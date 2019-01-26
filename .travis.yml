@@ -6,9 +6,6 @@ cache:
 - "/tmp/texlive"
 - "/$HOME/texlive"
 warnings_are_errors: false
-r_github_packages:
-- HughParsonage/TeXCheckR
-- HughParsonage/grattanReporter
 before_install:
 - source ./travis/texlive.sh
 - tlmgr update --self
