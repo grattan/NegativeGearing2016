@@ -24,7 +24,7 @@ if (!requireNamespace("taxstats", quietly = TRUE) ||
 
 packages_ <-
   c("bindrcpp", "hutils", "ggrepel", "testthat", 
-    "magrittr", "tidyr", "usethis", "devtools", "expm", "Hmisc", 
+    "magrittr", "tidyr", "usethis", "devtools", "expm", "profmem",
     "Formula", "lattice", "foreign", "survey", "survival", "Matrix", 
     "grid", "zoo", "httr", "rsdmx", "readr", "openxlsx", "readxl", 
     "xtable", "grattan", "directlabels", "scales", "ggplot2", "gridExtra", 

@@ -84,29 +84,34 @@ if (is_knitting()) {
   mem_usage_tempfile <- tempfile("mem")
   invisible(file.create("memory-usage.txt"))
 }
-knitr::knit_hooks$set(do_mem = function(before) {
-  if (before) {
-    utils::Rprofmem(mem_usage_tempfile)
-  } else {
-    utils::Rprofmem(NULL)
-    .mem_used <-
-      profmem::readRprofmem(mem_usage_tempfile) %$%
-      sum(as.double(bytes), na.rm = TRUE) %>%
-      divide_by(1024^3) %>%
-      round(1) %>%
-      formatC(digits = 1, width = 4, format = "f")
-    write(
-      paste0(.mem_used,
-             "\t",
-             knitr::opts_current$get(name = "label")),
-      file = "memory-usage.txt",
-      ncolumns = 1,
-      append = TRUE)
-  }
-})
+
+on_travis <- nzchar(Sys.getenv("TRAVIS")) && identical(Sys.getenv("TRAVIS"), "true")
+
+if (!on_travis) {
+  knitr::knit_hooks$set(do_mem = function(before) {
+    if (before) {
+      utils::Rprofmem(mem_usage_tempfile)
+    } else {
+      utils::Rprofmem(NULL)
+      .mem_used <-
+        profmem::readRprofmem(mem_usage_tempfile) %$%
+        sum(as.double(bytes), na.rm = TRUE) %>%
+        divide_by(1024^3) %>%
+        round(1) %>%
+        formatC(digits = 1, width = 4, format = "f")
+      write(
+        paste0(.mem_used,
+               "\t",
+               knitr::opts_current$get(name = "label")),
+        file = "memory-usage.txt",
+        ncolumns = 1,
+        append = TRUE)
+    }
+  })
+}
 knitr::opts_chunk$set(fig.show='hide',
                       fig.path= atlas <- "CGT-NG-atlas/",
-                      do_mem = Sys.getenv("TRAVIS") == "")
+                      do_mem = !on_travis)
 @
 
 <<loadPackages, cache=FALSE>>=
@@ -131,7 +136,7 @@ library(httr)
 library(zoo)
 library(survey)
 library(foreign)
-library(expm)
+library(expm)  # %^%
 library(devtools)
 library(tidyr)
 library(magrittr)
