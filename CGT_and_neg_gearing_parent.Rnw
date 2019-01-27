@@ -1,7 +1,7 @@
 % !TeX program = pdflatex
 \documentclass{grattan}
 
-\usepackage{ocgx}
+\usepackage{ocgx2}
 
 \title{Negative gearing and the capital gains discount}
 \author{John Daley and Danielle Wood}
@@ -28,8 +28,18 @@ TARGET.FY <- "2017-18"
 use.sample.fy <- "2015-16"  # deprecated
 latest.sample.fy <- "2015-16"
 
+# HILDA
+hilda_year <- 2017L
+wave <- letters[hilda_year - 2000L]
+
+
+on_travis <- nzchar(Sys.getenv("TRAVIS")) && identical(Sys.getenv("TRAVIS"), "true")
+message("\ton_travis: ", on_travis)
 # Warnings need to be accounted for.
 options(warn = 2)
+if (on_travis) {
+  options(warn = -1)
+}
 
 # HILDA takes 7 minutes to load and tidy
 reload_all_data <- FALSE
@@ -57,14 +67,9 @@ cache_most <- FALSE #&& !reload_all_data
 <<knitrOpts, echo=FALSE, results='hide', include=FALSE>>=
 library(knitr)
 library(grattanCharts)
-library(devEMF)
 START.TIME <- Sys.time()
 my_pdf <- function(file, width, height){
   pdf(file = file, width, height = height)
-}
-
-my_emf <- function(file, width, height){
-  emf(file = file, width = width, height = height)
 }
 
 # knitr chunk opts
@@ -81,22 +86,51 @@ options(xtable.sanitize.text.function = function(x) {
 },
         xtable.sanitize.rownames.function = identity,
         xtable.sanitize.colnames.function = identity)
+if (is_knitting()) {
+  mem_usage_tempfile <- tempfile("mem")
+  invisible(file.create("memory-usage.txt"))
+}
+
+
+
+if (!on_travis) {
+  knitr::knit_hooks$set(do_mem = function(before) {
+    if (before) {
+      utils::Rprofmem(mem_usage_tempfile)
+    } else {
+      utils::Rprofmem(NULL)
+      .mem_used <-
+        profmem::readRprofmem(mem_usage_tempfile) %$%
+        sum(as.double(bytes), na.rm = TRUE) %>%
+        divide_by(1024^3) %>%
+        round(1) %>%
+        formatC(digits = 1, width = 4, format = "f")
+      write(
+        paste0(.mem_used,
+               "\t",
+               knitr::opts_current$get(name = "label")),
+        file = "memory-usage.txt",
+        ncolumns = 1,
+        append = TRUE)
+    }
+  })
+}
 knitr::opts_chunk$set(fig.show='hide',
-                      fig.path= atlas <- "CGT-NG-atlas/")
+                      fig.path= atlas <- "CGT-NG-atlas/",
+                      do_mem = !on_travis)
 @
 
 <<loadPackages, cache=FALSE>>=
+library(testthat)
 library(hutilscpp)  # hughparsonage/hutilscpp
 library(haven)
 library(knitr)
 library(data.table)
-options("datatable.integer64" = "double")
+options("datatable.integer64" = "double")  # Reading billions remain numeric
 library(dplyr)
-library(devEMF)
 library(gridExtra)
 library(ggplot2)
 library(scales)
-library(directlabels)
 library(grattan)
 library(xtable)
 library(readxl)
@@ -107,8 +141,7 @@ library(httr)
 library(zoo)
 library(survey)
 library(foreign)
-library(Hmisc)
-library(expm)
+library(expm)  # %^%
 library(devtools)
 library(tidyr)
 library(magrittr)
@@ -135,20 +168,39 @@ sample_files_all <-
         sample_file_1516[, "fy.year" := "2015-16"],
         use.names = TRUE,
         fill = TRUE)
-library(testthat)
 library(ggrepel)
 @
 
 <<loadHILDA>>=
 RQ("hildaData",
    {
-     warning("hildaData unavailable")
+     message("hildaData unavailable")
      hilda_used <<- FALSE
    },
    {
      library(hildaData)
      hilda_used <<- TRUE
    })
+@
+
+<<EarlySessionInfo>>=
+# Needed here to avoid a memory error on travis if put later
+library(sessioninfo)
+SessionInfo <- session_info()
+citPkgs <- names(sessionInfo()$otherPkgs)
+@
+
+<<make_negatives_NA>>=
+make_negatives_NA <- function(v) {
+  if (is.numeric(v)) {
+    if (is.integer(v)) {
+      v[v < 0] <- NA_integer_
+    } else {
+      v[v < 0] <- NA_real_
+    }
+  }
+  v
+}
 @
 
 <<prohibit_quiet_censoring>>=
@@ -304,8 +356,39 @@ target_sample_file <-
 @
 
 <<Import-HILDA, cache=TRUE>>=
-hilda_w14_hh <- unique(as.data.table(hildaData::Combined_n150c, by = "nhhrhid"))
-hilda_used <- TRUE
+hilda_hh <- 
+  if (hilda_used) {
+    switch (wave, 
+            "n" = hildaData::Combined_n150c,
+            "q" = hildaData2017::Combined_q170c) %>%
+      # copy
+      as.data.table %>%
+      setnames(paste0(wave, "hhrhid"),
+               "id_hh") %>%
+      unique(by = "id_hh") %>%
+      selector(cols = c("id_hh", "xwaveid",
+                        paste0(wave, c(if (wave == "n") "hweqini", "hhwth"))),
+               shallow = TRUE) %>%
+      .[]
+  } else {
+    data.table()
+  }
+hilda_w14_hh <-
+  if (hilda_used) {
+    hildaData::Combined_n150c %>%
+      as.data.table %>% 
+      select_grep(c("hhrhid", "hhwth$", "hweqini", "oprntn")) %>%
+      .[, lapply(.SD, make_negatives_NA), keyby = "nhhrhid"] %>%
+      .[, .(nhhwth = sum(nhhwth, na.rm = TRUE)), keyby = c(grep("(hhrhid|hhwth)$", 
+                                                                names(.),
+                                                                value = TRUE, 
+                                                                invert = TRUE))] %T>%
+      fwrite("tsv/hilda_w14_hh.tsv", sep = "\t", na = "NA") %>%
+      .[]
+  } else {
+    fread("tsv/hilda_w14_hh.tsv", sep = "\t", na.strings = "NA")
+  }
+
 @
 
 <<Import-HILDA-all-waves-step-1, eval=reload_all_data, cache=FALSE>>=
@@ -2948,8 +3031,8 @@ individual_dividends <-
 # 23756809916
 
 hh_equity_tot <- 
-  hilda_w14_hh %$%
-  sum(nhweqini * nhhwth)  # Equity investments * WEIGHT
+  hilda_w14_hh %>%
+  .[, sum(nhweqini * nhhwth)]  # Equity investments * WEIGHT
 @
 Total lending to individuals for share investments is at most \$19 billion, compared to individuals' direct share holdings of around \$550~billion,\footnote{The ATO reported that the 2013-14 dividend income for individuals was \Sexpr{texNum(individual_dividends, dollar = TRUE)}. The HILDA survey showed in the same year \Sexpr{texNum(hh_equity_tot, dollar = TRUE)} for household wealth in equities.}  and compared to borrowings of \$548~billion from banks for housing investor lending. 
 
@@ -3275,35 +3358,31 @@ A lot of the public debate has centred on claims that most taxpayers negatively 
 \Caption{More taxpayers on higher incomes negatively gear}{Distribution of taxable incomes by negative gearing status, 2013-14}{fig:tx-inc-distr-by-NG}
 % dev omit emf due to alpha
 
-<<tx-inc-distr-by-NG, dev = c('my_pdf', 'png'), fig.ext = c("pdf", "png")>>=
+<<tx-inc-distr-by-NG>>=
 median_tx_inc_by_NG <- 
-  sample_file_1314 %>%
-  group_by(NG = Net_rent_amt < 0) %>%
-  summarise(median = median(Taxable_Income)) %>%
-  arrange(NG)
+  sample_file_1314[, .(median = median(Taxable_Income)),
+                   keyby = .(NG = Net_rent_amt < 0)]
 
 
 # For density annotations
 density_NG <- 
   sample_file_1314 %>%
-  selector(Net_rent_amt, Taxable_Income,
-           shallow = TRUE) %>%
-  filter(Net_rent_amt < 0, 
-          Taxable_Income < 210e3) %$%
+  selector(Net_rent_amt, Taxable_Income) %>%
+  .[Net_rent_amt < 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 
 density_other <- 
-  sample_file_1314 %>% 
-  selector(Net_rent_amt, Taxable_Income,
-           shallow = TRUE) %>%
-  filter(Net_rent_amt >= 0, 
-         Taxable_Income < 210e3) %$%
+  sample_file_1314 %>%
+  selector(Net_rent_amt, Taxable_Income) %>%
+  .[Net_rent_amt >= 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 
-grattanCharts:::chart_data(bind_rows("NG" = data_frame(Taxable_Income = density_NG$x, 
-                                                       Density = density_NG$y), 
-                                     "Not_NG" = data_frame(Taxable_Income = density_other$x, 
-                                                           Density = density_other$y)))
+if (!identical(Sys.getenv("TRAVIS"), "true") && is_knitting()) {
+  grattanCharts:::chart_data(bind_rows("NG" = data_frame(Taxable_Income = density_NG$x, 
+                                                         Density = density_NG$y), 
+                                       "Not_NG" = data_frame(Taxable_Income = density_other$x, 
+                                                             Density = density_other$y)))
+}
 
 sample_file_1314 %>%
   .[Taxable_Income < 210e3] %>%
@@ -3695,29 +3774,30 @@ Ultimately, the government should not shy away from a sound policy because it ge
 
 <<Impact_of_NG_on_house_prices>>=
 rental_losses <- 
-  sample_files_all %>% 
-  filter(Net_rent_amt < 0) %>%
-  group_by(fy.year) %>%
-  summarise(tot_avg_loss = -1 * sum(as.double(Net_rent_amt * WEIGHT))) %>%
-  ungroup %>%
-  mutate(real_tot_avg_loss = cpi_inflator(tot_avg_loss, from_fy = fy.year, to_fy = "2013-14"))
+  sample_files_all[Net_rent_amt < 0, .(Net_rent_amt, WEIGHT, fy.year)] %>%
+  .[, Net_rent_amt_Wt := -1 * Net_rent_amt * WEIGHT] %>%
+  .[, .(tot_avg_loss = sum(Net_rent_amt_Wt)),
+    keyby = "fy.year"] %>%
+  .[, real_tot_avg_loss := cpi_inflator(tot_avg_loss, from_fy = .BY[[1L]], to_fy = TARGET.FY), 
+    keyby = "fy.year"]
 
 NG_tax_exps <-
-  sample_files_all %>%
-  mutate(FYYR = fy.year) %>%
-  group_by(fy.year) %>%
-  mutate(current_tax = income_tax(Taxable_Income, fy.year = FYYR),
-         subseqt_tax = income_tax(if_else(Net_rent_amt < 0, 
-                                         Taxable_Income - Net_rent_amt,
-                                         Taxable_Income), fy.year = FYYR),
-         diff = subseqt_tax - current_tax) %>%
-  group_by(fy.year) %>%
-  summarise(avg.diff = sum(diff * WEIGHT))
+  sample_files_all[, .(fy.year, Taxable_Income, Net_rent_amt, WEIGHT)] %>%
+  .[, current_tax := income_tax(Taxable_Income, fy.year = .BY[[1L]]), keyby = "fy.year"] %>%
+  .[, subseqt_tax := income_tax(if_else(Net_rent_amt < 0, 
+                                        Taxable_Income - Net_rent_amt,
+                                        Taxable_Income),
+                                fy.year = .BY[[1L]]),
+    keyby = "fy.year"] %>%
+  .[, diff := WEIGHT * (subseqt_tax - current_tax)] %>%
+  .[, .(tot.diff = sum(diff)), keyby = "fy.year"] %T>% 
+  fwrite("tsv/NG_tax_exps.tsv", sep = "\t") %>%
+  .[]
 
 NG_tax_exps.real <- 
   NG_tax_exps %>%
-  ungroup %>% 
-  mutate(avg.diff.real = cpi_inflator(avg.diff, from_fy = fy.year, to_fy = "2013-14")) %$%
+  .[, avg.diff.real := cpi_inflator(tot.diff, from_fy = .BY[[1]], to_fy = TARGET.FY), 
+    keyby = "fy.year"] %$%
   mean(avg.diff.real)
 
 present.value_benefit_from_NG <-
@@ -3737,7 +3817,8 @@ housing_finance_commitments.metadata <-
   #       "Data_without_metadata"
   #
   # 
-  read_excel("ABSP_567108_Housing_Finance_Table8.xlsx", sheet = "Metadata") %>%
+  read_excel("ABSP_567108_Housing_Finance_Table8.xlsx",
+             sheet = "Metadata") %>%
   as.data.table %>%
   selector(cols = c("Series ID", "Long_name", "Series Type")) %>%
   setnames(c("series_id", "Long_name", "Series_Type")) %>%
@@ -3745,7 +3826,8 @@ housing_finance_commitments.metadata <-
   .[]
 
 housing_finance_commitments <-
-  read_excel("ABS_Cat5671-0_Lending_Finance_Table8_Finance_Commitments_For_housing.xlsx", sheet = "Data_no_metadata") %>%
+  read_excel("ABS_Cat5671-0_Lending_Finance_Table8_Finance_Commitments_For_housing.xlsx",
+             sheet = "Data_no_metadata") %>%
   gather(series, value, -Date) %>%
   as.data.table %>%
   setnames("series", "series_id") %>%
@@ -3758,33 +3840,33 @@ housing_finance_commitments <-
 if (exists("res_dwelling_values") && !is.null(res_dwelling_values)){
 value_dwelling_stock_2014 <- 
   res_dwelling_values %>% 
-  filter(label_ASGS_2011 == "Australia",
-         label_MEASURE == "Value of dwelling stock: Owned by non households ($m)") %>%
-  arrange(obsTime) %$%
+  .[label_ASGS_2011 == "Australia"] %>%
+  .[label_MEASURE == "Value of dwelling stock: Owned by non households ($m)"] %>%
+  setkey(obsTime) %$%
   last(obsValue) * 10^6
 } else {
   value_dwelling_stock_2014 <- 5400 * 10^9
 }
 
-read_excel("ASX_Returns_by_asset_class.xlsx") %>% 
+RoR_proprty <-
+  read_excel("ASX_Returns_by_asset_class.xlsx") %>% 
   filter(`Asset class` == "Residential investment property") %$%
-  `After tax highest marginal tax rate` / 100 ->
-  RoR_proprty
+  `After tax highest marginal tax rate` / 100
 
 value.of.ng.by.yr <- 
-  sample_files_all %>%
-  mutate(benefit_due_NG = income_tax(pmax(Taxable_Income, Taxable_Income - Net_rent_amt), 
-                                     fy.year = fy.year) -  income_tax(Taxable_Income, 
-                                                                      fy.year = fy.year)) %>%
-  group_by(fy.year) %>%
-  summarise(total_benefit = sum(benefit_due_NG * WEIGHT)) %>%
-  ungroup %>%
-  mutate(total_benefit_real = cpi_inflator(total_benefit, from_fy = fy.year, to_fy = "2014-15"))
+  sample_files_all[, .(Taxable_Income, Net_rent_amt, fy.year, WEIGHT)] %>%
+  .[, benefit_due_NG := income_tax(pmaxV(Taxable_Income, Taxable_Income - Net_rent_amt), 
+                                   fy.year = .BY[[1L]]) - income_tax(Taxable_Income, 
+                                                                     fy.year = .BY[[1]]),
+    keyby = "fy.year"] %>%
+  .[, .(total_benefit = sum(benefit_due_NG * WEIGHT)), keyby = "fy.year"] %>%
+  .[, total_benefit_real := cpi_inflator(total_benefit, from_fy = .BY[[1L]], to_fy = TARGET.FY),
+    keyby = "fy.year"]
 
 value_of_NG_one_year <- 
   value.of.ng.by.yr %>%
-  filter(fy.year == "2012-13") %$%
-  total_benefit
+  .[fy.year == "2012-13"] %>%
+  .[['total_benefit']]
 
 value_of_NG_perpertuity <- value_of_NG_one_year / RoR_proprty
 value_of_NG_10yrs <-
@@ -3801,10 +3883,6 @@ NG_inflator <- function(n){
 value_without_NG <- value_of_dwelling_stock_expected_2025 - value_of_NG_10yrs
 change_in_price_due_to_NG_upper <-
   (value_of_dwelling_stock_expected_2025 -  value_without_NG / (1 + RoR_proprty)^10 ) / (value_of_dwelling_stock_expected_2025)
-
-
-
-
 
 @
 
@@ -4542,6 +4620,7 @@ sample_file %>%
       theme(legend.position = "right")
   }
 @
+
 <<density-salary-by-PP-losses, fig.height=11, out.height="11in", dev=c("my_pdf", "png"), fig.ext = c("pdf", "png")>>=
 sample_file %>%
   merge(occupation_decoder, by = "Occ_code") %>%
@@ -4590,14 +4669,11 @@ However, many of the losses being claimed may not serve this policy purpose. Aro
 
 <<bizLosses-for-NPP>>=
 n_bizlosses_NPP <- 
-  sample_file %>%
-  filter(Net_NPP_BI_amt < 0) %$% 
-  sum(WEIGHT)
+  sample_file[Net_NPP_BI_amt < 0,  sum(WEIGHT)]
 
 avg_loss_claimed_NPP <- 
-  sample_file %>%
-  filter(Net_NPP_BI_amt < 0) %$%
-  mean(-Net_NPP_BI_amt)
+  sample_file[Net_NPP_BI_amt < 0,  mean(Net_NPP_BI_amt)]
+avg_loss_claimed_NPP <- -1 * avg_loss_claimed_NPP
 @
 
 About \Sexpr{texNum(n_bizlosses_NPP)} taxpayers claimed an average of \Sexpr{texNum(avg_loss_claimed_NPP, dollar = TRUE)} of non-farm business losses. It is likely that many of these people were individual contractors in fields related to their main job. Some of the losses may simply be taxpayers claiming lifestyle costs where they will be less scrutinised. Tax returns require less detail for costs claimed as part of running a business rather than in incurring wage and salary income (for example, travel costs do not need to be separately disclosed). 
@@ -4613,19 +4689,31 @@ For most investors, the changes will mainly affect the timing, not the amount, o
 
 <<costing-quarantining-losses>>=
 target_sample_file %>%
-  mutate(quarantined_losses = pminC(Net_rent_amt, 0) + pminC(Net_farm_management_amt, 0) - Net_fincl_invstmt_lss_amt - NPP_loss_claimed - PP_loss_claimed, 
-         quarantined_income = Sw_amt + Alow_ben_amt + ETP_txbl_amt,
-         Other_Income = Tot_inc_amt - quarantined_income - quarantined_losses, 
-         new_Other_Income = if_else(Other_Income <= 0, 
-                                   Other_Income, 
-                                   pmaxC(Other_Income + quarantined_losses, 0)), 
-         accumulated_loss = new_Other_Income - Other_Income, 
-         new_Taxable_Income = pmaxC(quarantined_income + new_Other_Income - Tot_ded_amt, 0)) %>% 
-  mutate(old_tax = income_tax(Taxable_Income, "2015-16"), 
-         new_tax = income_tax(new_Taxable_Income, "2015-16"), 
-         tax_increase = new_tax - old_tax
-  ) %>% .[] %$% 
-  sum(tax_increase * WEIGHT)
+  selector(Net_rent_amt,
+           Net_farm_management_amt, 
+           Net_fincl_invstmt_lss_amt,
+           NPP_loss_claimed,
+           PP_loss_claimed,
+           Sw_amt, 
+           Alow_ben_amt,
+           ETP_txbl_amt,
+           Tot_ded_amt,
+           Tot_inc_amt,
+           Taxable_Income,
+           WEIGHT,
+           shallow = TRUE) %>%
+  .[, quarantined_losses := pminC(Net_rent_amt, 0) + pminC(Net_farm_management_amt, 0) - Net_fincl_invstmt_lss_amt - NPP_loss_claimed - PP_loss_claimed] %>%
+  .[, quarantined_income := Sw_amt + Alow_ben_amt + ETP_txbl_amt] %>%
+  .[, Other_Income := Tot_inc_amt - quarantined_income - quarantined_losses] %>%
+  .[, new_Other_Income := if_else(Other_Income <= 0, 
+                                  Other_Income, 
+                                  pmaxC(Other_Income + quarantined_losses, 0))] %>% 
+  .[, accumulated_loss := new_Other_Income - Other_Income] %>%
+  .[, new_Taxable_Income := pmaxC(quarantined_income + new_Other_Income - Tot_ded_amt, 0)] %>% 
+  .[, old_tax := income_tax(Taxable_Income, latest.sample.fy)] %>%
+  .[, new_tax := income_tax(new_Taxable_Income, latest.sample.fy)] %>%
+  .[, tax_increase := WEIGHT * (new_tax - old_tax)] %>%
+  .[, sum(tax_increase)]
 @
 
 We estimate that quarantining losses for passive investments would increase income tax collections by \Sexpr{texNum(cost_of_NG_only_year0, dollar=TRUE)} a year in the short term. Over the medium term, accrued losses -- losses not offset against recurrent investment income -- will be deducted from capital gains. Assuming no change in investor behaviour, the additional tax revenue would stabilise at around \Sexpr{texNum(cost_of_NG_only, dollar=TRUE)} a year.
@@ -4669,12 +4757,11 @@ Capping the total amount of losses that can be deducted each year for negatively
 \begin{figure}
 \Caption{Those on high salaries are much more likely to be negatively gearing}{Incidence of negative gearing}{fig:NG-vs-salary}
 % dev omit emf due to alpha
-<<NG-vs-salary, dev = c('my_pdf', 'png'), fig.ext = c("pdf", "png")>>=
-sample_file_1314 %>%
-  filter(between(Sw_amt, 0, 250e3)) %>%
-  rename(Salary = Sw_amt) %>%
-  grplot(aes(x = Salary, y = as.numeric(Net_rent_amt < 0))) + 
-  geom_smooth(colour = DarkOrange, size = 1.5) +
+<<NG-vs-salary>>=
+sample_file[Sw_amt %between% c(0, 250e3), .(Sw_amt, NG = as.double(Net_rent_amt < 0))] %>%
+  setnames("Sw_amt", "Salary") %>%
+  grplot(aes(x = Salary, y = NG)) + 
+  geom_smooth(colour = DarkOrange, size = 1.5, method = "gam", formula = y ~ s(x, bs = 'bs')) +
   scale_y_continuous(label = percent, expand = c(0,0)) + 
   scale_x_continuous(label = grattan_dollar) + 
   theme(axis.title.y = element_blank(), 
@@ -4691,14 +4778,15 @@ Capping losses is politically attractive because a smaller percentage of landlor
 \caption{Budgetary impact of caps to negative gearing}\label{tbl:cap-NG}
 <<Results, results = 'asis'>>=
 long_term = 10L
-data_frame(Threshold = c(seq(0, -20e3, by = -5e3), -50e3), -Inf) %>%
-  rowwise %>%
-  mutate(Costing = grattan_dollar(round(cost_NG_limited_to(Threshold))),
-         `Number affected` = comma(round(number_affected(Threshold))), 
-         `\\%` = latex_percent(number_affected(Threshold) / (sum(sample_file_1314$Gross_rent_amt > 0) * 50), percentage_symbol = "\\%")) %>%
-  mutate(Threshold = paste0("$-$\\$", if_else(is.infinite(Threshold), "$\\infty$", comma(abs(Threshold)))),
-         Costing = sub("$", "\\$", Costing, fixed = TRUE)) %>%
-  select(Threshold, Costing, `Number affected`, `\\%`) %>%
+data.table(Threshold = c(seq(0, -20e3, by = -5e3), -50e3), -Inf) %>%
+  .[, .(Costing = grattan_dollar(round(cost_NG_limited_to(.BY[[1]]))),
+        `Number affected` = comma(round(number_affected(.BY[[1]]))), 
+        `\\%` = latex_percent(number_affected(.BY[[1]]) / (sample_file_1314[, sum(Gross_rent_amt > 0)] * 50),
+                              percentage_symbol = "\\%")),
+    keyby = 'Threshold'] %>%
+  .[, Threshold := paste0("$-$\\$", if_else(is.infinite(Threshold), "$\\infty$", comma(abs(Threshold))))] %>%
+  .[, Costing := sub("$", "\\$", Costing, fixed = TRUE)] %>%
+  selector(cols = c("Threshold", 'Costing', "Number affected", "\\%")) %>%
   # warns about not recognizing siuntix align operator
   {suppressWarnings(xtable(., align = "rrrrS"))} %>% 
   print.xtable(include.rownames = FALSE,
@@ -4720,7 +4808,7 @@ An alternative proposal would limit the number of properties on which investors 
 <<prop_landlords_n_properties>>=
 prop_landlords_geq_n_properties <- function(n) {
   # Access to HILDA restricts function readability
-  if (exists("hilda_w14_hh")){
+  if (hilda_used && exists("hilda_w14_hh")){
     hilda_w14_hh %>%
       group_by(Owns_n_other_properties = noprntn) %>%
       summarise(population = sum(nhhwth)) %>%
@@ -4756,79 +4844,103 @@ In addition to raising more than \Sexpr{texNum(total_cost_of_proposed_policy, do
 # [1] [-1] Not asked           [2] Loss                 [3] Break-even           [1] Profit              
 # [5] [-3] Dont know           [-4] Refused/Not stated 
 # 13 Levels: [-10] Non-responding person  [-9] Non-responding household  [-8] No SCQ  ... [3] Break-even 
-hilda_all_waves_rp <-
-  lapply(1:15, function(y) {
-    Year <- 2000L + y
-    W <- letters[y]
-    Data <- as.data.table(getExportedValue("hildaData", paste0("Combined_", W, "150c")))
-    the_cols <- c("xwaveid", paste0(W, c("oifrntp", "lnwte")))
-     
-    if (!all(hasName(Data, the_cols))) {
-      if (Year == 2001) {
-        return(data.table())
-      } 
-      cat(Year)
-    }
-    
-    o <- 
-      selector(Data,
-               cols = the_cols,
-               shallow = TRUE)
-    o[, Year := 0L]
-    set(o, j = "Year", value = Year)
-    setnames(o, paste0(W, "oifrntp"), "FY_rental_property_profit_or_loss")
-    setnames(o, paste0(W, "lnwte"), "WEIGHT")
-    o
-  }) %>%
-  rbindlist(use.names = TRUE, fill = TRUE)
-
+if (hilda_used) {
+  hilda_all_waves_rp <-
+    lapply(1:15, function(y) {
+      Year <- 2000L + y
+      W <- letters[y]
+      Data <- as.data.table(getExportedValue("hildaData", paste0("Combined_", W, "150c")))
+      the_cols <- c("xwaveid", paste0(W, c("oifrntp", "lnwte")))
+      
+      if (!all(hasName(Data, the_cols))) {
+        if (Year == 2001) {
+          return(data.table())
+        } 
+        cat(Year)
+      }
+      
+      o <- 
+        selector(Data,
+                 cols = the_cols,
+                 shallow = TRUE)
+      o[, Year := 0L]
+      set(o, j = "Year", value = Year)
+      setnames(o, paste0(W, "oifrntp"), "FY_rental_property_profit_or_loss")
+      setnames(o, paste0(W, "lnwte"), "WEIGHT")
+      gc(full = TRUE, verbose = FALSE)
+      o
+    }) %>%
+    rbindlist(use.names = TRUE, fill = TRUE)
+}
 # Which RPs have a loss followed by a Profit
-xwaveid_with_NG_then_profit <- 
-  hilda_all_waves_rp %>%
-  .[, Profit_loss := if_else(grepl("Loss", FY_rental_property_profit_or_loss, fixed = TRUE), 
-                             "Loss", 
-                             if_else(grepl("Profit", FY_rental_property_profit_or_loss, fixed = TRUE),
-                                     "Profit", 
-                                     if_else(grepl("Break.even", FY_rental_property_profit_or_loss), 
-                                             "Break even", 
-                                             NA_character_)))] %>%
-  setkey(xwaveid, Year) %>%
-  .[, filled_down := na.locf(Profit_loss, na.rm = FALSE), keyby = "xwaveid"] %>%
-  .[, loss := filled_down == "Loss"] %>%
-  .[, next_Profit := shift(filled_down, type = "lead", fill = "Loss"), keyby = "xwaveid"] %>%
-  .[, nextIsProfit := next_Profit %in% c("Break even", "Profit")] %>%
-  .[, rw := any(and(loss, nextIsProfit)), 
-    keyby = "xwaveid"] %>%
-  .[(rw)]
+if (!hilda_used && file.exists("tsv/xwaveid_with_NG_then_profit.tsv")) {
+  xwaveid_with_NG_then_profit <- fread("tsv/xwaveid_with_NG_then_profit.tsv", 
+                                       sep = "\t",
+                                       na.strings = "NA")
+} else {
+  
+  xwaveid_with_NG_then_profit <-
+    hilda_all_waves_rp %>%
+    .[, Profit_loss := if_else(grepl("Loss", FY_rental_property_profit_or_loss, fixed = TRUE), 
+                               "Loss", 
+                               if_else(grepl("Profit", FY_rental_property_profit_or_loss, fixed = TRUE),
+                                       "Profit", 
+                                       if_else(grepl("Break.even", FY_rental_property_profit_or_loss), 
+                                               "Break even", 
+                                               NA_character_)))] %>%
+    setkey(xwaveid, Year) %>%
+    .[, filled_down := na.locf(Profit_loss, na.rm = FALSE), keyby = "xwaveid"] %>%
+    .[, loss := filled_down == "Loss"] %>%
+    .[, next_Profit := shift(filled_down, type = "lead", fill = "Loss"), keyby = "xwaveid"] %>%
+    .[, nextIsProfit := next_Profit %in% c("Break even", "Profit")] %>%
+    .[, rw := any(and(loss, nextIsProfit)), 
+      keyby = "xwaveid"] %>%
+    .[(rw)] %T>%
+    fwrite("tsv/xwaveid_with_NG_then_profit.tsv", 
+           sep = "\t", 
+           na = "NA") %>%
+    .[]
+}
 
-hilda_rp_who_negatively_gearing <-
-  xwaveid_with_NG_then_profit %>%
-  .[, 
-    # Returns NA by design
-    loss_event := Profit_loss %in% c("Profit", "Break even") & shift(Profit_loss, type = "lead") == "Loss"] %>%
-  .[, fill_down := na.locf(Profit_loss, na.rm = FALSE)] %>%
-  .[, fill_up   := na.locf(Profit_loss, na.rm = FALSE, fromLast = TRUE)] %>%
-  .[, left_censored := if_else(Year == min(Year), 
-                               TRUE, 
-                               coalesce(first(fill_up, order_by = Year) == "Loss",
-                                        FALSE))] %>%
-  .[, right_censored := if_else(Year == max(Year), 
-                                TRUE, 
-                                if_else(!is.na(last(fill_down, order_by = Year)), 
-                                        last(fill_down, order_by = Year) == "Loss",
-                                        is.na(last(fill_down, order_by = Year))))] %>% 
-  .[]
-    #0 = right censored
-    #1 = event at time
-    #2 = left censored
-    #3 = interval censored  
-    #  optimistic: Loss NA NA Profit ==> Loss    Loss   Loss   Profit
-    # pessimistic: Loss NA NA Proift ==> Loss    Profit Profit Profit
-    # event_interval_optimistic = if_else(loss_event,
-    #                                    1, 
-    #                                    
-    # )
+if (!hilda_used && file.exists("tsv/hilda_rp_who_negatively_gearing.tsv")) {
+  hilda_rp_who_negatively_gearing <- fread("tsv/hilda_rp_who_negatively_gearing.tsv", 
+                                           sep = "\t",
+                                           na.strings = "NA")
+} else {
+  
+  hilda_rp_who_negatively_gearing <-
+    xwaveid_with_NG_then_profit %>%
+    .[, 
+      # Returns NA by design
+      loss_event := Profit_loss %in% c("Profit", "Break even") & shift(Profit_loss, type = "lead") == "Loss"] %>%
+    .[, fill_down := na.locf(Profit_loss, na.rm = FALSE)] %>%
+    .[, fill_up   := na.locf(Profit_loss, na.rm = FALSE, fromLast = TRUE)] %>%
+    .[, left_censored := if_else(Year == min(Year), 
+                                 TRUE, 
+                                 coalesce(first(fill_up, order_by = Year) == "Loss",
+                                          FALSE))] %>%
+    .[, right_censored := if_else(Year == max(Year), 
+                                  TRUE, 
+                                  if_else(!is.na(last(fill_down, order_by = Year)), 
+                                          last(fill_down, order_by = Year) == "Loss",
+                                          is.na(last(fill_down, order_by = Year))))] %>% 
+    .[] %T>%
+    fwrite("tsv/hilda_rp_who_negatively_gearing.tsv", 
+           sep = "\t",
+           na = "NA") %>%
+    .[]
+  #0 = right censored
+  #1 = event at time
+  #2 = left censored
+  #3 = interval censored  
+  #  optimistic: Loss NA NA Profit ==> Loss    Loss   Loss   Profit
+  # pessimistic: Loss NA NA Proift ==> Loss    Profit Profit Profit
+  # event_interval_optimistic = if_else(loss_event,
+  #                                    1, 
+  #                                    
+  # )
   # Survival analysis
+}
 
 # Check this!
 weights_by_waveid <- 
@@ -4838,7 +4950,7 @@ weights_by_waveid <-
   setkey(xwaveid, Year) %>%
   .[, .(lon_weight = last(WEIGHT)), keyby = .(xwaveid)] %>%
   .[]
-  
+
 @
 
 <<ggsurv-NG>>=
@@ -4975,7 +5087,7 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
 # pessimistic: Loss NA NA Proift ==> Loss    Profit Profit Profit
 
 cumsum_reset <- function(x) {
-  x * ave(x, c(0, cumsum(diff(x) != 0)), FUN = seq_along)
+  as.integer(x * ave(x, c(0, cumsum(diff(x) != 0)), FUN = seq_along))
 }
 
 truth_durations <- function(cond) {
@@ -5042,21 +5154,36 @@ hilda_rp_who_negatively_gearing %>%
 hilda_surv_data_weights <- 
   merge(hilda_surv_data, weights_by_waveid)
 
-hilda_survo <- survfit(Surv(optimistic_avg_spell, censor_status) ~ 1, data = hilda_surv_data_weights, weights = lon_weight)
-hilda_survp <- survfit(Surv(pessimistic_avg_spell, censor_status) ~ 1, data = hilda_surv_data_weights, weights = lon_weight)
+hilda_survo <- survfit(Surv(optimistic_avg_spell, censor_status) ~ 1, 
+                       data = hilda_surv_data_weights,
+                       weights = lon_weight)
+hilda_survp <- survfit(Surv(pessimistic_avg_spell, censor_status) ~ 1,
+                       data = hilda_surv_data_weights, 
+                       weights = lon_weight)
 
-bind_rows(
-  "high" = data_frame(years = hilda_survp$time, survival = hilda_survp$surv, survival_upper = hilda_survp$upper, survival_lower = hilda_survp$lower),
-   "low" = data_frame(years = hilda_survo$time, survival = hilda_survo$surv, survival_upper = hilda_survo$upper, survival_lower = hilda_survo$lower), 
-   "low" = data_frame(years = 0, survival = 1, survival_upper = 1, survival_lower = 1), 
-   "high" = data_frame(years = 0, survival = 1, survival_upper = 1, survival_lower = 1), 
-  .id = "imputer"
+list(
+  "high" = data.table(years = hilda_survp$time,
+                      survival = hilda_survp$surv, 
+                      survival_upper = hilda_survp$upper,
+                      survival_lower = hilda_survp$lower),
+   "low" = data.table(years = hilda_survo$time, 
+                      survival = hilda_survo$surv,
+                      survival_upper = hilda_survo$upper,
+                      survival_lower = hilda_survo$lower), 
+   "low" = data.table(years = 0, survival = 1, survival_upper = 1, survival_lower = 1), 
+   "high" = data.table(years = 0, survival = 1, survival_upper = 1, survival_lower = 1)
 ) %>% 
-  grplot(aes(x = years, y = survival, ymin = survival_lower, ymax = survival_upper, colour = imputer, group = imputer)) + 
+  rbindlist(idcol = "imputer") %>%
+  grplot(aes(x = years,
+             y = survival,
+             ymin = survival_lower,
+             ymax = survival_upper, 
+             colour = imputer, 
+             group = imputer)) + 
   geom_line() +
   geom_ribbon(alpha = 0.2, color = NA) +
-  scale_y_continuous(label = percent, expand = c(0,0), limits = c(0,1)) +
-  scale_x_continuous(breaks = c(0, 1, 2, 5, 10, 15), limits = c(0, 16), expand = c(0,0))
+  scale_y_continuous(label = percent, expand = c(0, 0), limits = c(0, 1)) +
+  scale_x_continuous(breaks = c(0, 1, 2, 5, 10, 15), limits = c(0, 16), expand = c(0, 0))
 @
 \includegraphics[width=\columnwidth]{\Sexpr{atlas}/NG-survival-curve-1}
 \notes{Probably wrong: Individuals suffering from left- or right-censoring were simply omitted!}
@@ -5192,9 +5319,9 @@ percent1_01_TeX <- function(x){
 @
 <<digit_01_TeX>>=
 digit1_01_TeX <- function(x){
-  if (is.numeric(x) && between(x, 0, 1)){
+  if (is.numeric(x) && between(x, 0, 1)) {
     formatC(round(100*x, 1), 
-                   format = "f", flag = "#", digits = 1, width = 3)
+            format = "f", flag = "#", digits = 1, width = 3)
   } else {
     x
   }
@@ -5210,45 +5337,65 @@ data.table::CJ(
   Indexed = c(TRUE, FALSE), 
   return_type = c("real", "excess")
 ) %>%
-  filter(!(Indexed & CGT_discount != 0.00)) %>%  # if indexed, CGT is ignored, so just choose keep one CGT discount
-  rowwise %>%
-  mutate(
-    emtr = emtr_rental(return_type = return_type, 
-                       CGT.discount = CGT_discount, 
-                       marginal.tax.rate = marginal_tax_rate,
-                       inflation = 0.025,
-                       risk.free.rate = 0.045,
-                       capital.gains = capital_gain_return, 
-                       gearing_ratio = 0, 
-                       cgt_indexed = Indexed)
-  ) %>%
-  arrange(desc(capital_gain_return)) %>%
+  .[(!(Indexed & CGT_discount != 0.00))] %>%  # if indexed, CGT is ignored, so just choose keep one CGT discount
+  .[, I := .I] %>%
+  .[, emtr := emtr_rental(return_type = return_type, 
+                          CGT.discount = CGT_discount, 
+                          marginal.tax.rate = marginal_tax_rate,
+                          inflation = 0.025,
+                          risk.free.rate = 0.045,
+                          capital.gains = capital_gain_return, 
+                          gearing_ratio = 0, 
+                          cgt_indexed = Indexed),
+    keyby = "I"] %>%
+  .[order(-capital_gain_return)] %>%
   # cosmetics
-  mutate(capital_gain_return = paste0("Nominal annual capital gain__", formatC(100*capital_gain_return, flag = "#", format = "f", digits = 1), percentage_symbol = "\\%")) %>%
+  .[, capital_gain_return := paste0("Nominal annual capital gain__", 
+                                    formatC(100*capital_gain_return, 
+                                            flag = "#",
+                                            format = "f",
+                                            digits = 1),
+                                    percentage_symbol = "\\%")] %>%
+  .[, I := NULL] %>%
+  as_tibble %>%
   spread(capital_gain_return, emtr) %>% 
   ungroup %>%
   arrange(marginal_tax_rate, desc(return_type), `Nominal annual capital gain__5.0\\%`) %>%
-  mutate(`CGT treatment` = if_else(Indexed, "Indexed", paste(latex_percent(CGT_discount, digits = 0, percentage_symbol = "\\%"), "discount"))) %>%
-  select(-Indexed, -CGT_discount) %T>%
+  mutate(`CGT treatment` = if_else(Indexed, "Indexed", 
+                                   paste(latex_percent(CGT_discount,
+                                                       digits = 0, 
+                                                       percentage_symbol = "\\%"),
+                                         "discount"))) %>%
+  as.data.table %>%
+  .[, "Indexed" := NULL] %>%
+  .[, "CGT_discount" := NULL] %T>%
   {grattanCharts:::chart_data(.)} %>%
-  mutate_each(funs(digit1_01_TeX)) %>%
-  mutate_each(funs(omit_repeated)) %>%
+  .[] %>%
+  .[, lapply(.SD, digit1_01_TeX)] %>%
+  .[, lapply(.SD, omit_repeated)] %>%
   setnames(old = grep("_[a-z]", names(.), value = TRUE), 
-           new = sapply(gsub("_([a-z])", " \\1", grep("_[a-z]", names(.), value = TRUE)), capitalize)) %>% .[] %>%
+           new = sub("^([a-z])",
+                     "\\U\\1\\E", perl = TRUE,
+                     (gsub("_([a-z])", 
+                           " \\1", 
+                           grep("_[a-z]",
+                                names(.), 
+                                value = TRUE))))) %>% 
+  .[] %>%
   # mutate_each(funs(shade_cell), -`Marginal tax rate`, -`Return type`, -`CGT treatment`) %>%
   # Increase space between groups by putting a newline with -6pt height (-9pt) for smaller
-  mutate(`\\phantom{.}` = if_else(!is.na(`Marginal tax rate`) & `Marginal tax rate` != first(`Marginal tax rate`), 
-                                 "&\\phantom{.}\\\\[-6pt]", 
-                                 if_else(!is.na(`Return type`) & `Return type` != first(`Return type`), 
+  .[, "\\phantom{.}" := if_else(!is.na(`Marginal tax rate`) & `Marginal tax rate` != first(`Marginal tax rate`), 
+                                "&\\phantom{.}\\\\[-6pt]", 
+                                if_else(!is.na(`Return type`) & `Return type` != first(`Return type`), 
                                         "&\\phantom{.}\\\\[-9pt]",
-                                        ""))) %>%
-  select(`\\phantom{.}`, 
-         `Marginal tax rate`, `Return type`, `CGT treatment`,
-         `Nominal annual capital gain__4.0\\%`, 
-         `Nominal annual capital gain__5.0\\%`, 
-         `Nominal annual capital gain__6.0\\%`, 
-         `Nominal annual capital gain__8.0\\%`,
-         `Nominal annual capital gain__10.0\\%`) 
+                                        ""))] %>%
+  selector(`\\phantom{.}`, 
+           `Marginal tax rate`, `Return type`, `CGT treatment`,
+           `Nominal annual capital gain__4.0\\%`, 
+           `Nominal annual capital gain__5.0\\%`, 
+           `Nominal annual capital gain__6.0\\%`, 
+           `Nominal annual capital gain__8.0\\%`,
+           `Nominal annual capital gain__10.0\\%`) 
 @
 
 
@@ -5264,6 +5411,7 @@ data.table::CJ(
 
 <<emtr-long-appendix, results='asis'>>=
 EMTR_Appendix_Table %>%
+  copy %>%
   {suppressWarnings(print_2heading_xtable(., 
                                           sanitize.text.function = function(x) x, 
                                           tabular.environment = "tabular", 
@@ -5277,23 +5425,31 @@ EMTR_Appendix_Table %>%
 \begin{ocg}{ocgColored}{ocgColored}{0}
 \node (Coloured) {%
 <<emtr-long-appendix-cellcolored, results='asis'>>=
-shade_cell <- function(x){
+shade_cell <- function(x) {
   color <- cut(as.numeric(x), breaks = c(-Inf, 100*(1:6)/6, Inf), labels = c(paste0("Color", 1:6), "black"))
   # black background -> white text
   if_else(as.numeric(x) > 100, 
-         paste0("\\cellcolor{", color, "}{\\textcolor{white}{", x, "}}"),
-         paste0("\\cellcolor{", color, "}{", x, "}"))
+          paste0("\\cellcolor{", color, "}{\\textcolor{white}{", x, "}}"),
+          paste0("\\cellcolor{", color, "}{", x, "}"))
 }
 
+do_nrow <- function(x) {
+  cat(nrow(x), "\n")
+  x
+}
+
+cols_to_shade <- setdiff(names(EMTR_Appendix_Table), 
+                         c("\\phantom{.}", "Marginal tax rate", "Return type", "CGT treatment"))
+
 EMTR_Appendix_Table %>%
-  mutate_each(funs(shade_cell), -`Marginal tax rate`, -`Return type`, -`CGT treatment`, -`\\phantom{.}`) %>%
+  copy %>%
+  .[, (cols_to_shade) := lapply(.SD, shade_cell), .SDcols = c(cols_to_shade)] %>%
+  .[] %>%
   {suppressWarnings(print_2heading_xtable(., 
                                           sanitize.text.function = function(x) x, 
                                           tabular.environment = "tabular", 
                                           xtable.align = "lQlllrrrrr",
                                           floating = FALSE))}
-  
-  
 @
 };%
 \end{ocg}
@@ -5303,6 +5459,31 @@ EMTR_Appendix_Table %>%
 \footnotesize Notes: & {\footnotesize Inflation 2.5\%. Property earns 3\%\ nominal rent in addition to the capital growth and which is reinvested in the property till maturity. Risk free rate 4.5\%. Property is held for 15 years then disposed and capital gain realized without losses.\hfill{\switchocg{ocgBlack ocgColored}{\textcolor{DarkOrange}{\textbf{Click to colour cells.}}}}}
 \end{tabular}
 \end{table*}
+
+<<on_travis_cleaning>>=
+if (on_travis) {
+  the_node_size <- function() {
+    bit <- 8L * .Machine$sizeof.pointer
+    if (!(bit == 32L || bit == 64L)) {
+      message("Unknown architecture", call. = FALSE)
+      -1L
+    }
+    if (bit == 32L) 
+      28L
+    else 56L
+  }
+  message("\tMemory used:\t", as.character(round(sum(gc()[, 1] * c(the_node_size(), 8)) / 1000^2), 1), " MB\n")
+  message("\n\n\tRemoving objects...\n\n")
+  rm(sample_files_all)
+  rm(sample_file)
+  rm(target_sample_file)
+  rm(policy)
+  rm(list = ls(pattern = "^policy"))
+  
+  message("\tMemory used:\t", as.character(round(sum(gc()[, 1] * c(the_node_size(), 8)) / 1000^2), 1), " MB")
+  gc()[, 1]
+}
+@
 
 
 \onecolumn
@@ -5325,8 +5506,7 @@ The \verb=devtools::session_info()= is printed below.
 % \phantom{.}
 \end{multicols*}
 <<sessionInfo>>=
-library(sessioninfo)
-SessionInfo <- session_info()
+
 @
 
 \begin{table*}[!htb]
@@ -5386,7 +5566,7 @@ c("bindrcpp", "hildaData", "hutils", "ggrepel", "testthat", "taxstats",
 "Formula", "lattice", "foreign", "survey", "survival", "Matrix", 
 "grid", "zoo", "httr", "rsdmx", "readr", "openxlsx", "readxl", 
 "xtable", "grattan", "directlabels", "scales", "ggplot2", "gridExtra", 
-"dplyr", "haven", "hutilscpp", "grattanCharts", "devEMF", "knitr", 
+"dplyr", "haven", "hutilscpp", "grattanCharts", "knitr", 
 "data.table", "sessioninfo", "stats", "graphics", "grDevices", 
 "utils", "datasets", "methods", "base")
 @
@@ -5496,9 +5676,9 @@ TBD
 \notes{$q_i = q_j$ for all $i,j \in \{a, a + 1, \dots, a + 4\}$ when $a = 0\mod 5$.}
 \end{figure*}
 
-<<packcageCitation>>=
+<<packageCitation>>=
 # Select packages to cite:
-citPkgs <- names(sessionInfo()$otherPkgs)
+
 # Write the bibtex file:
 # will raise warnings for missing DESCRIPTION entries if left unsuppressed
 suppressWarnings({

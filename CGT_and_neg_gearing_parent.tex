@@ -51,7 +51,7 @@
 
 \usepackage{alltt}
 
-\usepackage{ocgx}
+\usepackage{ocgx2}
 
 \title{Negative gearing and the capital gains discount}
 \author{John Daley and Danielle Wood}
@@ -72,7 +72,12 @@
 
 
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# 	on\_travis: FALSE}}\end{kframe}
+\end{knitrout}
 
 \rehead[\normalfont\texttt{new.discount} = 0.25\quad
         \texttt{TARGET.FY} = 2017-18\quad
@@ -93,6 +98,10 @@
 
 %\clearpage
 %\chapter{Distribution of negative gearing}
+
+
+
+
 
 
 
@@ -433,7 +442,7 @@ On the other hand, the theoretical ideal implicitly assumes losses and gains are
 \caption{Assumptions for \Vref{fig:EMTR-savings}}
 \small
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:09:51 2019
+% Sun Jan 27 18:53:14 2019
 \begin{tabularx}{\linewidth}{llrrrrrrr}
   \toprule
    &  &  &  &  & \multicolumn{4}{c}{\textbf{Constant}}\\
@@ -857,7 +866,7 @@ If these lost benefits (\$30.8~billion + \$29.5~billion) were fully capitalized 
 
 
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:10:01 2019
+% Sun Jan 27 18:53:29 2019
 \begin{tabularx}{\linewidth}{lRRRR}
   \toprule
    &  & \multicolumn{3}{c}{\textbf{Return}}\\
@@ -976,14 +985,12 @@ contribution to the budget bottom line.
 % Jim QC
 % eval=FALSE due no access to HILDA
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:10:14 2019
+% Sun Jan 27 18:53:39 2019
 \begin{tabularx}{\linewidth}{rr}
   \toprule
 {\textbf{Investment properties owned}} & {\textbf{Households}} \\ 
   \midrule
- -3 & 9,916 \\ 
-   -1 & 21,382,333 \\ 
-    1 & 376,377 \\ 
+  1 & 376,377 \\ 
     2 & 670,296 \\ 
     3 & 224,579 \\ 
     4 & 120,203 \\ 
@@ -997,6 +1004,7 @@ contribution to the budget bottom line.
    14 & 1,790 \\ 
    27 & 6,242 \\ 
    58 & 2,813 \\ 
+   & 21,392,249 \\ 
    \bottomrule
 \end{tabularx}
 
@@ -1006,7 +1014,7 @@ contribution to the budget bottom line.
 
 \begin{table}
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:10:14 2019
+% Sun Jan 27 18:53:39 2019
 \begin{tabularx}{\linewidth}{rr}
   \toprule
   \midrule
@@ -1022,7 +1030,7 @@ contribution to the budget bottom line.
 \begin{table*}
 \caption{Taxpayers with wage and salary income claiming business losses by occupation}\label{tbl:bizlosses}
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:10:15 2019
+% Sun Jan 27 18:53:40 2019
 \begin{tabularx}{\linewidth}{lrrrrr}
   \toprule
 {\textbf{Occupation}} & {\textbf{Type}} & {\textbf{No. claiming losses}} & {\textbf{\%}} & {\textbf{Average loss}} & {\textbf{Average salary}} \\ 
@@ -1089,6 +1097,7 @@ The losses claimed are relatively small. In 2015-16 only 250,000~taxpayers claim
 
 \begin{figure}
 \Caption{Those earning more claim bigger primary production losses}{Salary}{fig:PP-losses-by-occ}
+
 
 
 
@@ -1175,17 +1184,17 @@ Capping losses is politically attractive because a smaller percentage of landlor
 \begin{table}
 \caption{Budgetary impact of caps to negative gearing}\label{tbl:cap-NG}
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:10:23 2019
+% Sun Jan 27 18:53:55 2019
 \begin{tabularx}{\linewidth}{rrrS}
   \toprule
 {\textbf{Threshold}} & {\textbf{Costing}} & {\textbf{Number affected}} & {\textbf{\%}} \\ 
   \midrule
-$-$\$0 & \$2,483,067,238 & 770,576 & 38\% \\ 
-  $-$\$5,000 & \$1,411,118,007 & 416,172 & 21\% \\ 
-  $-$\$10,000 & \$832,498,426 & 222,330 & 11\% \\ 
-  $-$\$15,000 & \$518,432,512 & 121,711 & 6\% \\ 
+$-$\$50,000 & \$46,831,392 & 7,343 & 0\% \\ 
   $-$\$20,000 & \$338,933,623 & 72,443 & 4\% \\ 
-  $-$\$50,000 & \$46,831,392 & 7,343 & 0\% \\ 
+  $-$\$15,000 & \$518,432,512 & 121,711 & 6\% \\ 
+  $-$\$10,000 & \$832,498,426 & 222,330 & 11\% \\ 
+  $-$\$5,000 & \$1,411,118,007 & 416,172 & 21\% \\ 
+  $-$\$0 & \$2,483,067,238 & 770,576 & 38\% \\ 
    \bottomrule
 \end{tabularx}
 
@@ -1334,7 +1343,7 @@ Effective tax rates measure the tax paid on investment returns as a share of the
 
 
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:10:59 2019
+% Sun Jan 27 18:55:05 2019
 \begin{tabular}{Qlllrrrrr}
   \toprule
    &  &  &  & \multicolumn{5}{c}{\textbf{Nominal annual capital gain}}\\
@@ -1373,7 +1382,7 @@ Effective tax rates measure the tax paid on investment returns as a share of the
 \begin{ocg}{ocgColored}{ocgColored}{0}
 \node (Coloured) {%
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:10:59 2019
+% Sun Jan 27 18:55:05 2019
 \begin{tabular}{Qlllrrrrr}
   \toprule
    &  &  &  & \multicolumn{5}{c}{\textbf{Nominal annual capital gain}}\\
@@ -1417,6 +1426,8 @@ Effective tax rates measure the tax paid on investment returns as a share of the
 \end{table*}
 
 
+
+
 \onecolumn
 \chapter{Session info of $\mathsf{R}$ used for compilation}
 \begin{multicols*}{2}
@@ -1442,7 +1453,7 @@ The \verb=devtools::session_info()= is printed below.
 \centering
 \caption{Platform}
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:11:00 2019
+% Sun Jan 27 18:55:05 2019
 \begin{tabularx}{\linewidth}{l}
   \toprule
  R version 3.5.2 (2018-12-20) \\ 
@@ -1453,7 +1464,7 @@ The \verb=devtools::session_info()= is printed below.
   English\_Australia.1252 \\ 
   English\_Australia.1252 \\ 
   Australia/Sydney \\ 
-  2019-01-26 \\ 
+  2019-01-27 \\ 
    \bottomrule
 \end{tabularx}
 
@@ -1464,7 +1475,7 @@ The \verb=devtools::session_info()= is printed below.
 
 
 % latex table generated in R 3.5.2 by xtable 1.8-3 package
-% Sat Jan 26 00:11:00 2019
+% Sun Jan 27 18:55:05 2019
 \begin{longtable}{lllll}
 \caption{Packages} \\ 
   \toprule
@@ -1475,34 +1486,26 @@ The \verb=devtools::session_info()= is printed below.
 &\multicolumn{2}{l}{\footnotesize ${}^*$ attached} & \multicolumn{2}{r}{\footnotesize Continued on next page} 
 \endfoot 
 \endlastfoot 
-acepack & 2016-10-29 & CRAN (R 3.5.1) & TRUE &  \\ 
-  assertthat & 2017-04-11 & CRAN (R 3.5.1) & TRUE &  \\ 
+assertthat & 2017-04-11 & CRAN (R 3.5.1) & TRUE &  \\ 
   backports & 2018-12-14 & CRAN (R 3.5.2) & TRUE &  \\ 
-  base64enc & 2015-07-28 & CRAN (R 3.5.0) & TRUE &  \\ 
   bindr & 2018-03-13 & CRAN (R 3.5.1) & TRUE &  \\ 
-  bindrcpp & 2018-03-29 & CRAN (R 3.5.1) & TRUE & * \\ 
+  bindrcpp & 2018-03-29 & CRAN (R 3.5.1) & TRUE &  \\ 
   bitops & 2013-08-17 & CRAN (R 3.5.0) & TRUE &  \\ 
   callr & 2018-12-21 & CRAN (R 3.5.2) & TRUE &  \\ 
   cellranger & 2016-07-27 & CRAN (R 3.5.1) & TRUE &  \\ 
-  checkmate & 2017-10-24 & CRAN (R 3.5.1) & TRUE &  \\ 
   cli & 2018-09-25 & CRAN (R 3.5.1) & TRUE &  \\ 
-  cluster & 2018-04-13 & CRAN (R 3.5.1) & TRUE &  \\ 
   colorspace & 2016-12-14 & CRAN (R 3.5.1) & TRUE &  \\ 
   crayon & 2017-09-16 & CRAN (R 3.5.1) & TRUE &  \\ 
-  curl & 2018-03-28 & CRAN (R 3.5.1) & TRUE &  \\ 
-  data.table & 2018-09-30 & CRAN (R 3.5.1) & TRUE & * \\ 
+  data.table &  &  &  & * \\ 
   desc & 2018-05-01 & CRAN (R 3.5.1) & TRUE &  \\ 
-  devEMF & 2018-05-22 & CRAN (R 3.5.0) & TRUE & * \\ 
   devtools & 2018-10-26 & CRAN (R 3.5.1) & TRUE & * \\ 
   digest & 2018-10-10 & CRAN (R 3.5.1) & TRUE &  \\ 
-  directlabels & 2018-05-25 & CRAN (R 3.5.1) & TRUE & * \\ 
   dplyr & 2018-11-10 & CRAN (R 3.5.1) & TRUE & * \\ 
   evaluate & 2018-10-09 & CRAN (R 3.5.1) & TRUE &  \\ 
   expm & 2018-09-22 & CRAN (R 3.5.1) & TRUE & * \\ 
   fastmatch & 2017-01-28 & CRAN (R 3.5.0) & TRUE &  \\ 
   forcats & 2018-02-19 & CRAN (R 3.5.1) & TRUE &  \\ 
   foreign & 2018-07-20 & CRAN (R 3.5.1) & TRUE & * \\ 
-  Formula & 2018-05-03 & CRAN (R 3.5.0) & TRUE & * \\ 
   fs & 2018-08-23 & CRAN (R 3.5.1) & TRUE &  \\ 
   ggplot2 & 2018-10-25 & CRAN (R 3.5.1) & TRUE & * \\ 
   ggrepel & 2018-05-09 & CRAN (R 3.5.1) &  & * \\ 
@@ -1513,27 +1516,17 @@ acepack & 2016-10-29 & CRAN (R 3.5.1) & TRUE &  \\
   gtable & 2016-02-26 & CRAN (R 3.5.1) & TRUE &  \\ 
   haven & 2018-11-22 & CRAN (R 3.5.1) & TRUE & * \\ 
   hildaData & 2019-01-21 & local & TRUE & * \\ 
-  Hmisc & 2018-01-03 & CRAN (R 3.5.1) & TRUE & * \\ 
   hms & 2018-03-10 & CRAN (R 3.5.1) & TRUE &  \\ 
-  htmlTable & 2018-05-26 & CRAN (R 3.5.1) & TRUE &  \\ 
-  htmltools & 2017-04-28 & CRAN (R 3.5.1) & TRUE &  \\ 
-  htmlwidgets & 2018-09-30 & CRAN (R 3.5.1) & TRUE &  \\ 
   httr & 2018-12-11 & CRAN (R 3.5.2) & TRUE & * \\ 
-  hutils & 2019-01-12 & local & TRUE & * \\ 
+  hutils & 2019-01-27 & local & TRUE & * \\ 
   hutilscpp & 2019-01-25 & local &  & * \\ 
   knitr & 2018-12-10 & CRAN (R 3.5.2) & TRUE & * \\ 
-  labeling & 2014-08-23 & CRAN (R 3.5.0) & TRUE &  \\ 
-  lattice & 2018-11-04 & CRAN (R 3.5.1) & TRUE & * \\ 
-  latticeExtra & 2016-02-09 & CRAN (R 3.5.1) & TRUE &  \\ 
+  lattice & 2018-11-04 & CRAN (R 3.5.1) & TRUE &  \\ 
   lazyeval & 2017-10-29 & CRAN (R 3.5.1) & TRUE &  \\ 
-  lubridate & 2018-04-11 & CRAN (R 3.5.1) & TRUE &  \\ 
   magrittr & 2014-11-22 & CRAN (R 3.5.1) & TRUE & * \\ 
   Matrix & 2018-11-01 & CRAN (R 3.5.1) & TRUE & * \\ 
   memoise & 2017-04-21 & CRAN (R 3.5.1) & TRUE &  \\ 
-  mgcv & 2018-11-21 & CRAN (R 3.5.1) & TRUE &  \\ 
   munsell & 2018-06-12 & CRAN (R 3.5.1) & TRUE &  \\ 
-  nlme & 2018-04-07 & CRAN (R 3.5.1) & TRUE &  \\ 
-  nnet & 2016-02-02 & CRAN (R 3.5.1) & TRUE &  \\ 
   openxlsx & 2018-05-26 & CRAN (R 3.5.1) & TRUE & * \\ 
   pillar & 2018-12-15 & CRAN (R 3.5.2) & TRUE &  \\ 
   pkgbuild & 2018-10-16 & CRAN (R 3.5.1) & TRUE &  \\ 
@@ -1542,22 +1535,18 @@ acepack & 2016-10-29 & CRAN (R 3.5.1) & TRUE &  \\
   plyr & 2016-06-08 & CRAN (R 3.5.1) & TRUE &  \\ 
   prettyunits & 2015-07-13 & CRAN (R 3.5.1) & TRUE &  \\ 
   processx & 2018-12-05 & CRAN (R 3.5.1) & TRUE &  \\ 
+  profmem & 2018-01-30 & CRAN (R 3.5.1) & TRUE &  \\ 
   ps & 2018-12-21 & CRAN (R 3.5.2) & TRUE &  \\ 
   purrr & 2018-05-29 & CRAN (R 3.5.1) & TRUE &  \\ 
-  quadprog & 2013-04-17 & CRAN (R 3.5.0) & TRUE &  \\ 
   R6 & 2018-10-04 & CRAN (R 3.5.1) & TRUE &  \\ 
-  RColorBrewer & 2014-12-07 & CRAN (R 3.5.0) & TRUE &  \\ 
   Rcpp & 2018-11-07 & CRAN (R 3.5.1) & TRUE &  \\ 
   RCurl & 2018-07-15 & CRAN (R 3.5.1) & TRUE &  \\ 
   readr & 2018-12-21 & CRAN (R 3.5.2) & TRUE & * \\ 
   readxl & 2018-12-19 & CRAN (R 3.5.2) & TRUE & * \\ 
   remotes & 2018-10-30 & CRAN (R 3.5.1) & TRUE &  \\ 
-  reshape2 & 2017-12-11 & CRAN (R 3.5.1) & TRUE &  \\ 
   rlang & 2018-10-25 & CRAN (R 3.5.1) & TRUE &  \\ 
-  rpart & 2018-02-23 & CRAN (R 3.5.1) & TRUE &  \\ 
   rprojroot & 2018-01-03 & CRAN (R 3.5.1) & TRUE &  \\ 
   rsdmx & 2018-09-21 & CRAN (R 3.5.1) & TRUE & * \\ 
-  rstudioapi & 2018-10-02 & CRAN (R 3.5.1) & TRUE &  \\ 
   SampleFile1415 & 2018-07-06 & local & TRUE &  \\ 
   SampleFile1516 & 2018-11-30 & local & TRUE &  \\ 
   scales & 2018-08-09 & CRAN (R 3.5.1) & TRUE & * \\ 
@@ -1596,7 +1585,7 @@ acepack & 2016-10-29 & CRAN (R 3.5.1) & TRUE &  \\
 \hlstr{"Formula"}\hlstd{,} \hlstr{"lattice"}\hlstd{,} \hlstr{"foreign"}\hlstd{,} \hlstr{"survey"}\hlstd{,} \hlstr{"survival"}\hlstd{,} \hlstr{"Matrix"}\hlstd{,}
 \hlstr{"grid"}\hlstd{,} \hlstr{"zoo"}\hlstd{,} \hlstr{"httr"}\hlstd{,} \hlstr{"rsdmx"}\hlstd{,} \hlstr{"readr"}\hlstd{,} \hlstr{"openxlsx"}\hlstd{,} \hlstr{"readxl"}\hlstd{,}
 \hlstr{"xtable"}\hlstd{,} \hlstr{"grattan"}\hlstd{,} \hlstr{"directlabels"}\hlstd{,} \hlstr{"scales"}\hlstd{,} \hlstr{"ggplot2"}\hlstd{,} \hlstr{"gridExtra"}\hlstd{,}
-\hlstr{"dplyr"}\hlstd{,} \hlstr{"haven"}\hlstd{,} \hlstr{"hutilscpp"}\hlstd{,} \hlstr{"grattanCharts"}\hlstd{,} \hlstr{"devEMF"}\hlstd{,} \hlstr{"knitr"}\hlstd{,}
+\hlstr{"dplyr"}\hlstd{,} \hlstr{"haven"}\hlstd{,} \hlstr{"hutilscpp"}\hlstd{,} \hlstr{"grattanCharts"}\hlstd{,} \hlstr{"knitr"}\hlstd{,}
 \hlstr{"data.table"}\hlstd{,} \hlstr{"sessioninfo"}\hlstd{,} \hlstr{"stats"}\hlstd{,} \hlstr{"graphics"}\hlstd{,} \hlstr{"grDevices"}\hlstd{,}
 \hlstr{"utils"}\hlstd{,} \hlstr{"datasets"}\hlstd{,} \hlstr{"methods"}\hlstd{,} \hlstr{"base"}\hlstd{)}
 \end{alltt}
@@ -1609,10 +1598,10 @@ acepack & 2016-10-29 & CRAN (R 3.5.1) & TRUE &  \\
 ## [21] "httr"          "rsdmx"         "readr"         "openxlsx"     
 ## [25] "readxl"        "xtable"        "grattan"       "directlabels" 
 ## [29] "scales"        "ggplot2"       "gridExtra"     "dplyr"        
-## [33] "haven"         "hutilscpp"     "grattanCharts" "devEMF"       
-## [37] "knitr"         "data.table"    "sessioninfo"   "stats"        
-## [41] "graphics"      "grDevices"     "utils"         "datasets"     
-## [45] "methods"       "base"
+## [33] "haven"         "hutilscpp"     "grattanCharts" "knitr"        
+## [37] "data.table"    "sessioninfo"   "stats"         "graphics"     
+## [41] "grDevices"     "utils"         "datasets"      "methods"      
+## [45] "base"
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

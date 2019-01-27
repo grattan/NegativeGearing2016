@@ -6,13 +6,11 @@ cache:
 - "/tmp/texlive"
 - "/$HOME/texlive"
 warnings_are_errors: false
-r_github_packages:
-- HughParsonage/TeXCheckR
-- HughParsonage/grattanReporter
 before_install:
 - source ./travis/texlive.sh
 - tlmgr update --self
-- tlmgr install acronym bigfoot blindtext chngcntr cmap nowidow mdframed navigator
+- tlmgr install acronym bigfoot blindtext chngcntr cmap nowidow mdframed navigator 
+  ocgx2 media9 makecell
   needspace tablefootnote tocloft xpatch multirow bbding mathastext isomath relsize
   niceframe-type1
 - if [ $TRAVIS_REPO_SLUG == "HughParsonage/grattex" ]; then tlmgr install tex-gyre
@@ -28,11 +26,16 @@ before_script:
 - tar xzf biber-linux_x86_64.tar.gz
 - export PATH=$PATH:$PWD
 - tlmgr update biber chngcntr
+- sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell r-cran-survey r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven r-cran-survival
 - Rscript travis-make.R
-- pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.Rnw > /dev/null
+
+script: 
+- Rscript -e 'knitr::knit("CGT_and_neg_gearing_parent.Rnw", quiet = TRUE)'
+- pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex > /dev/null
+- pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex
 - biber CGT_and_neg_gearing_parent
-- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.Rnw > /dev/null
-- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.Rnw > /dev/null
+- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
+- pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
 deploy:
   provider: releases
   api_key:
@@ -40,3 +43,4 @@ deploy:
   file: CGT_and_neg_gearing_parent.pdf
   on:
     repo: grattan/NegativeGearing2016
+    branch: master
