@@ -6,7 +6,7 @@ any_reqd <- function(P) {
 
 if (any_reqd(c("devtools", "stringi", "hunspell", "survey", "ggplot2", "dplyr", "tidyr", "readr", 
                "haven", "survival"))) {
-  cat("Installing binaries\n")
+  cat("Installing binaries>>>>>\n")
   system("sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell r-cran-survey r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven r-cran-survival")
 }
 
@@ -18,7 +18,7 @@ vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
 cat(as.character(Sys.time()), "\t", "hutils\n")
 install.packages("hutils", repos = "https://cran.rstudio.com", quiet = TRUE)
 cat(as.character(Sys.time()), "\t", "cli\n")
-hutils::RQ("cli", install.packages("cli", quiet = TRUE))
+hutils::RQ("cli", install.packages("cli", repos = "https://cran.rstudio.com", quiet = TRUE))
 
 
 cat(as.character(Sys.time()), "\t", "grattan\n")
@@ -33,6 +33,9 @@ devtools::install_github(paste0("hughparsonage/",
                                   "grattanCharts")), 
                          quick = TRUE,
                          quiet = TRUE)
+cat(as.character(Sys.time()), "\t", "TeXCheckR\n")
+hutils::RQ("memoise", install.packages("memoise", repos = "https://cran.rstudio.com", quiet = TRUE))
+
 cat(as.character(Sys.time()), "\t", "taxstats\n")
 if (!requireNamespace("taxstats", quietly = TRUE) || 
     !requireNamespace("taxstats1516", quietly = TRUE)) {
