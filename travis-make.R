@@ -2,8 +2,7 @@ any_reqd <- function(P) {
   !all(vapply(P, requireNamespace, quietly = TRUE, logical(1)))
 }
 
-cat(as.character(Sys.time()), "\t", "cli\n")
-RQ("cli", install.packages("cli", quiet = TRUE))
+
 
 if (any_reqd(c("devtools", "stringi", "hunspell", "survey", "ggplot2", "dplyr", "tidyr", "readr", 
                "haven", "survival"))) {
@@ -18,6 +17,10 @@ vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
 
 cat(as.character(Sys.time()), "\t", "hutils\n")
 install.packages("hutils", repos = "https://cran.rstudio.com", quiet = TRUE)
+cat(as.character(Sys.time()), "\t", "cli\n")
+hutils::RQ("cli", install.packages("cli", quiet = TRUE))
+
+
 cat(as.character(Sys.time()), "\t", "grattan\n")
 install.packages("grattan", repos = "https://cran.rstudio.com", quiet = TRUE)
 cat(as.character(Sys.time()), "\t", "TeXCheckR\n")
