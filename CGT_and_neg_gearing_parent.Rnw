@@ -5431,13 +5431,26 @@ EMTR_Appendix_Table %>%
                                           floating = FALSE))}
   
 if (on_travis) {
+  the_node_size <- function() {
+    bit <- 8L * .Machine$sizeof.pointer
+    if (!(bit == 32L || bit == 64L)) {
+      message("Unknown architecture", call. = FALSE)
+      -1L
+    }
+    if (bit == 32L) 
+      28L
+    else 56L
+  }
+  message("\tMemory used:\t", as.character(round(sum(gc()[, 1] * c(the_node_size(), 8)) / 1000^2), 1), " MB\n")
   message("\n\n\tRemoving objects...\n\n")
   rm(sample_files_all)
   rm(sample_file)
   rm(target_sample_file)
   rm(policy)
   rm(list = ls(pattern = "^policy"))
-  gc()
+  
+  message("\tMemory used:\t", as.character(round(sum(gc()[, 1] * c(the_node_size(), 8)) / 1000^2), 1), " MB")
+  gc()[, 1]
 }
 @
 };%

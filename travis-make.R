@@ -5,20 +5,26 @@ vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
   !grepl("parent", x) && file.remove(x)
 }, FALSE)
 
-install.packages("hutils", repos = "https://cran.rstudio.com")
+cat(as.character(Sys.time()), "\t", "hutils\n")
+install.packages("hutils", repos = "https://cran.rstudio.com", quiet = TRUE)
+cat(as.character(Sys.time()), "\t", "grattan\n")
 install.packages("grattan", repos = "https://cran.rstudio.com", quiet = TRUE)
-install.packages("TeXCheckR", repos = "https://cran.rstudio.com", dependencies = TRUE)
+cat(as.character(Sys.time()), "\t", "TeXCheckR\n")
+install.packages("TeXCheckR", repos = "https://cran.rstudio.com", quiet = TRUE)
 
+cat(as.character(Sys.time()), "\t", "hutilscpp\tgrattanCharts\n")
 devtools::install_github(paste0("hughparsonage/", 
                                 c("hutilscpp",
                                   # "hildaExtra",
                                   "grattanCharts")), 
                          quick = TRUE,
                          quiet = TRUE)
+cat(as.character(Sys.time()), "\t", "taxstats\n")
 if (!requireNamespace("taxstats", quietly = TRUE) || 
     !requireNamespace("taxstats1516", quietly = TRUE)) {
   install.packages(c("taxstats", "taxstats1516"),
                    repos = "https://hughparsonage.github.io/tax-drat",
+                   quiet = TRUE,
                    type = "source")
 }
 
@@ -40,13 +46,13 @@ for (i in seq_along(packages_)) {
 }
 packages_ <- packages_[packages_to_install == ""]
 
-cat("packages_\t", packages_, "\n")
+cat("packages_\t", paste0(packages_, collapse = " "), "\n")
 if (!requireNamespace("showtext", quietly = TRUE)) {
-  install.packages("showtext")
+  install.packages("showtext", quiet = TRUE)
 }
 
 if (length(packages_) > 0) {
-  install.packages(packages_, repos = "https://cran.rstudio.com")
+  install.packages(packages_, repos = "https://cran.rstudio.com", quiet = TRUE)
 }
 
 # Wait until we work out hilda
