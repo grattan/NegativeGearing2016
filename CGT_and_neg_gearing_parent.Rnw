@@ -179,14 +179,16 @@ RQ("hildaData",
 @
 
 <<EarlySessionInfo>>=
+# Needed here to avoid a memory error on travis if put later
 library(sessioninfo)
 SessionInfo <- session_info()
+citPkgs <- names(sessionInfo()$otherPkgs)
 @
 
 <<make_negatives_NA>>=
 make_negatives_NA <- function(v) {
-  if (is.numeric(v)){
-    if (is.integer(v)){
+  if (is.numeric(v)) {
+    if (is.integer(v)) {
       v[v < 0] <- NA_integer_
     } else {
       v[v < 0] <- NA_real_
@@ -5658,9 +5660,9 @@ TBD
 \notes{$q_i = q_j$ for all $i,j \in \{a, a + 1, \dots, a + 4\}$ when $a = 0\mod 5$.}
 \end{figure*}
 
-<<packcageCitation>>=
+<<packageCitation>>=
 # Select packages to cite:
-citPkgs <- names(sessionInfo()$otherPkgs)
+
 # Write the bibtex file:
 # will raise warnings for missing DESCRIPTION entries if left unsuppressed
 suppressWarnings({
