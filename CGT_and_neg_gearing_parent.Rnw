@@ -32,8 +32,14 @@ latest.sample.fy <- "2015-16"
 hilda_year <- 2017L
 wave <- letters[hilda_year - 2000L]
 
+
+on_travis <- nzchar(Sys.getenv("TRAVIS")) && identical(Sys.getenv("TRAVIS"), "true")
+message("\ton_travis: ", on_travis)
 # Warnings need to be accounted for.
 options(warn = 2)
+if (on_travis) {
+  options(warn = -1)
+}
 
 # HILDA takes 7 minutes to load and tidy
 reload_all_data <- FALSE
@@ -85,8 +91,7 @@ if (is_knitting()) {
   invisible(file.create("memory-usage.txt"))
 }
 
-on_travis <- nzchar(Sys.getenv("TRAVIS")) && identical(Sys.getenv("TRAVIS"), "true")
-message("\ton_travis: ", on_travis)
+
 
 if (!on_travis) {
   knitr::knit_hooks$set(do_mem = function(before) {
