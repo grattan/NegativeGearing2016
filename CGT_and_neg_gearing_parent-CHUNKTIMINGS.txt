@@ -1,4 +1,4 @@
- 19.6	loadPackages
+ 19.8	loadPackages
   0.1	loadHILDA
   0.0	make_negatives_NA
   0.0	prohibit_quiet_censoring
@@ -19,7 +19,7 @@
   0.0	individuals_table1_201516
   0.0	individuals_table1
   0.0	CGT-by-entity-get
-  4.9	Determine_future_rental_deductions
+  5.1	Determine_future_rental_deductions
   0.1	cgt_discount_density
   0.0	cost-new-CGT-discount
   0.0	revenue_abolish_NG
@@ -28,7 +28,7 @@
   0.0	revenue_quarantine_NG
   0.0	revenue_quarantine_NG_2
   0.0	henry_taxstats
- 11.9	Summary-chunk
+ 12.2	Summary-chunk
   1.4	revenue_foregone_CG_and_NG
   0.1	CostofNGtotal
   0.0	CGT-by-entity
@@ -72,8 +72,8 @@
   0.0	NG-basic-stats
   0.7	Net-rent-time-series
   0.0	prop_le_80k
-  1.8	tx-inc-distr-by-NG
-  1.9	tx-inc-distr-by-NG-latest
+  1.9	tx-inc-distr-by-NG
+  2.0	tx-inc-distr-by-NG-latest
   1.0	Decile_constructor
   0.9	Benefit-NG-before-after-deductions
   0.4	impact-of-policy-changes-on-after-tax-returns
@@ -82,8 +82,8 @@
   0.0	value_of_property
   0.0	impact-of-policy-changes-on-after-tax-returns-tbl
   0.1	impact-of-policy-changes-on-after-tax-returns-tbl-2heading
-  3.5	Impact_of_NG_on_house_prices
-  2.9	What_price_change_req_to_obtain_same_return
+  3.6	Impact_of_NG_on_house_prices
+  3.0	What_price_change_req_to_obtain_same_return
   0.7	Owner_occupiers_loans_are_being_outnumbered_by_investors
   0.0	percent_of_prop_value_due_NG
   1.2	Capital_city_rents_1ROW-2COL
@@ -101,25 +101,25 @@
   1.0	PP-losers-salary-comparison-evil-chart
   1.1	PP-losers-salary-comparison-horiz-bar
   0.8	Proportions-PP-losses
-  2.4	PP-losers-salary-comparison-ggrepel
-  4.9	density-salary-by-PP-losses
+  2.3	PP-losers-salary-comparison-ggrepel
+  4.8	density-salary-by-PP-losses
   0.0	bizLosses-for-NPP
   0.1	costing-quarantining-losses
   0.0	benefit-due-NG
-  2.5	NG-vs-salary
-  3.3	Results
+  2.4	NG-vs-salary
+  3.2	Results
   0.0	prop_landlords_n_properties
- 67.2	HILDA-duration-of-NG
-  0.0	ggsurv-NG
+ 65.9	HILDA-duration-of-NG
+  0.1	ggsurv-NG
   1.7	Survival-NG-analysis-hilda
-  0.9	NG-survival-curve
+  1.0	NG-survival-curve
   0.0	haley-box
   0.0	percent1_01_TeX
   0.0	digit_01_TeX
   0.1	EMTR_Appendix_Table
   0.0	emtr-long-appendix
   0.1	emtr-long-appendix-cellcolored
-  2.2	sessionInfo
+  1.2	sessionInfo
   0.0	platform_info
   0.0	addtorow
   0.0	loaded_packages

@@ -86,6 +86,7 @@ if (is_knitting()) {
 }
 
 on_travis <- nzchar(Sys.getenv("TRAVIS")) && identical(Sys.getenv("TRAVIS"), "true")
+message("\ton_travis: ", on_travis)
 
 if (!on_travis) {
   knitr::knit_hooks$set(do_mem = function(before) {
@@ -4748,7 +4749,7 @@ Capping the total amount of losses that can be deducted each year for negatively
 sample_file[Sw_amt %between% c(0, 250e3), .(Sw_amt, NG = as.double(Net_rent_amt < 0))] %>%
   setnames("Sw_amt", "Salary") %>%
   grplot(aes(x = Salary, y = NG)) + 
-  geom_smooth(colour = DarkOrange, size = 1.5) +
+  geom_smooth(colour = DarkOrange, size = 1.5, method = "gam", formula = y ~ s(x, bs = 'bs')) +
   scale_y_continuous(label = percent, expand = c(0,0)) + 
   scale_x_continuous(label = grattan_dollar) + 
   theme(axis.title.y = element_blank(), 
@@ -5430,10 +5431,12 @@ EMTR_Appendix_Table %>%
                                           floating = FALSE))}
   
 if (on_travis) {
+  message("\n\n\tRemoving objects...\n\n")
   rm(sample_files_all)
   rm(sample_file)
   rm(target_sample_file)
   rm(policy)
+  rm(list = ls(pattern = "^policy"))
   gc()
 }
 @
