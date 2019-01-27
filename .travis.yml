@@ -25,16 +25,13 @@ before_script:
 - tar xzf biber-linux_x86_64.tar.gz
 - export PATH=$PATH:$PWD
 - tlmgr update biber chngcntr
-- sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell
-- sudo apt-get install r-cran-survey
-- sudo apt-get install r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven
-- sudo apt-get install r-cran-survival
+- sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell r-cran-survey r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven r-cran-survival
 - Rscript travis-make.R
 
 script: 
-- set -e
-- Rscript -e 'knitr::knit("CGT_and_neg_gearing_parent.Rnw")'
+- Rscript -e 'knitr::knit("CGT_and_neg_gearing_parent.Rnw", quiet = TRUE)'
 - pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex > /dev/null
+- pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex
 - biber CGT_and_neg_gearing_parent
 - pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
 - pdflatex -interaction=batchmode CGT_and_neg_gearing_parent.tex > /dev/null
