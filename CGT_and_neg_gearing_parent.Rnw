@@ -178,6 +178,11 @@ RQ("hildaData",
    })
 @
 
+<<EarlySessionInfo>>=
+library(sessioninfo)
+SessionInfo <- session_info()
+@
+
 <<make_negatives_NA>>=
 make_negatives_NA <- function(v) {
   if (is.numeric(v)){
@@ -5483,8 +5488,7 @@ The \verb=devtools::session_info()= is printed below.
 % \phantom{.}
 \end{multicols*}
 <<sessionInfo>>=
-library(sessioninfo)
-SessionInfo <- session_info()
+
 @
 
 \begin{table*}[!htb]
