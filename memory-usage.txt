@@ -1,5 +1,6 @@
  4.5	loadPackages
  0.0	loadHILDA
+ 0.0	EarlySessionInfo
  0.0	make_negatives_NA
  0.0	prohibit_quiet_censoring
  0.0	downloadGrattex
@@ -119,11 +120,12 @@
  0.0	EMTR_Appendix_Table
  0.0	emtr-long-appendix
  0.0	emtr-long-appendix-cellcolored
+ 0.0	on_travis_cleaning
  0.0	sessionInfo
  0.0	platform_info
  0.0	addtorow
  0.0	loaded_packages
  0.0	the_attached_packages
- 0.0	packcageCitation
+ 0.0	packageCitation
  0.0	Is-HILDA-used
  0.0	FINISH-TIME

@@ -1,7 +1,7 @@
 % !TeX program = pdflatex
 \documentclass{grattan}
 
-\usepackage{ocgx}
+\usepackage{ocgx2}
 
 \title{Negative gearing and the capital gains discount}
 \author{John Daley and Danielle Wood}
@@ -5395,8 +5395,7 @@ data.table::CJ(
            `Nominal annual capital gain__5.0\\%`, 
            `Nominal annual capital gain__6.0\\%`, 
            `Nominal annual capital gain__8.0\\%`,
-           `Nominal annual capital gain__10.0\\%`,
-           shallow = TRUE) 
+           `Nominal annual capital gain__10.0\\%`) 
 @
 
 
@@ -5412,6 +5411,7 @@ data.table::CJ(
 
 <<emtr-long-appendix, results='asis'>>=
 EMTR_Appendix_Table %>%
+  copy %>%
   {suppressWarnings(print_2heading_xtable(., 
                                           sanitize.text.function = function(x) x, 
                                           tabular.environment = "tabular", 
@@ -5425,23 +5425,42 @@ EMTR_Appendix_Table %>%
 \begin{ocg}{ocgColored}{ocgColored}{0}
 \node (Coloured) {%
 <<emtr-long-appendix-cellcolored, results='asis'>>=
-shade_cell <- function(x){
+shade_cell <- function(x) {
   color <- cut(as.numeric(x), breaks = c(-Inf, 100*(1:6)/6, Inf), labels = c(paste0("Color", 1:6), "black"))
   # black background -> white text
   if_else(as.numeric(x) > 100, 
-         paste0("\\cellcolor{", color, "}{\\textcolor{white}{", x, "}}"),
-         paste0("\\cellcolor{", color, "}{", x, "}"))
+          paste0("\\cellcolor{", color, "}{\\textcolor{white}{", x, "}}"),
+          paste0("\\cellcolor{", color, "}{", x, "}"))
 }
 
+do_nrow <- function(x) {
+  cat(nrow(x), "\n")
+  x
+}
+
+cols_to_shade <- setdiff(names(EMTR_Appendix_Table), 
+                         c("\\phantom{.}", "Marginal tax rate", "Return type", "CGT treatment"))
+
 EMTR_Appendix_Table %>%
-  .[, lapply(.SD, shade_cell), 
-    keyby = .(`Marginal tax rate`, `Return type`, `CGT treatment`, `\\phantom{.}`)] %>%
+  copy %>%
+  .[, (cols_to_shade) := lapply(.SD, shade_cell), .SDcols = c(cols_to_shade)] %>%
+  .[] %>%
   {suppressWarnings(print_2heading_xtable(., 
                                           sanitize.text.function = function(x) x, 
                                           tabular.environment = "tabular", 
                                           xtable.align = "lQlllrrrrr",
                                           floating = FALSE))}
-  
+@
+};%
+\end{ocg}
+\end{tikzpicture}
+\footnotesize
+\begin{tabular}{lp{0.5\textwidth}}
+\footnotesize Notes: & {\footnotesize Inflation 2.5\%. Property earns 3\%\ nominal rent in addition to the capital growth and which is reinvested in the property till maturity. Risk free rate 4.5\%. Property is held for 15 years then disposed and capital gain realized without losses.\hfill{\switchocg{ocgBlack ocgColored}{\textcolor{DarkOrange}{\textbf{Click to colour cells.}}}}}
+\end{tabular}
+\end{table*}
+
+<<on_travis_cleaning>>=
 if (on_travis) {
   the_node_size <- function() {
     bit <- 8L * .Machine$sizeof.pointer
@@ -5465,14 +5484,6 @@ if (on_travis) {
   gc()[, 1]
 }
 @
-};%
-\end{ocg}
-\end{tikzpicture}
-\footnotesize
-\begin{tabular}{lp{0.5\textwidth}}
-\footnotesize Notes: & {\footnotesize Inflation 2.5\%. Property earns 3\%\ nominal rent in addition to the capital growth and which is reinvested in the property till maturity. Risk free rate 4.5\%. Property is held for 15 years then disposed and capital gain realized without losses.\hfill{\switchocg{ocgBlack ocgColored}{\textcolor{DarkOrange}{\textbf{Click to colour cells.}}}}}
-\end{tabular}
-\end{table*}
 
 
 \onecolumn
