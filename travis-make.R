@@ -2,6 +2,9 @@ any_reqd <- function(P) {
   !all(vapply(P, requireNamespace, quietly = TRUE, logical(1)))
 }
 
+cat(as.character(Sys.time()), "\t", "cli\n")
+RQ("cli", install.packages("cli", quiet = TRUE))
+
 if (any_reqd(c("devtools", "stringi", "hunspell", "survey", "ggplot2", "dplyr", "tidyr", "readr", 
                "haven", "survival"))) {
   cat("Installing binaries\n")
