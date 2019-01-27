@@ -1,4 +1,12 @@
+any_reqd <- function(P) {
+  !all(vapply(P, requireNamespace, quietly = TRUE, logical(1)))
+}
 
+if (any_reqd(c("devtools", "stringi", "hunspell", "survey", "ggplot2", "dplyr", "tidyr", "readr", 
+               "haven", "survival"))) {
+  cat("Installing binaries\n")
+  system("sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell r-cran-survey r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven r-cran-survival")
+}
 
 # First remove all but the CGT_parent
 vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
