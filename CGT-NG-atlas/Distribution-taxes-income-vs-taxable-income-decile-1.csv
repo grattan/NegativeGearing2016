@@ -1,0 +1,61 @@
+Taxable_Income_decile,type,value
+1,No. Taxpayers,1348200
+2,No. Taxpayers,1348200
+3,No. Taxpayers,1348200
+4,No. Taxpayers,1348200
+5,No. Taxpayers,1348200
+6,No. Taxpayers,1348200
+7,No. Taxpayers,1348200
+8,No. Taxpayers,1348200
+9,No. Taxpayers,1348200
+10,No. Taxpayers,1348150
+1,Salary,3235647550
+2,Salary,10900396500
+3,Salary,19440830950
+4,Salary,30787153050
+5,Salary,43769861750
+6,Salary,57491531700
+7,Salary,71970177000
+8,Salary,89004464550
+9,Salary,115360867050
+10,Salary,182697358000
+1,"Income tax
+(excl CGT)",0
+2,"Income tax
+(excl CGT)",0
+3,"Income tax
+(excl CGT)",14724325.55
+4,"Income tax
+(excl CGT)",68046606.47
+5,"Income tax
+(excl CGT)",126036026.57
+6,"Income tax
+(excl CGT)",211799582.18
+7,"Income tax
+(excl CGT)",316331543.55
+8,"Income tax
+(excl CGT)",449544410.27
+9,"Income tax
+(excl CGT)",664133279.995
+10,"Income tax
+(excl CGT)",1817467390.135
+1,Capital gains,297553700
+2,Capital gains,219556300
+3,Capital gains,241045850
+4,Capital gains,316216400
+5,Capital gains,346881500
+6,Capital gains,351582800
+7,Capital gains,468625850
+8,Capital gains,664295950
+9,Capital gains,1196419750
+10,Capital gains,10269400200
+1,CGT,0
+2,CGT,0
+3,CGT,295607.89
+4,CGT,890631.76
+5,CGT,1216632.46
+6,CGT,1742723.02
+7,CGT,2571932.13
+8,CGT,4038816.485
+9,CGT,7790736.305
+10,CGT,89396510.345

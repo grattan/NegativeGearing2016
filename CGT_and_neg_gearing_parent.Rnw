@@ -2826,7 +2826,8 @@ pDecile <-
             CGT = sum(income_tax(Taxable_Income, latest.sample.fy) - income_tax(pmaxC(Taxable_Income - Net_CG_amt, 0), latest.sample.fy))) %>%
   gather(type, value, -Taxable_Income_decile) %>%
   mutate(type = factor(type, levels = unique(.$type), ordered = TRUE)) %>%
-  arrange(type, Taxable_Income_decile) %>%
+  arrange(type, Taxable_Income_decile) %T>%
+  fwrite("CGT-NG-atlas/Distribution-taxes-income-vs-taxable-income-decile-1.csv") %>%
   grplot(aes(x = type, y = value, fill = factor(Taxable_Income_decile, levels = 10:1))) + 
   geom_bar(stat = "identity", position = "fill", width = 0.8, color = "white") +
   scale_fill_manual(values = gpalx(10)) + 
@@ -2848,7 +2849,8 @@ pDecile_no_CG <-
             CGT = sum(income_tax(Taxable_Income, latest.sample.fy) - income_tax(pmax0(Taxable_Income - Net_CG_amt), latest.sample.fy))) %>%
   gather(type, value, -Taxable_Income_decile) %>%
   mutate(type = factor(type, levels = unique(.$type), ordered = TRUE)) %>%
-  arrange(type, Taxable_Income_decile) %>%
+  arrange(type, Taxable_Income_decile) %T>%
+  fwrite("CGT-NG-atlas/Distribution-taxes-income-vs-taxable-income-decile-2.csv") %>%
   grplot(aes(x = type, y = value, fill = factor(Taxable_Income_decile, levels = 10:1))) + 
   geom_bar(stat = "identity", position = "fill", width = 0.8,
            color = "white") +
