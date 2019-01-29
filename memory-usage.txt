@@ -14,12 +14,13 @@
  0.1	load_sample_file
  0.1	create-age-imp
  0.4	target_sample_file
- 4.6	Import-HILDA
  0.0	Import-HILDA-all-waves-step-1
  0.1	Import-SIH
  0.0	Import-misc-ATO
  0.0	individuals_table1_201516
  0.0	individuals_table1
+ 0.0	ABS-housing-commitments
+ 0.0	ABS_560911
  0.0	CGT-by-entity-get
  0.3	Determine_future_rental_deductions
  0.0	cgt_discount_density
@@ -73,8 +74,15 @@
  0.0	prop_rental_deductions_gross_rent
  0.0	NG-basic-stats
  0.0	Net-rent-time-series
+ 0.0	prop_val_loans_that_are_investors
+ 0.0	prop_val_loans_that_are_investors_peak
+ 0.0	prop_val_loans_that_are_investors_2decades_ago
+ 0.0	valueNewLoans-vs-Date-by-Investor
  0.0	prop_le_80k
- 0.7	tx-inc-distr-by-NG
+ 0.0	median_tx_inc_by_NG
+ 0.0	density_NG
+ 0.0	density_other
+ 0.6	tx-inc-distr-by-NG
  0.7	tx-inc-distr-by-NG-latest
  0.3	Decile_constructor
  0.0	Benefit-NG-before-after-deductions
@@ -111,7 +119,7 @@
  1.3	NG-vs-salary
  1.5	Results
  0.0	prop_landlords_n_properties
-22.9	HILDA-duration-of-NG
+24.6	HILDA-duration-of-NG
  0.0	ggsurv-NG
  0.0	Survival-NG-analysis-hilda
  0.0	NG-survival-curve

@@ -546,6 +546,115 @@ individuals_table1 <-
           "2013-14" = individuals_table1_201314)
 @
 
+<<ABS-housing-commitments>>=
+# 2019-19-29
+get_ABS_Housing_Commitments <- function(Table = 11,
+                                        Today = Sys.Date()) {
+  stopifnot(is.integer(Table) || as.integer(Table) == Table,
+            dir.exists("ABS"))
+  daysSince <- (difftime(Today, as.Date("2018-11-01"), units = "days"))
+  if (as.numeric(daysSince) > 90) {
+    warning("ABS Housing finance data (Cat 5609.0) is out of day by more than a quarter.")
+  }
+  
+  if (file.exists(the.tsv <- sprintf("tsv/5609-9-Table%d.tsv", Table))) {
+    out <- fread(the.tsv, sep = "\t")
+    out[, Date := as.Date(Date)] 
+    return(out)
+  }
+  
+  TableC <- as.character(Table)
+  URL <- 
+    switch(TableC,
+           "11" = {
+           "http://www.ausstats.abs.gov.au/ausstats/meisubs.nsf/0/D30BA82E02D34A2ACA25838400152F1F/$File/5609011.xls"
+           },
+           stop("Undefined Table No."))
+  destfile.xls <- sprintf("ABS/5609-9-Table%d.xls", Table)
+  
+  if (!file.exists(destfile.xls)) {
+    res <- download.file(URL, 
+                         mode = "wb",
+                         destfile = destfile.xls)
+    if (res) {
+      stop("download failed with status code", res, ".")
+    }
+  }
+  switch(TableC, 
+         "11" = {
+           # 
+           .Description_by_SeriesID <- 
+             read_excel(destfile.xls, 
+                        sheet = "Data1",
+                        range = c("B1:Y10"),
+                        .name_repair = "minimal") %>%
+             tail(1L) %>%
+             as.data.table
+           
+           # Can't use melt because of duplicate names
+           Description_by_SeriesID <-
+             data.table(Description = names(.Description_by_SeriesID),
+                        SeriesID = transpose(.Description_by_SeriesID)[[1L]]) %>%
+             setkey(SeriesID) %>%
+             .[]
+           
+           .Adjustment_by_SeriesID <- 
+             read_excel(destfile.xls, 
+                        sheet = "Data1",
+                        range = c("B3:Y10"), 
+                        col_names = TRUE,
+                        # Column names aren't unique but we don't care yet
+                        .name_repair = "minimal") %>%
+             tail(1L) %>%
+             as.data.table
+           
+          Adjustment_by_SeriesID <- 
+            data.table(Adjustment = names(.Adjustment_by_SeriesID),
+                       SeriesID = transpose(.Adjustment_by_SeriesID)[[1L]]) %>%
+            setkey(SeriesID)
+           
+           # Units are constant and thousands
+           stopifnot(read_excel(destfile.xls,
+                                sheet = "Data1",
+                                range = "A2",
+                                col_names = "V1")[[1L]] == "Unit",
+                     identical(apply(read_excel(destfile.xls, 
+                                                sheet = "Data1",
+                                                range = c("B1:Y2")),
+                                     1, 
+                                     unique),
+                               "$'000"))
+            out <- 
+              read_excel(destfile.xls,
+                         sheet = "Data1",
+                         range = cell_rows(c(10, NA)),
+                         .name_repair = "minimal") %>%
+              as.data.table %>%
+              setnames("Series ID", "Date") %>%
+              .[, Date := as.Date(Date)] %>%
+              # See above assertion that all units are 1000's
+              .[, lapply(.SD, "*", 1000), keyby = "Date"] %>%
+              .[] %>%
+              melt.data.table(id.vars = "Date",
+                              variable.factor = FALSE,
+                              variable.name = "SeriesID",
+                              value.name = "value") %>%
+              setkey(SeriesID, Date) %>%
+              .[Description_by_SeriesID, on = "SeriesID"] %>%
+              .[Adjustment_by_SeriesID, on = "SeriesID"] %T>%
+              fwrite(the.tsv, sep = "\t", na = "NA") %>%
+              .[]
+            
+         })
+  
+ out
+}
+@
+
+<<ABS_560911>>=
+ABS_560911 <- get_ABS_Housing_Commitments(Table = 11L)
+@
+
 <<CGT-by-entity-get>>=
 # 2013-14 figures
 # keep outside for \url later
@@ -3338,7 +3447,93 @@ Consequently, negatively geared investors turn over their investments more often
 \section{The distortions caused by negative gearing have undesirable social consequences}
 Negative gearing has many undesirable social consequences. It reduces rates of home ownership. It reduces the availability of long-term rentals. It increases the volatility of housing markets, increasing the risks of the Australian financial system. 
 
-The favourable tax treatment reduces home ownership because it increases the after-tax returns to geared property investors but not homeowners. The increase in geared investing has crowded out purchases by owner-occupiers. Investors now account for more than 50 per cent of new loans for housing, up from 29 per cent two decades ago.  This is one of the reasons (but by no means the only reason) that rates of home ownership are falling among younger age groups.
+<<prop_val_loans_that_are_investors>>=
+prop_val_loans_that_are_investors <-
+  ABS_560911 %>%
+  .[!startsWith(Description, "Total")] %>%
+  .[!grepl("Refinanc", Description)] %>%
+  .[Date == max(Date)] %>%
+  .[, c("InvestorOrOwner", "Description") := tstrsplit(Description, split = " - ", fixed = TRUE)] %>%
+  .[, InvestorOrOwner := if_else(startsWith(InvestorOrOwner, "Investment"),
+                                 "Investor",
+                                 "Owner-occupier")] %>%
+  .[Adjustment %ein% "Trend"] %>%
+  .[, .(value = sum(value)), keyby = "InvestorOrOwner"] %>%
+  .[, prop := value / sum(value)] %>%
+  .[.("Investor")] %>%
+  .[["prop"]] %>%
+  latex_percent
+@
+<<prop_val_loans_that_are_investors_peak>>=
+prop_val_loans_that_are_investors_peak <-
+  ABS_560911 %>%
+  .[!startsWith(Description, "Total")] %>%
+  .[!grepl("Refinanc", Description)] %>%
+  .[year(Date) >= year(max(Date)) - 20L] %>%
+  .[, c("InvestorOrOwner", "Description") := tstrsplit(Description, split = " - ", fixed = TRUE)] %>%
+  .[, InvestorOrOwner := if_else(startsWith(InvestorOrOwner, "Investment"),
+                                 "Investor",
+                                 "Owner-occupier")] %>%
+  .[Adjustment %ein% "Trend"] %>%
+  .[, .(value = sum(value)), keyby = c("Date", "InvestorOrOwner")] %>%
+  .[, prop := value / sum(value), keyby = "Date"] %>%
+  .[InvestorOrOwner %ein% "Investor"] %>%
+  .[which.max(prop)]
+@
+<<prop_val_loans_that_are_investors_2decades_ago>>=
+prop_val_loans_that_are_investors_2decades_ago <-
+  ABS_560911 %>%
+  .[!startsWith(Description, "Total")] %>%
+  .[!grepl("Refinanc", Description)] %>%
+  .[year(Date) == year(max(Date)) - 20L] %>%
+  .[, c("InvestorOrOwner", "Description") := tstrsplit(Description, split = " - ", fixed = TRUE)] %>%
+  .[, InvestorOrOwner := if_else(startsWith(InvestorOrOwner, "Investment"),
+                                 "Investor",
+                                 "Owner-occupier")] %>%
+  .[Adjustment %ein% "Trend"] %>%
+  .[, .(value = sum(value)), keyby = "InvestorOrOwner"] %>%
+  .[, prop := value / sum(value)] %>%
+  .[.("Investor")] %>%
+  .[["prop"]] %>%
+  latex_percent
+@
+
+The favourable tax treatment reduces home ownership because it increases the after-tax returns to geared property investors but not homeowners. The increase in geared investing has crowded out purchases by owner-occupiers. Investors now account for \Sexpr{prop_val_loans_that_are_investors} of new loans for housing, compared with \Sexpr{prop_val_loans_that_are_investors_2decades_ago} two decades ago.  This is one of the reasons (but by no means the only reason) that rates of home ownership are falling among younger age groups. 
+
+(The proportion of loans going to investors peaked in \Sexpr{prop_val_loans_that_are_investors_peak[, year(Date)]} at \Sexpr{prop_val_loans_that_are_investors_peak[, latex_percent(prop)]}.)
+
+\begin{figure}
+<<valueNewLoans-vs-Date-by-Investor, fig.height=1.5*fig_height, out.height=paste0(1.5*out_height, "in"), fig.width=1.1*fig_width, out.width=paste0(1.1*out_width, "in")>>=
+ABS_560911 %>%
+  .[!startsWith(Description, "Total")] %>%
+  .[!grepl("Refinanc", Description)] %>%
+  .[year(Date) > 2007L] %>%
+  .[, c("InvestorOrOwner", "Description") := tstrsplit(Description, split = " - ", fixed = TRUE)] %>%
+  .[, InvestorOrOwner := if_else(startsWith(InvestorOrOwner, "Investment"),
+                                 "Investor",
+                                 "Owner-occupier")] %>%
+  .[, InvestorOrOwner := factor(InvestorOrOwner, 
+                                levels = c("Owner-occupier",
+                                           "Investor"),
+                                ordered = TRUE)] %>%
+  .[Adjustment %ein% "Trend"] %>%
+  .[, Description := trim_common_affixes(Description)] %>%
+  .[, Description := factor(Description, levels = unique(.$Description), ordered = TRUE)] %T>%
+  chart_data %>%
+  grplot(aes(x = Date, y = value, fill = Description)) + 
+  geom_area(color = "white") + 
+  facet_wrap(~InvestorOrOwner) + 
+  guides(fill = guide_legend(ncol = 2)) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank()) +
+  scale_y_continuous(labels = function(x) paste0(grattan_dollar(x / 1e9), " bn"),
+                     expand = c(0, 0))
+@
+\caption{Property investors now account for less of new loans for housing}
+\units{Value of housing finance commitments, by purpose}
+\includegraphics[width=\columnwidth]{\Sexpr{atlas}/valueNewLoans-vs-Date-by-Investor-1}
+\source{ABS Cat 5609.0, Table 11.}
+\end{figure}
 
 The higher churn of properties encouraged by negative gearing also contributes to the lack of secure long-term tenancies in Australia. Most of Australia's housing stock is owned by landlords with only one or two properties, because progressive land taxes significantly reduce the returns from larger landholdings.  As many of these landlords are negatively geared, and want to turn over their properties in order to stay negatively geared, most Australian landlords are reluctant to agree to long-term tenancies. Their political interests have also led to Australian tenancy law providing much less security for tenants than in other countries. 
 
@@ -3362,31 +3557,39 @@ A lot of the public debate has centred on claims that most taxpayers negatively 
 \Caption{More taxpayers on higher incomes negatively gear}{Distribution of taxable incomes by negative gearing status, 2013-14}{fig:tx-inc-distr-by-NG}
 % dev omit emf due to alpha
 
-<<tx-inc-distr-by-NG>>=
+<<median_tx_inc_by_NG>>=
 median_tx_inc_by_NG <- 
   sample_file_1314[, .(median = median(Taxable_Income)),
                    keyby = .(NG = Net_rent_amt < 0)]
+@
 
-
+<<density_NG>>=
 # For density annotations
 density_NG <- 
   sample_file_1314 %>%
   selector(Net_rent_amt, Taxable_Income) %>%
   .[Net_rent_amt < 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
+@
 
+<<density_other>>=
 density_other <- 
   sample_file_1314 %>%
   selector(Net_rent_amt, Taxable_Income) %>%
   .[Net_rent_amt >= 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
+@
 
+<<tx-inc-distr-by-NG>>=
+options(warn = 0)  # to avoid restarting promise evaluation
 if (!identical(Sys.getenv("TRAVIS"), "true") && is_knitting()) {
-  grattanCharts:::chart_data(bind_rows("NG" = data_frame(Taxable_Income = density_NG$x, 
-                                                         Density = density_NG$y), 
-                                       "Not_NG" = data_frame(Taxable_Income = density_other$x, 
-                                                             Density = density_other$y)))
+  grattanCharts:::chart_data(rbindlist(list("NG" = data.table(Taxable_Income = density_NG$x, 
+                                                              Density = density_NG$y), 
+                                            "Not_NG" = data.table(Taxable_Income = density_other$x, 
+                                                                  Density = density_other$y))))
 }
+options(warn = 2)
+
 
 sample_file_1314 %>%
   .[Taxable_Income < 210e3] %>%
