@@ -3578,7 +3578,7 @@ median_tx_inc_by_NG <-
 # For density annotations
 density_NG <- 
   sample_file_1314 %>%
-  selector(Net_rent_amt, Taxable_Income) %>%
+  selector(Net_rent_amt, Taxable_Income, shallow = TRUE) %>%
   .[Net_rent_amt < 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 @
@@ -3586,20 +3586,23 @@ density_NG <-
 <<density_other>>=
 density_other <- 
   sample_file_1314 %>%
-  selector(Net_rent_amt, Taxable_Income) %>%
+  selector(Net_rent_amt, Taxable_Income, shallow = TRUE) %>%
   .[Net_rent_amt >= 0 & Taxable_Income < 210e3] %$%
   density(Taxable_Income)
 @
 
 <<tx-inc-distr-by-NG>>=
-options(warn = 0)  # to avoid restarting promise evaluation
+
 if (!identical(Sys.getenv("TRAVIS"), "true") && is_knitting()) {
+  options(warn = 0)  # to avoid restarting promise evaluation
   grattanCharts:::chart_data(rbindlist(list("NG" = data.table(Taxable_Income = density_NG$x, 
                                                               Density = density_NG$y), 
                                             "Not_NG" = data.table(Taxable_Income = density_other$x, 
                                                                   Density = density_other$y))))
+  options(warn = 2)
 }
-options(warn = 2)
+
+
 
 
 sample_file_1314 %>%
@@ -3728,7 +3731,7 @@ The tax benefits from negative gearing are even more skewed toward high income e
 <<Decile_constructor>>=
 benefits_by_taxable_income <- 
   sample_file %>%
-  copy %>%
+  selector(Taxable_Income, Net_rent_amt) %>%
   mutate(Taxable_Income_Decile = ntile(Taxable_Income, 10),
          Taxable_Income_NoNegGearg = Taxable_Income - pminC(Net_rent_amt, 0),
          Taxable_Income_NoNegGearg_Decile = ntile(Taxable_Income_NoNegGearg, 10),
@@ -3741,7 +3744,7 @@ benefits_by_taxable_income <-
 
 benefits_by_taxable_income_before_deductions <- 
   sample_file %>%
-  copy %>%
+  selector(Taxable_Income, Net_rent_amt) %>%
   mutate(Taxable_Income_Decile = ntile(Taxable_Income, 10),
          #Taxable_Income_NoNegGearg = Taxable_Income + Rent_int_ded_amt,
          Taxable_Income_NoNegGearg = Taxable_Income - pminC(Net_rent_amt, 0),
@@ -3752,6 +3755,7 @@ benefits_by_taxable_income_before_deductions <-
   ungroup %>%
   mutate(prop_benefit = mean_benefit/sum(mean_benefit)) %>%
   mutate(Decile_of = "No negative gearing")
+
 @
 
 
