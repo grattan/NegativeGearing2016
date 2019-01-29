@@ -3109,22 +3109,24 @@ sample_file %>%
   mutate(age_range_description = factor(age_range_description, 
                                         levels = rev(unique(.$age_range_description)), 
                                         labels = gsub("\\s", "\n", rev(unique(.$age_range_description))))) %>%
-                                        {
-                                          grplot(., aes(x = age, y = prop, fill = factor(gearing))) + 
-                                            geom_bar(stat = "identity") +
-                                            scale_y_continuous(label = percent, expand = c(0,0)) + 
-                                            scale_x_continuous("Age", breaks = c(30, 50, 70)) + 
-                                            annotate("text", 
-                                                     x = 76, 
-                                                     y = sort(use_series(filter(., age == max(age)), prop)), 
-                                                     label = c("Negative\ngearing", "Earning\nrental income\nbut not\nnegatively\ngeared"), 
-                                                     fontface = "bold", 
-                                                     size = 22/(14/5),
-                                                     lineheight = 0.8,
-                                                     hjust = 0,
-                                                     colour = gpal(2)) + 
-                                            geom_blank(aes(x = 86, y = 0))
-                                        }
+  {
+    grplot(., aes(x = age, y = prop, fill = factor(gearing)),
+           reverse = TRUE) + 
+      geom_bar(stat = "identity") +
+      scale_y_continuous(label = function(x) paste0(round(100 * x), "%"),
+                         expand = c(0, 0)) + 
+      scale_x_continuous("Age", breaks = c(30, 50, 70)) + 
+      annotate("text", 
+               x = 76, 
+               y = sort(use_series(filter(., age == max(age)), prop)), 
+               label = c("Negative\ngearing", "Earning\nrental income\nbut not\nnegatively\ngeared"), 
+               fontface = "bold", 
+               size = 22/(14/5),
+               lineheight = 0.8,
+               hjust = 0,
+               colour = gpal(2)) + 
+      geom_blank(aes(x = 86, y = 0))
+  }
 @
 \includegraphics[width=1.225\columnwidth]{\Sexpr{atlas}/NG-PG-by-age-1}
 \source{\Sexpr{sample_file$fy.year[1]} sample file.}
@@ -4801,9 +4803,10 @@ sample_file %>%
             prop_claiming = mean(Net_PP_BI_amt < 0)) %>%
   ungroup %>% 
   gather(Claiming, average_salary, average_salary_n_claiming:average_salary_claiming) %>%
-  mutate(Claiming = factor(if_else(grepl("_n_claiming", Claiming), 
-                                  "Not claiming", 
-                                  "Claiming"), 
+  mutate(isClaiming = grepl("_n_claiming", Claiming),
+         Claiming = factor(if_else(isClaiming, 
+                                   "Not claiming", 
+                                   "Claiming"), 
                            levels = c("Not claiming", 
                                       "Claiming"))) %>%
   # cosmetic
@@ -4820,6 +4823,12 @@ sample_file %>%
          Occupation_description = if_else(grepl("apprenti", Occupation_description),
                                           "Consultants,\napprentices",
                                           Occupation_description)) %>%
+  as.data.table %>%
+  setkey(isClaiming, Occupation_description) %>%
+  .[, c("xm", "ym") := list(average_salary, prop_claiming)] %>%
+  .[.(TRUE, "Sales"), c("xm", "ym") := list(80e3, 0.05/100)] %>%
+  .[.(FALSE, "Sales"), c("xm", "ym") := list(80e3, 0.05/100)] %>%
+  .[] %>%
   {
     max.iter <- 12e3
     grplot(., aes(x = average_salary,
@@ -4997,10 +5006,12 @@ Capping the total amount of losses that can be deducted each year for negatively
 % dev omit emf due to alpha
 <<NG-vs-salary>>=
 sample_file[Sw_amt %between% c(0, 250e3), .(Sw_amt, NG = as.double(Net_rent_amt < 0))] %>%
-  setnames("Sw_amt", "Salary") %>%
+  setnames("Sw_amt", "Salary") %T>%
+  chart_data %>%
   grplot(aes(x = Salary, y = NG)) + 
   geom_smooth(colour = DarkOrange, size = 1.5, method = "gam", formula = y ~ s(x, bs = 'bs')) +
-  scale_y_continuous(label = percent, expand = c(0,0)) + 
+  scale_y_continuous(label = function(x) paste0(round(100 * x), "%"), 
+                     expand = c(0, 0)) + 
   scale_x_continuous(label = grattan_dollar) + 
   theme(axis.title.y = element_blank(), 
         axis.line.y = element_line(size = rel(0.5)), 
@@ -5019,18 +5030,19 @@ long_term = 10L
 data.table(Threshold = c(seq(0, -20e3, by = -5e3), -50e3), -Inf) %>%
   .[, .(Costing = grattan_dollar(round(cost_NG_limited_to(.BY[[1]]))),
         `Number affected` = comma(round(number_affected(.BY[[1]]))), 
-        `\\%` = latex_percent(number_affected(.BY[[1]]) / (sample_file_1314[, sum(Gross_rent_amt > 0)] * 50),
+        `\\%` = latex_percent(number_affected(.BY[[1]]) / 
+                                (target_sample_file[Gross_rent_amt > 0, sum(WEIGHT)]),
                               percentage_symbol = "\\%")),
     keyby = 'Threshold'] %>%
   .[, Threshold := paste0("$-$\\$", if_else(is.infinite(Threshold), "$\\infty$", comma(abs(Threshold))))] %>%
   .[, Costing := sub("$", "\\$", Costing, fixed = TRUE)] %>%
   selector(cols = c("Threshold", 'Costing', "Number affected", "\\%")) %>%
   # warns about not recognizing siuntix align operator
-  {suppressWarnings(xtable(., align = "rrrrS"))} %>% 
+  {suppressWarnings(xtable(., align = "rrrrR"))} %>% 
   print.xtable(include.rownames = FALSE,
                booktabs = TRUE,
                floating = FALSE,
-               align = "rrrrS", 
+               align = "rrrrR", 
                sanitize.text.function = function(x){x})
 @
 \end{table}

@@ -47,6 +47,7 @@ docx/
 *.pdf
 !./FrontPage/*pdf
 !./logos/*pdf
+!./CGT-NG-atlas/*pdf
 *.emf
 *.dta
 *.RData
