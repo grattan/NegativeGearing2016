@@ -42,8 +42,8 @@ if (on_travis) {
 }
 
 # HILDA takes 7 minutes to load and tidy
-reload_all_data <- FALSE
-cache_most <- FALSE #&& !reload_all_data
+reload_all_data <- TRUE
+cache_most <- TRUE #&& !reload_all_data
 @
 
 \rehead[\normalfont\texttt{new.discount} = \Sexpr{new.discount}\quad
@@ -117,6 +117,7 @@ if (!on_travis) {
 }
 knitr::opts_chunk$set(fig.show='hide',
                       fig.path= atlas <- "CGT-NG-atlas/",
+                      cache = cache_most,
                       do_mem = !on_travis)
 @
 
@@ -2102,24 +2103,34 @@ data.table(
                                fixed = TRUE), 
                           "")) %>%
   rename(`Holding period for assets (years)` = n) %>%
+  mutate(text.x = dplyr::case_when(labels %pin% "no CGT discount" ~ 20,
+                                   labels %ein% " (50% CGT discount)\n" ~ 12,
+                                   labels %pin% "gains realized at lower rate" ~ 2,
+                                   TRUE ~ 2),
+         text.y = dplyr::case_when(labels %pin% "no CGT discount" ~ 0.4,
+                                   labels %ein% " (50% CGT discount)\n" ~ 0.3,
+                                   labels %pin% "gains realized at lower rate" ~ 0.23,
+                                   TRUE ~ 0.23)) %>%
   {
     grplot(., aes(x = `Holding period for assets (years)`, 
                   y = EMTR, 
                   colour = CGT_regime)) + 
       xlab("Holding period for assets (years)") +
       geom_line() + 
-      geom_text_repel(aes(label = labels),
-                      fontface = "bold",
-                      size = 18/(14/5), 
-                      lineheight = 0.9,
-                      hjust = 0,
-                      family = if_knitting("helvet", ""),
-                      na.rm = TRUE) + 
+      geom_text(aes(x = text.x,
+                    y = text.y,
+                    label = labels),
+                fontface = "bold",
+                size = 18/(14/5), 
+                lineheight = 0.9,
+                hjust = 0,
+                family = if_knitting("helvet", ""),
+                na.rm = TRUE) + 
       scale_y_continuous(label = function(x) paste0(round(100 * x), "%"),
                          breaks = (0:6)/10,
                          limits = c(min(.$EMTR) - 0.05,
-                                    max(.$EMTR) + 0.05), 
-                         expand = c(0, 0)) + 
+                                    max(.$EMTR) + 0.05),
+                         expand = c(0, 0)) +
       theme(panel.grid.major.y = element_line(), 
             axis.title.x = element_text(margin = margin(t = 10, unit = "pt")))
   }
@@ -4775,7 +4786,7 @@ sample_file %>%
 @
 
 
-<<PP-losers-salary-comparison-ggrepel>>=
+<<PP-losers-salary-comparison-ggrepel, fig.width=1.15*fig_width, out.width=paste0(1.15*out_width, "in")>>=
 sample_file %>%
   merge(occupation_decoder, by = "Occ_code") %>%
   filter(!grepl("Occupation not listed", Occupation_description)) %>%
@@ -4787,44 +4798,60 @@ sample_file %>%
   ungroup %>% 
   gather(Claiming, average_salary, average_salary_n_claiming:average_salary_claiming) %>%
   mutate(Claiming = factor(if_else(grepl("_n_claiming", Claiming), 
-                                  "Not claiming PP losses", 
-                                  "Claiming PP losses"), 
-                           levels = c("Not claiming PP losses", 
-                                      "Claiming PP losses"))) %>%
+                                  "Not claiming", 
+                                  "Claiming"), 
+                           levels = c("Not claiming", 
+                                      "Claiming"))) %>%
   # cosmetic
   mutate(Occupation_description = gsub("and type not specified or not listed", "", Occupation_description), 
          Occupation_description = gsub("and", "&", Occupation_description), 
          Occupation_description = if_else(grepl("Community.*Personal", Occupation_description), 
                                          "Community workers", 
-                                         Occupation_description)) %>%
-  mutate(`Average salary` = average_salary) %>%
+                                         Occupation_description),
+         Occupation_description = gsub("Administrative",
+                                       "Admin.",
+                                       Occupation_description),
+         Occupation_description = sub(" workers", "", Occupation_description,
+                                      ignore.case = TRUE),
+         Occupation_description = if_else(grepl("apprenti", Occupation_description),
+                                          "Consultants,\napprentices",
+                                          Occupation_description)) %>%
   {
-    max.iter <- 20e3
-    grplot(., aes(x = `Average salary`, y = prop_claiming, 
-                  label = Occupation_description, colour = Claiming)) + 
-      geom_point(size = 2) + 
-      geom_text_repel(data = filter(., grepl("Not claiming", Claiming)), 
-                      nudge_y = mean(.$prop_claiming)/8, 
-                      nudge_x = -mean(.$average_salary)/8,
-                      fontface = "bold", 
-                      point.padding = unit(0.01, 'npc'),
-                      box.padding = unit(0.25, "lines"),
-                      size = 20/(14/5), 
-                      
-                      max.iter = max.iter) +
-      geom_text_repel(data = filter(., !grepl("Not claiming", Claiming)), 
-                      nudge_y = -mean(.$prop_claiming)/10, 
-                      nudge_x = mean(.$average_salary)/8,
-                      fontface = "bold",
-                      point.padding = unit(0.01, 'npc'),
-                      box.padding = unit(0.25, "lines"),
-                      size = 22/(14/5), 
-                      
-                      max.iter = max.iter) + 
-      scale_x_continuous(label = grattan_dollar, limits = c(0.8*min(.$average_salary), 
-                                                            1.2*max(.$average_salary))) + 
-      scale_y_continuous(label = percent, limits = c(0.8*min(.$prop_claiming), 1.2*max(.$prop_claiming))) + 
-      theme(legend.position = "right")
+    max.iter <- 12e3
+    grplot(., aes(x = average_salary,
+                  y = prop_claiming, 
+                  label = Occupation_description, 
+                  fill = Claiming,
+                  colour = Claiming)) + 
+      geom_point(size = 2,
+                 show.legend = FALSE) + 
+      geom_label_repel(family = if_knitting("helvet", ""),
+                       min.segment.length = 0.02,
+                       point.padding = 0.01,
+                       label.size = NA,
+                       fill = "white",
+                       force = 3,
+                       max.iter = 6e3,
+                       lineheight = 0.86,
+                       # fontface = "bold", 
+                       # point.padding = unit(0.05, 'npc'),
+                       box.padding = unit(0.45, "lines"),
+                       size = 16/(14/5), 
+                       show.legend = FALSE) +
+      # to force fill to appear
+      geom_rect(xmin = NA, ymax = NA, xmax = NA, ymin = NA, na.rm = TRUE) +
+      scale_x_continuous("Average salary",
+                         label = grattan_dollar, 
+                         limits = c(0.68*min(.$average_salary), 
+                                    1.06*max(.$average_salary))) + 
+      scale_y_continuous(labels = function(x) paste0(round(x * 100, 1), "%"),
+                         limits = c(0, 0.5/100),
+                         expand = c(0, 0)) + 
+      guides(fill = guide_legend("PP losses", override.aes = list(fill = gpal(2))),
+             color = FALSE) +
+      theme(legend.position = c(1, 0),
+            legend.title.align = 0,
+            legend.justification = c(1, 0))
   }
 @
 
