@@ -2779,7 +2779,7 @@ Second, reducing the discount might not lead to much greater investment in owner
 
 
 
-<<stacked-column-chart, fig.width = 22, out.width = "22in">>=
+<<Distribution-taxes-income-vs-taxable-income-decile, fig.width = 2.2*fig_width, out.width=paste0(2.2*out_width), fig.height=1.2*fig_height, out.height=paste0(1.2*out_height, "in")>>=
 new_lines_adder = function(x, interval) {
   #add spaces after /
   x = stringr::str_replace_all(x, "/", "/ ")
@@ -2820,14 +2820,15 @@ pDecile <-
   group_by(Taxable_Income_decile = ntile(Taxable_Income, 10)) %>%
   summarise(`No. Taxpayers` = n() * 50, 
             `Salary` = 50 * sum(as.numeric(Sw_amt)), 
-            `Income tax (excl CGT)` = sum(income_tax(pmaxC(Taxable_Income - Net_CG_amt, 0), latest.sample.fy)), 
+            `Income tax\n(excl CGT)` = sum(income_tax(pmaxC(Taxable_Income - Net_CG_amt, 0), 
+                                                      latest.sample.fy)), 
             `Capital gains` = sum(Net_CG_amt) * 50, 
-            `Capital gains tax` = sum(income_tax(Taxable_Income, latest.sample.fy) - income_tax(pmaxC(Taxable_Income - Net_CG_amt, 0), latest.sample.fy))) %>%
+            CGT = sum(income_tax(Taxable_Income, latest.sample.fy) - income_tax(pmaxC(Taxable_Income - Net_CG_amt, 0), latest.sample.fy))) %>%
   gather(type, value, -Taxable_Income_decile) %>%
   mutate(type = factor(type, levels = unique(.$type), ordered = TRUE)) %>%
   arrange(type, Taxable_Income_decile) %>%
   grplot(aes(x = type, y = value, fill = factor(Taxable_Income_decile, levels = 10:1))) + 
-  geom_bar(stat = "identity", position = "fill", width = 0.8) +
+  geom_bar(stat = "identity", position = "fill", width = 0.8, color = "white") +
   scale_fill_manual(values = gpalx(10)) + 
   scale_y_continuous(label = percent, breaks = (0:10)/10) + 
   scale_x_discrete(labels = newliner, expand = c(0,0)) + 
@@ -2841,29 +2842,30 @@ pDecile_no_CG <-
   group_by(Taxable_Income_decile = ntile(Taxable_Income - Net_CG_amt, 10)) %>%
   summarise(`No. Taxpayers` = n() * 50, 
             `Salary` = 50 * sum(as.numeric(Sw_amt)), 
-            `Income tax (excl CGT)` = sum(income_tax(pmax0(Taxable_Income - Net_CG_amt), latest.sample.fy)), 
+            `Income tax\n(excl CGT)` = sum(income_tax(pmax0(Taxable_Income - Net_CG_amt),
+                                                      latest.sample.fy)), 
             `Capital gains` = sum(Net_CG_amt) * 50, 
-            `Capital gains tax` = sum(income_tax(Taxable_Income, latest.sample.fy) - income_tax(pmax0(Taxable_Income - Net_CG_amt), latest.sample.fy))) %>%
+            CGT = sum(income_tax(Taxable_Income, latest.sample.fy) - income_tax(pmax0(Taxable_Income - Net_CG_amt), latest.sample.fy))) %>%
   gather(type, value, -Taxable_Income_decile) %>%
   mutate(type = factor(type, levels = unique(.$type), ordered = TRUE)) %>%
   arrange(type, Taxable_Income_decile) %>%
   grplot(aes(x = type, y = value, fill = factor(Taxable_Income_decile, levels = 10:1))) + 
-  geom_bar(stat = "identity", position = "fill", width = 0.8) +
+  geom_bar(stat = "identity", position = "fill", width = 0.8,
+           color = "white") +
   scale_fill_manual(values = gpalx(10)) + 
-  scale_y_continuous(label = percent, breaks = (0:10)/10) + 
-  scale_x_discrete(labels = newliner, expand = c(0,0)) + 
+  scale_y_continuous(label = percent, breaks = (0:10)/10, position = "right") + 
+  scale_x_discrete(labels = newliner, expand = c(0, 0)) + 
   facet_grid(~"Without CG") + 
-  theme(strip.background = element_rect(fill=theGrey), 
+  theme(strip.background = element_rect(fill = theGrey), 
         strip.text = element_text(face = "bold", color = "white"), 
         axis.title.x = element_blank(), 
         axis.text.x  = element_text())
 
-grid.arrange(pDecile, pDecile_no_CG, ncol = 2)
+grid.arrange(pDecile, pDecile_no_CG, ncol = 2, clip = "off")
 @
 \begin{figure*}
 \Caption{}{Distribution of taxes and income by taxable income decile}{fig:DecileStackedChart}
-\includegraphics[width = \textwidth]{\Sexpr{atlas}/stacked-column-chart-1}
-\the\textwidth
+\includegraphics[width = \textwidth]{\Sexpr{atlas}/Distribution-taxes-income-vs-taxable-income-decile-1}
 \end{figure*}
 
 \chapter{Negative gearing}
@@ -3095,8 +3097,8 @@ prop_investors_over60_NG <-
 @
 
 \begin{figure}[p]
-\Caption{More people negatively gear property investments in their peak earning years}{Percentage of \Sexpr{latest.sample.fy} taxpayers with }{fig:NG-PG-by-age}
-<<NG-PG-by-age, fig.width=1.15*fig_width, out.width=paste0(1.15*out_width, "in"), fig.height=1.3*fig_height, out.height=paste0(1.3*out_height, "in")>>=
+\Caption{More people negatively gear property investments in their peak earning years}{Percentage of \Sexpr{latest.sample.fy} taxpayers who are\dots{} }{fig:NG-PG-by-age}
+<<NG-PG-by-age, fig.width=1.15*fig_width, out.width=paste0(1.15*out_width, "in"), fig.height=1.1*fig_height, out.height=paste0(1.1*out_height, "in")>>=
 sample_file %>%
   # filter(Gross_rent_amt > 0) %>%
   group_by(age_range_description) %>%
@@ -3125,7 +3127,7 @@ sample_file %>%
   stacked_bar_with_right_labels(x_continuous = TRUE,
                                 scale_y_args = list(label = function(x) paste0(round(100 * x), "%"),
                                                     expand = c(0, 0)),
-                                nudge_right = 5,
+                                nudge_right = 5,  # since ages are in 5-year grps
                                 nudge_up = 0.01,
                                 scale_x_args = list(name = "Age",
                                                     breaks = c(30, 50, 70)),
