@@ -43,7 +43,7 @@ if (on_travis) {
 
 # HILDA takes 7 minutes to load and tidy
 reload_all_data <- TRUE
-cache_most <- TRUE #&& !reload_all_data
+cache_most <- FALSE #&& !reload_all_data
 @
 
 \rehead[\normalfont\texttt{new.discount} = \Sexpr{new.discount}\quad
@@ -1104,6 +1104,7 @@ revenue_quarantine_NG_2 <- function(.target_sample_file = target_sample_file,
                                     age_based = TRUE,
                                     Z = 20) {
   stopifnot(is.null(sample_file))
+  
   target_sample_file <- copy(.target_sample_file)
   if (sample_file_fy_year %notin% c("2013-14", "2015-16")) {
     stop("You must correct the sample_file year")
@@ -1164,7 +1165,7 @@ revenue_quarantine_NG_2 <- function(.target_sample_file = target_sample_file,
     # age based-method
     # q ~ probNG_if_investor
     q_by_age <- 
-      get("sample_file", envir = parent.frame()) %>%
+      get("sample_file", mode = "list") %>%
       .[Gross_rent_amt > 0] %>%
       .[, .(q = mean(Net_rent_amt < 0) * (1 - mean(Net_CG_amt > 0))), 
         keyby = "age_range"]
