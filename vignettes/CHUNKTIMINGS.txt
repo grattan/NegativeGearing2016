@@ -1,0 +1,11 @@
+  0.0	prop_not_NG
+  0.2	NegativeGearing_by_Occupation
+  0.0	prop_nurses_not_NG
+  0.0	prop_teachers_not_NG
+  0.0	prop_surgeons_NG
+  0.0	prop_anaesthetists_not_NG
+  0.0	check-almost-triple-remark
+  1.1	s1819
+  0.0	prop_CG_top_decile
+  0.3	prop_benefits_NG_top_decile
+  0.5	prop_benefits_NG_top_decile_adj

@@ -2,6 +2,7 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[b5paper,11pt]{article}
+\usepackage{xcolor}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -11,10 +12,15 @@
 <<loadPackages, echo=FALSE>>=
 # Verify we are here before we do things like
 # write a cache folder
-stopifnot(file.exist("20190206-oped.Rnw"))
+stopifnot(file.exists("20190206-oped.Rnw"))
+library(knitr)
+knit_hooks$set(inline = function(x) { sprintf("\\textcolor{red}{\\textbf{%s}}", x)})
+
 library(data.table)
-library(grattan)
-library(grattanCharts)
+suppressPackageStartupMessages(library(grattan))
+library(xtable)
+suppressPackageStartupMessages(library(grattanCharts))
+setup_knitr_for_grattex()
 library(magrittr)
 library(taxstats)
 library(taxstats1516)
@@ -168,7 +174,6 @@ prop_anaesthetists_not_NG.tex <- grattan_percent(prop_anaesthetists_not_NG, digi
 
 <<check-almost-triple-remark>>=
 stopifnot(round(1 - prop_anaesthetists_not_NG, 2) + 0.025 > round((1 - prop_nurses_not_NG) * 3, 2))
-stopifnot(round(1 - prop_surgeons_not_NG, 2) + 0.025 > round((1 - prop_nurses_not_NG) * 3, 2))
 @
 
 
