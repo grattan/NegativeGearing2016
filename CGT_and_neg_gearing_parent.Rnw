@@ -35,6 +35,7 @@ wave <- letters[hilda_year - 2000L]
 
 on_travis <- nzchar(Sys.getenv("TRAVIS")) && identical(Sys.getenv("TRAVIS"), "true")
 message("\ton_travis: ", on_travis)
+warning("ABS Housing finance data (Cat 5609.0) is out of date by more than a quarter.")
 # Warnings need to be accounted for.
 options(warn = 2)
 if (on_travis) {
@@ -554,8 +555,26 @@ get_ABS_Housing_Commitments <- function(Table = 11,
   stopifnot(is.integer(Table) || as.integer(Table) == Table,
             dir.exists("ABS"))
   daysSince <- (difftime(Today, as.Date("2018-11-01"), units = "days"))
-  if (as.numeric(daysSince) > 90) {
-    warning("ABS Housing finance data (Cat 5609.0) is out of day by more than a quarter.")
+  if (as.numeric(daysSince) > 92) {
+    ## CESSATION OF HOUSING FINANCE, AUSTRALIA (5609.0) AND LENDING FINANCE, AUSTRALIA (5671.0)
+    # 
+    # November 2018 is the final issue of the Housing Finance, Australia
+    # (5609.0) and Lending Finance, Australia (5671.0) publications. Both
+    # publications will be combined into a single, simpler publication
+    # called Lending to Households and Businesses, Australia (5601.0).
+    # An information paper Information Paper: Forthcoming Changes to
+    # Monthly Finance Statistics (2018) (5601.0.55.001) was released on
+    # 11 January 2019, which outlines both the forthcoming changes in more
+    # detail and the format of the new publication, as well as providing
+    # historical data in the new table structures. In the new publication,
+    # some of the data currently published in the two publications will no
+    # longer be published, however, some existing outputs will be further
+    # disaggregated. New analytical series will also be added with the
+    # inclusion of seasonally adjusted and trend estimates for more data
+    # items. This new consolidated publication will be released on 12
+    # February 2019.
+    
+    message("ABS Housing finance data (Cat 5609.0) is out of date by more than a quarter.")
   }
   
   if (file.exists(the.tsv <- sprintf("tsv/5609-9-Table%d.tsv", Table))) {

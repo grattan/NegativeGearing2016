@@ -1,0 +1,410 @@
+[1mdiff --git a/vignettes/20190206-oped.tex b/vignettes/20190206-oped.tex[m
+[1mindex d343e98..deadd81 100644[m
+[1m--- a/vignettes/20190206-oped.tex[m
+[1m+++ b/vignettes/20190206-oped.tex[m
+[36m@@ -1,61 +1,324 @@[m
+ \PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere[m
+ \PassOptionsToPackage{hyphens}{url}[m
+ %[m
+[31m-\documentclass[]{article}[m
+[31m-\usepackage{lmodern}[m
+[31m-\usepackage{amssymb,amsmath}[m
+[31m-\usepackage{ifxetex,ifluatex}[m
+[31m-\usepackage{fixltx2e} % provides \textsubscript[m
+[31m-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex[m
+[31m-  \usepackage[T1]{fontenc}[m
+[31m-  \usepackage[utf8]{inputenc}[m
+[31m-  \usepackage{textcomp} % provides euro and other symbols[m
+[31m-\else % if luatex or xelatex[m
+[31m-  \usepackage{unicode-math}[m
+[31m-  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}[m
+[31m-\fi[m
+[31m-% use upquote if available, for straight quotes in verbatim environments[m
+[31m-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}[m
+[31m-% use microtype if available[m
+[31m-\IfFileExists{microtype.sty}{%[m
+[31m-\usepackage[]{microtype}[m
+[31m-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts[m
+[31m-}{}[m
+[31m-\IfFileExists{parskip.sty}{%[m
+[31m-\usepackage{parskip}[m
+[31m-}{% else[m
+[31m-\setlength{\parindent}{0pt}[m
+[31m-\setlength{\parskip}{6pt plus 2pt minus 1pt}[m
+[31m-}[m
+[31m-\usepackage{hyperref}[m
+[31m-\hypersetup{[m
+[31m-            pdfborder={0 0 0},[m
+[31m-            breaklinks=true}[m
+[31m-\urlstyle{same}  % don't use monospace font for urls[m
+[31m-\setlength{\emergencystretch}{3em}  % prevent overfull lines[m
+[31m-\providecommand{\tightlist}{%[m
+[31m-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}[m
+[31m-\setcounter{secnumdepth}{0}[m
+[31m-% Redefines (sub)paragraphs to behave more like sections[m
+[31m-\ifx\paragraph\undefined\else[m
+[31m-\let\oldparagraph\paragraph[m
+[31m-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}[m
+[31m-\fi[m
+[31m-\ifx\subparagraph\undefined\else[m
+[31m-\let\oldsubparagraph\subparagraph[m
+[31m-\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}[m
+[31m-\fi[m
+[31m-[m
+[31m-% set default figure placement to htbp[m
+[32m+[m[32m\documentclass[b5paper,11pt]{article}\usepackage[]{graphicx}\usepackage[]{color}[m
+[32m+[m[32m%% maxwidth is the original width if it is less than linewidth[m
+[32m+[m[32m%% otherwise use linewidth (to make sure the graphics do not exceed the margin)[m
+ \makeatletter[m
+[31m-\def\fps@figure{htbp}[m
+[32m+[m[32m\def\maxwidth{ %[m
+[32m+[m[32m  \ifdim\Gin@nat@width>\linewidth[m
+[32m+[m[32m    \linewidth[m
+[32m+[m[32m  \else[m
+[32m+[m[32m    \Gin@nat@width[m
+[32m+[m[32m  \fi[m
+[32m+[m[32m}[m
+ \makeatother[m
+ [m
+[32m+[m[32m\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}[m
+[32m+[m[32m\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%[m
+[32m+[m[32m\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%[m
+[32m+[m[32m\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%[m
+[32m+[m[32m\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%[m
+[32m+[m[32m\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%[m
+[32m+[m[32m\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%[m
+[32m+[m[32m\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%[m
+[32m+[m[32m\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%[m
+[32m+[m[32m\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%[m
+[32m+[m[32m\let\hlipl\hlkwb[m
+[32m+[m
+[32m+[m[32m\usepackage{framed}[m
+[32m+[m[32m\makeatletter[m
+[32m+[m[32m\newenvironment{kframe}{%[m
+[32m+[m[32m \def\at@end@of@kframe{}%[m
+[32m+[m[32m \ifinner\ifhmode%[m
+[32m+[m[32m  \def\at@end@of@kframe{\end{minipage}}%[m
+[32m+[m[32m  \begin{minipage}{\columnwidth}%[m
+[32m+[m[32m \fi\fi%[m
+[32m+[m[32m \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep[m
+[32m+[m[32m \colorbox{shadecolor}{##1}\hskip-\fboxsep[m
+[32m+[m[32m     % There is no \\@totalrightmargin, so:[m
+[32m+[m[32m     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%[m
+[32m+[m[32m \MakeFramed {\advance\hsize-\width[m
+[32m+[m[32m   \@totalleftmargin\z@ \linewidth\hsize[m
+[32m+[m[32m   \@setminipage}}%[m
+[32m+[m[32m {\par\unskip\endMakeFramed%[m
+[32m+[m[32m \at@end@of@kframe}[m
+[32m+[m[32m\makeatother[m
+ [m
+[31m-\date{}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{.97, .97, .97}[m
+[32m+[m[32m\definecolor{messagecolor}{rgb}{0, 0, 0}[m
+[32m+[m[32m\definecolor{warningcolor}{rgb}{1, 0, 1}[m
+[32m+[m[32m\definecolor{errorcolor}{rgb}{1, 0, 0}[m
+[32m+[m[32m\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX[m
+ [m
+[32m+[m[32m\usepackage{alltt}[m
+[32m+[m[32m\usepackage[utf8]{inputenc}[m
+[32m+[m[32m\usepackage[T1]{fontenc}[m
+[32m+[m[32m\usepackage{lmodern}[m
+[32m+[m[32m\IfFileExists{upquote.sty}{\usepackage{upquote}}{}[m
+ \begin{document}[m
+ [m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file.exist("{}20190206-oped.Rnw"{}): could not find function "{}file.exist"{}}}[m
+[32m+[m
+[32m+[m[32m{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Last change: NAMESPACE at 2019-02-06 14:58:34 (1 hours ago).}}[m
+[32m+[m
+[32m+[m[32m{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'grattanCharts'}}[m
+[32m+[m
+[32m+[m[32m{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following object is masked from 'package:datasets':\\\#\# \\\#\#\ \ \ \  Orange}}\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_not_NG} \hlkwb{<-} \hlstd{sample_file_1516[,} \hlkwd{mean}\hlstd{(Net_rent_amt} \hlopt{>=} \hlnum{0}\hlstd{)]}[m
+[32m+[m[32m\hlstd{prop_not_NG.tex} \hlkwb{<-} \hlkwd{grattan_percent}\hlstd{(prop_not_NG,} \hlkwc{digits} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{.percent.suffix} \hlstd{=} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{NegativeGearing_by_Occupation} \hlkwb{<-}[m
+[32m+[m[32m  \hlkwa{if} \hlstd{(}\hlkwd{file.exists}\hlstd{(NegativeGearing_by_Occupation.csv} \hlkwb{<-} \hlstr{"20190206-cache/NegativeGearing_by_Occupation.csv"}\hlstd{)) \{}[m
+[32m+[m[32m    \hlkwd{fread}\hlstd{(NegativeGearing_by_Occupation.csv,}[m
+[32m+[m[32m          \hlkwc{na.strings} \hlstd{=} \hlstr{"NA"}\hlstd{)}[m
+[32m+[m[32m  \hlstd{\}} \hlkwa{else} \hlstd{\{}[m
+[32m+[m[32m    \hlkwd{provide.dir}\hlstd{(}\hlkwd{dirname}\hlstd{(NegativeGearing_by_Occupation.csv))}[m
+[32m+[m[32m     \hlstd{tempf.xlsx} \hlkwb{<-} \hlkwd{tempfile}\hlstd{(}\hlkwc{fileext} \hlstd{=} \hlstr{".xlsx"}\hlstd{)}[m
+[32m+[m
+[32m+[m[32m     \hlstd{Table14_201516_res} \hlkwb{<-}[m
+[32m+[m[32m       \hlkwd{download.file}\hlstd{(}\hlkwc{url} \hlstd{=} \hlstr{"https://data.gov.au/dataset/d170213c-4391-4d10-ac24-b0c11768da3f/resource/ba2db090-de79-44d8-ba8a-4bfec1c72893/download/taxstats2016individual14occupationgendertaxableincomerange.xlsx"}\hlstd{,}[m
+[32m+[m[32m                     \hlkwc{destfile} \hlstd{= tempf.xlsx,}[m
+[32m+[m[32m                     \hlkwc{mode} \hlstd{=} \hlstr{"wb"}\hlstd{)}[m
+[32m+[m[32m     \hlkwa{if} \hlstd{(Table14_201516_res) \{}[m
+[32m+[m[32m       \hlkwd{stop}\hlstd{(}\hlstr{"Unable to download 2015-16 Taxstats Table 14. "}\hlstd{,}[m
+[32m+[m[32m            \hlstr{"Original location: \textbackslash{}n\textbackslash{}thttps://data.gov.au/dataset/ds-dga-d170213c-4391-4d10-ac24-b0c11768da3f/details?q="}\hlstd{)}[m
+[32m+[m[32m     \hlstd{\}}[m
+[32m+[m
+[32m+[m[32m     \hlkwd{read_excel}\hlstd{(tempf.xlsx,}[m
+[32m+[m[32m                \hlkwc{sheet} \hlstd{=} \hlstr{"Individual Table 14A"}\hlstd{,}[m
+[32m+[m[32m                \hlkwc{skip} \hlstd{=} \hlnum{2}\hlstd{,}[m
+[32m+[m[32m                \hlkwc{na} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"* Blank"}\hlstd{))} \hlopt{%>%}[m
+[32m+[m[32m       \hlstd{as.data.table} \hlopt{%>%}[m
+[32m+[m[32m       \hlkwd{setnames}\hlstd{(}\hlkwd{names}\hlstd{(.),}[m
+[32m+[m[32m                \hlkwd{sub}\hlstd{(}\hlstr{"\textbackslash{}r\textbackslash{}n"}\hlstd{,} \hlstr{""}\hlstd{,} \hlkwd{names}\hlstd{(.),} \hlkwc{fixed} \hlstd{=} \hlnum{TRUE}\hlstd{))} \hlopt{%>%}[m
+[32m+[m[32m       \hlkwd{setnames}\hlstd{(}\hlnum{1L}\hlstd{,} \hlstr{"Occupation"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m       \hlkwd{setnames}\hlstd{(}\hlstr{"Taxable income range - tax brackets"}\hlstd{,} \hlstr{"TaxBracket"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m       \hlkwd{melt.data.table}\hlstd{(}\hlkwc{id.vars} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Occupation"}\hlstd{,}[m
+[32m+[m[32m                                   \hlstr{"Gender"}\hlstd{,}[m
+[32m+[m[32m                                   \hlstr{"TaxBracket"}\hlstd{),}[m
+[32m+[m[32m                       \hlkwc{variable.factor} \hlstd{=} \hlnum{FALSE}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m       \hlstd{.[,} \hlkwd{c}\hlstd{(}\hlstr{"variable"}\hlstd{,} \hlstr{"unit"}\hlstd{)} \hlkwb{:=} \hlkwd{tstrsplit}\hlstd{(variable,} \hlkwc{split} \hlstd{=} \hlstr{" (?=(no\textbackslash{}\textbackslash{}.|[$]))"}\hlstd{,} \hlkwc{perl} \hlstd{=} \hlnum{TRUE}\hlstd{)]} \hlopt{%>%}[m
+[32m+[m[32m       \hlstd{.[, unit} \hlkwb{:=} \hlkwd{if_else}\hlstd{(unit} \hlopt{==} \hlstr{"$"}\hlstd{,} \hlstr{"dollar"}\hlstd{,} \hlstr{"number"}\hlstd{)]} \hlopt{%>%}[m
+[32m+[m[32m       \hlstd{.[]} \hlopt{%>%}[m
+[32m+[m[32m       \hlstd{.[variable} \hlopt{%ein%} \hlkwd{c}\hlstd{(}\hlstr{"Net rent - loss"}\hlstd{,} \hlstr{"Number of individuals"}\hlstd{)]} \hlopt{%>%}  \hlcom{# only need number of negative gearers}[m
+[32m+[m[32m       \hlstd{.[]} \hlopt{%T>%}[m
+[32m+[m[32m       \hlkwd{fwrite}\hlstd{(NegativeGearing_by_Occupation.csv,} \hlkwc{na} \hlstd{=} \hlstr{"NA"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m       \hlstd{.[]}[m
+[32m+[m[32m  \hlstd{\}}[m
+[32m+[m
+[32m+[m[32m\hlcom{# For some reason the no. is dropped in this column}[m
+[32m+[m[32m\hlstd{NegativeGearing_by_Occupation[variable} \hlopt{%ein%} \hlkwd{c}\hlstd{(}\hlstr{"Number of individuals"}\hlstd{), unit} \hlkwb{:=} \hlstr{"number"}\hlstd{]}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_nurses_not_NG} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{NegativeGearing_by_Occupation} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[Occupation} \hlopt{%ein%} \hlkwd{c}\hlstd{(}\hlstr{"2540 Midwifery and Nursing Professionals - type not specified"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2542 Nurse Educators and Researchers"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2543 Nurse Managers"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2544 Registered Nurses"}\hlstd{,}[m
+[32m+[m[32m                       \hlcom{# "3613 Veterinary Nurses", }[m
+[32m+[m[32m                       \hlcom{# "3624 Nurserypersons", }[m
+[32m+[m[32m                       \hlstr{"4114 Enrolled and Mothercraft Nurses"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"4233 Nursing Support and Personal Care Workers"}\hlstd{,}[m
+[32m+[m[32m                       \hlcom{# "8414 Garden and Nursery Labourers",}[m
+[32m+[m[32m                       \hlstr{"9254 Consultant - clinical nurse"}\hlstd{)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[unit} \hlopt{==} \hlstr{"number"}\hlstd{]} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{dcast.data.table}\hlstd{(...} \hlopt{~} \hlstd{variable)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Net rent - loss"}\hlstd{,} \hlstr{"nNG"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Number of individuals"}\hlstd{,} \hlstr{"nIndividuals"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[,} \hlkwd{.}\hlstd{(}\hlkwc{prop} \hlstd{=} \hlkwd{sum}\hlstd{(nNG)} \hlopt{/} \hlkwd{sum}\hlstd{(nIndividuals))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, prop_not_NG} \hlkwb{:=} \hlnum{1} \hlopt{-} \hlstd{prop]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[[}\hlstr{"prop_not_NG"}\hlstd{]]}[m
+[32m+[m[32m\hlstd{prop_nurses_not_NG.tex} \hlkwb{<-} \hlkwd{grattan_percent}\hlstd{(prop_nurses_not_NG,} \hlkwc{digits} \hlstd{=} \hlnum{0}\hlstd{,} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_teachers_not_NG} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{NegativeGearing_by_Occupation} \hlopt{%>%}[m
+[32m+[m
+[32m+[m[32m  \hlcom{# grep 'eache}[m
+[32m+[m[32m  \hlstd{.[Occupation} \hlopt{%ein%} \hlkwd{c}\hlstd{(}\hlstr{"2410 School Teacher - type not specified"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2411 Early Childhood (Pre-primary School) Teachers"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2412 Primary School Teachers"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2413 Middle School Teachers (Aus) / Intermediate School Teachers (NZ)"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2414 Secondary School Teachers"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2415 Special Education Teachers"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2419 Teacher - other school"}\hlstd{,}[m
+[32m+[m[32m                       \hlstr{"2422 Vocational Education Teachers (Aus) / Polytechnic Teachers (NZ)"}\hlstd{,}[m
+[32m+[m[32m                       \hlcom{# "2492 Private Tutors and Teachers",}[m
+[32m+[m[32m                       \hlstr{"2493 Teachers of English to Speakers of Other Languages"}\hlstd{)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[unit} \hlopt{==} \hlstr{"number"}\hlstd{]} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{dcast.data.table}\hlstd{(...} \hlopt{~} \hlstd{variable)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Net rent - loss"}\hlstd{,} \hlstr{"nNG"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Number of individuals"}\hlstd{,} \hlstr{"nIndividuals"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[,} \hlkwd{.}\hlstd{(}\hlkwc{prop} \hlstd{=} \hlkwd{sum}\hlstd{(nNG)} \hlopt{/} \hlkwd{sum}\hlstd{(nIndividuals))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, prop_not_NG} \hlkwb{:=} \hlnum{1} \hlopt{-} \hlstd{prop]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[[}\hlstr{"prop_not_NG"}\hlstd{]]}[m
+[32m+[m[32m\hlstd{prop_teachers_not_NG.tex} \hlkwb{<-} \hlkwd{grattan_percent}\hlstd{(prop_teachers_not_NG,} \hlkwc{digits} \hlstd{=} \hlnum{0}\hlstd{,} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_surgeons_not_NG} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{NegativeGearing_by_Occupation} \hlopt{%>%}[m
+[32m+[m
+[32m+[m[32m  \hlcom{# grep 'eache}[m
+[32m+[m[32m  \hlstd{.[Occupation} \hlopt{%ein%} \hlkwd{c}\hlstd{(}\hlstr{"2535 Surgeons"}\hlstd{)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[unit} \hlopt{==} \hlstr{"number"}\hlstd{]} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{dcast.data.table}\hlstd{(...} \hlopt{~} \hlstd{variable)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Net rent - loss"}\hlstd{,} \hlstr{"nNG"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Number of individuals"}\hlstd{,} \hlstr{"nIndividuals"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[,} \hlkwd{.}\hlstd{(}\hlkwc{prop} \hlstd{=} \hlkwd{sum}\hlstd{(nNG)} \hlopt{/} \hlkwd{sum}\hlstd{(nIndividuals))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, prop_not_NG} \hlkwb{:=} \hlnum{1} \hlopt{-} \hlstd{prop]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[[}\hlstr{"prop_not_NG"}\hlstd{]]}[m
+[32m+[m[32m\hlstd{prop_surgeons_not_NG.tex} \hlkwb{<-} \hlkwd{grattan_percent}\hlstd{(prop_surgeons_not_NG,} \hlkwc{digits} \hlstd{=} \hlnum{0}\hlstd{,} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_anaesthetists_not_NG} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{NegativeGearing_by_Occupation} \hlopt{%>%}[m
+[32m+[m
+[32m+[m[32m  \hlcom{# grep 'eache}[m
+[32m+[m[32m  \hlstd{.[Occupation} \hlopt{%ein%} \hlkwd{c}\hlstd{(}\hlstr{"2532 Anaesthetists"}\hlstd{)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[unit} \hlopt{==} \hlstr{"number"}\hlstd{]} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{dcast.data.table}\hlstd{(...} \hlopt{~} \hlstd{variable)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Net rent - loss"}\hlstd{,} \hlstr{"nNG"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{setnames}\hlstd{(}\hlstr{"Number of individuals"}\hlstd{,} \hlstr{"nIndividuals"}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[,} \hlkwd{.}\hlstd{(}\hlkwc{prop} \hlstd{=} \hlkwd{sum}\hlstd{(nNG)} \hlopt{/} \hlkwd{sum}\hlstd{(nIndividuals))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, prop_not_NG} \hlkwb{:=} \hlnum{1} \hlopt{-} \hlstd{prop]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[[}\hlstr{"prop_not_NG"}\hlstd{]]}[m
+[32m+[m[32m\hlstd{prop_anaesthetists_not_NG.tex} \hlkwb{<-} \hlkwd{grattan_percent}\hlstd{(prop_anaesthetists_not_NG,} \hlkwc{digits} \hlstd{=} \hlnum{0}\hlstd{,} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlkwd{stopifnot}\hlstd{(}\hlkwd{round}\hlstd{(}\hlnum{1} \hlopt{-} \hlstd{prop_anaesthetists_not_NG,} \hlnum{2}\hlstd{)} \hlopt{+} \hlnum{0.025} \hlopt{>} \hlkwd{round}\hlstd{((}\hlnum{1} \hlopt{-} \hlstd{prop_nurses_not_NG)} \hlopt{*} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{))}[m
+[32m+[m[32m\hlkwd{stopifnot}\hlstd{(}\hlkwd{round}\hlstd{(}\hlnum{1} \hlopt{-} \hlstd{prop_surgeons_not_NG,} \hlnum{2}\hlstd{)} \hlopt{+} \hlnum{0.025} \hlopt{>} \hlkwd{round}\hlstd{((}\hlnum{1} \hlopt{-} \hlstd{prop_nurses_not_NG)} \hlopt{*} \hlnum{3}\hlstd{,} \hlnum{2}\hlstd{))}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): round(1 - prop\_surgeons\_not\_NG, 2) + 0.025 > round((1 - prop\_nurses\_not\_NG) *\ \ .... is not TRUE}}\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{s1819} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{sample_file_1516} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{project}\hlstd{(}\hlkwc{h} \hlstd{=} \hlnum{3L}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_CG_top_decile} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{s1819} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{mutate_ntile}\hlstd{(Tot_inc_amt,} \hlkwc{n} \hlstd{=} \hlnum{10}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[,} \hlkwd{.}\hlstd{(}\hlkwc{tot_CG} \hlstd{=} \hlkwd{sum}\hlstd{(Tot_CY_CG_amt),}[m
+[32m+[m[32m        \hlkwc{min_Income} \hlstd{=} \hlkwd{min}\hlstd{(Tot_inc_amt)),}[m
+[32m+[m[32m    \hlkwc{keyby} \hlstd{=} \hlstr{"Tot_inc_amtDecile"}\hlstd{]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, prop_CG} \hlkwb{:=} \hlstd{tot_CG} \hlopt{/} \hlkwd{sum}\hlstd{(tot_CG)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{last} \hlcom{# for top decile}[m
+[32m+[m[32m\hlstd{prop_CG_top_decile.tex} \hlkwb{<-}[m
+[32m+[m[32m  \hlkwd{grattan_percent}\hlstd{(prop_CG_top_decile[[}\hlstr{"prop_CG"}\hlstd{]],} \hlkwc{digits} \hlstd{=} \hlopt{-}\hlnum{1}\hlstd{,} \hlkwc{.percent.suffix} \hlstd{=} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\hlstd{min_income_top_decile.tex}\hlkwb{<-} \hlkwd{texNum}\hlstd{(prop_CG_top_decile[[}\hlstr{"min_Income"}\hlstd{]],} \hlkwc{dollar} \hlstd{=} \hlnum{TRUE}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_benefits_NG_top_decile} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{s1819} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, tax} \hlkwb{:=} \hlkwd{income_tax}\hlstd{(Taxable_Income,} \hlstr{"2018-19"}\hlstd{,} \hlkwc{.dots.ATO} \hlstd{=} \hlkwd{copy}\hlstd{(s1819))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, tax_no_NG} \hlkwb{:=} \hlkwd{income_tax}\hlstd{(Taxable_Income} \hlopt{-} \hlkwd{pminC}\hlstd{(Net_rent_amt,} \hlnum{0}\hlstd{),}[m
+[32m+[m[32m                              \hlkwc{fy.year} \hlstd{=} \hlstr{"2018-19"}\hlstd{,}[m
+[32m+[m[32m                              \hlkwc{.dots.ATO} \hlstd{=} \hlkwd{copy}\hlstd{(s1819))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, benefit_due_NG} \hlkwb{:=} \hlstd{tax_no_NG} \hlopt{-} \hlstd{tax]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[,} \hlkwd{.}\hlstd{(}\hlkwc{tot_benefit_due_NG} \hlstd{=} \hlkwd{sum}\hlstd{(benefit_due_NG)),} \hlkwc{keyby} \hlstd{=} \hlstr{"Tot_inc_amtDecile"}\hlstd{]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, prop_benefit_due_NG} \hlkwb{:=} \hlstd{tot_benefit_due_NG} \hlopt{/} \hlkwd{sum}\hlstd{(tot_benefit_due_NG)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{last}[m
+[32m+[m
+[32m+[m[32m\hlstd{prop_benefits_NG_top_decile.tex} \hlkwb{<-}[m
+[32m+[m[32m  \hlkwd{grattan_percent}\hlstd{(prop_benefits_NG_top_decile[[}\hlstr{"prop_benefit_due_NG"}\hlstd{]],}[m
+[32m+[m[32m                  \hlkwc{digits} \hlstd{=} \hlnum{0}\hlstd{,}[m
+[32m+[m[32m                  \hlkwc{.percent.suffix} \hlstd{=} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m[32m\begin{knitrout}[m
+[32m+[m[32m\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}[m
+[32m+[m[32m\begin{alltt}[m
+[32m+[m[32m\hlstd{prop_benefits_NG_top_decile_adj} \hlkwb{<-}[m
+[32m+[m[32m  \hlstd{s1819} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, tax} \hlkwb{:=} \hlkwd{income_tax}\hlstd{(Taxable_Income,} \hlstr{"2018-19"}\hlstd{,} \hlkwc{.dots.ATO} \hlstd{=} \hlkwd{copy}\hlstd{(s1819))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, tax_no_NG} \hlkwb{:=} \hlkwd{income_tax}\hlstd{(Taxable_Income} \hlopt{-} \hlkwd{pminC}\hlstd{(Net_rent_amt,} \hlnum{0}\hlstd{),}[m
+[32m+[m[32m                              \hlkwc{fy.year} \hlstd{=} \hlstr{"2018-19"}\hlstd{,}[m
+[32m+[m[32m                              \hlkwc{.dots.ATO} \hlstd{=} \hlkwd{copy}\hlstd{(s1819))]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, benefit_due_NG} \hlkwb{:=} \hlstd{tax_no_NG} \hlopt{-} \hlstd{tax]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, Taxable_Income_less_NG} \hlkwb{:=} \hlstd{Taxable_Income} \hlopt{-} \hlkwd{pminC}\hlstd{(Net_rent_amt,} \hlnum{0}\hlstd{)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlkwd{mutate_ntile}\hlstd{(Taxable_Income_less_NG,} \hlkwc{n} \hlstd{=} \hlnum{10}\hlstd{)} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[,} \hlkwd{.}\hlstd{(}\hlkwc{tot_benefit_due_NG} \hlstd{=} \hlkwd{sum}\hlstd{(benefit_due_NG)),} \hlkwc{keyby} \hlstd{=} \hlstr{"Taxable_Income_less_NGDecile"}\hlstd{]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[, prop_benefit_due_NG} \hlkwb{:=} \hlstd{tot_benefit_due_NG} \hlopt{/} \hlkwd{sum}\hlstd{(tot_benefit_due_NG)]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{.[]} \hlopt{%>%}[m
+[32m+[m[32m  \hlstd{last}[m
+[32m+[m[32m\hlstd{prop_benefits_NG_top_decile_adj.tex} \hlkwb{<-}[m
+[32m+[m[32m  \hlkwd{grattan_percent}\hlstd{(prop_benefits_NG_top_decile_adj[[}\hlstr{"prop_benefit_due_NG"}\hlstd{]],}[m
+[32m+[m[32m                  \hlkwc{digits} \hlstd{=} \hlnum{0}\hlstd{,}[m
+[32m+[m[32m                  \hlkwc{.percent.suffix} \hlstd{=} \hlstr{"\textbackslash{}\textbackslash{}%"}\hlstd{)}[m
+[32m+[m[32m\hlcom{# Hedge}[m
+[32m+[m[32m\hlkwa{if} \hlstd{(prop_benefits_NG_top_decile_adj[[}\hlstr{"prop_benefit_due_NG"}\hlstd{]]} \hlopt{%between%} \hlkwd{c}\hlstd{(}\hlnum{0.475}\hlstd{,} \hlnum{0.500}\hlstd{)) \{}[m
+[32m+[m[32m  \hlstd{prop_benefits_NG_top_decile_adj.tex} \hlkwb{<-} \hlstr{"almost 50\textbackslash{}\textbackslash{}%"}[m
+[32m+[m[32m\hlstd{\}}[m
+[32m+[m[32m\end{alltt}[m
+[32m+[m[32m\end{kframe}[m
+[32m+[m[32m\end{knitrout}[m
+[32m+[m
+[32m+[m
+[32m+[m
+ Don't have a negatively geared investment property? You're in good[m
+ company. Despite all the talk about negatively geared nurses and[m
+ property baron police officers, 90\% of taxpayers do not use negative[m
+[36m@@ -88,7 +351,7 @@[m [mLimiting negative gearing and reducing the capital gains tax discount[m
+ will substantially boost the budget bottom line. The independent[m
+ Parliamentary Budget Office estimates Labor's policy will raise around[m
+ \$32.1 billion over a decade. Ultimately the winners from the change are[m
+[31m-the 92 per cent of nurses, 88 per cent of teachers and all the other[m
+[32m+[m[32mthe 89\% of nurses, 87\% of teachers and all the other[m
+ hard-working taxpayers that don't negatively gear. Winding back tax[m
+ concessions that do not have a strong economic justification means the[m
+ government can reduce other taxes, provide more services or improve the[m
+[36m@@ -122,18 +385,16 @@[m [mMurray financial system inquiry have all raised concerns about the[m
+ effects of the current tax arrangements on financial stability.[m
+ [m
+ And for those worried about equity? Both negative gearing and capital[m
+[31m-gains are skewed towards the better off. More than 70 per cent of[m
+[31m-capital gains accrue to those with taxable incomes of more than \$xxxx,[m
+[32m+[m[32mgains are skewed towards the better off. More than 69\% of[m
+[32m+[m[32mcapital gains accrue to those with taxable incomes of more than \$130,000,[m
+ putting them in the top ten percent of income earners. For negative[m
+[31m-gearing xx per cent of the tax benefits flow to this group. But people[m
+[32m+[m[32mgearing 38\% of the tax benefits flow to this group. But people[m
+ who negatively gear have lower taxable incomes \emph{because} they are[m
+ negatively gearing. If we adjust to look at people's taxable incomes[m
+ before rental deductions, the top 10 per cent of income earners receive[m
+[31m-almost 50 per cent of the tax benefit from negative gearing. So, you[m
+[32m+[m[32malmost 50\% of the tax benefit from negative gearing. So, you[m
+ shouldn't be surprised to learn that the share of anesthetists and[m
+[31m-surgeons negatively gearings is almost triple that for nurses and[m
+[31m-teachers and the average tax benefits they receive are around xx times[m
+[31m-higher.[m
+[32m+[m[32msurgeons negatively gearings is almost triple that for nurses.[m
+ [m
+ Josh Frydenberg says aspirational voters should fear Labor's proposed[m
+ changes to negative gearing and the capital gains tax. But for those of[m

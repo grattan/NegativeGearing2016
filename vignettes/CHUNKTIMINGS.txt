@@ -8,9 +8,9 @@
   0.0	prop_anaesthetists_not_NG
   0.0	check-almost-triple-remark
   1.1	s1819
-  0.0	prop_CG_top_decile
+  0.2	prop_CG_top_decile
   0.3	prop_benefits_NG_top_decile
   0.5	prop_benefits_NG_top_decile_adj
-  0.3	benefit_due_NG_by_Occupation
+  0.4	benefit_due_NG_by_Occupation
   0.0	avgBenefit_by_occupation
   0.0	ratio_NG_benefit_surgeons_to_teachers

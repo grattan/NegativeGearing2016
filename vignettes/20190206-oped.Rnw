@@ -56,16 +56,25 @@ NegativeGearing_by_Occupation <-
           na.strings = "NA")
   } else {
     provide.dir(dirname(NegativeGearing_by_Occupation.csv))
-     tempf.xlsx <- tempfile(fileext = ".xlsx")
+    tempf.xlsx <- tempfile(fileext = ".xlsx")
     
-     Table14_201516_res <- 
-       download.file(url = "https://data.gov.au/dataset/d170213c-4391-4d10-ac24-b0c11768da3f/resource/ba2db090-de79-44d8-ba8a-4bfec1c72893/download/taxstats2016individual14occupationgendertaxableincomerange.xlsx",
-                     destfile = tempf.xlsx,
-                     mode = "wb")
-     if (Table14_201516_res) {
-       stop("Unable to download 2015-16 Taxstats Table 14. ", 
-            "Original location: \n\thttps://data.gov.au/dataset/ds-dga-d170213c-4391-4d10-ac24-b0c11768da3f/details?q=")
-     }
+    if (file.exists("../ATO/Individuals_table14_201516.xlsx")) {
+      tempf.xlsx <- "../ATO/Individuals_table14_201516.xlsx"
+    } else {
+      Table14_201516_res <- 
+        download.file(url = "https://data.gov.au/dataset/d170213c-4391-4d10-ac24-b0c11768da3f/resource/ba2db090-de79-44d8-ba8a-4bfec1c72893/download/taxstats2016individual14occupationgendertaxableincomerange.xlsx",
+                      destfile = tempf.xlsx,
+                      mode = "wb")
+      if (Table14_201516_res) {
+        stop("Unable to download 2015-16 Taxstats Table 14. ", 
+             "Original location: \n\thttps://data.gov.au/dataset/ds-dga-d170213c-4391-4d10-ac24-b0c11768da3f/details?q=")
+      }
+      
+      if (!file.copy(tempf.xlsx, "../ATO/Individuals_table14_201516.xlsx")) {
+        message("Unable to retain XLSX file at \n\t",
+                "../ATO/Individuals_table14_201516.xlsx")
+      }
+    }
      
      read_excel(tempf.xlsx, 
                 sheet = "Individual Table 14A",
@@ -285,7 +294,8 @@ avgMarginalRate_vs_TaxBracket <-
     keyby = .(TaxBracket = cut(Taxable_Income, 
                                breaks = c(-Inf, 18200, 37000, 80000, 180e3, Inf), 
                                labels = letters[1:5],
-                               include.lowest = TRUE))] %>%
+                               include.lowest = TRUE))] %T>%
+  fwrite("20190206-cache/avgMarginalRate_vs_TaxBracket.csv") %>%
   .[]
 
 NG_Benefit_vs_Occupation <- 
