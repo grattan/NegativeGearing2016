@@ -59,28 +59,67 @@ NG_Benefit_vs_Occupation <-
     nomatch = 0L] %>%
   .[nIndividuals_by_Occupation, on = "Occupation", nomatch = 0L] %>%
   .[, avgBenefit := totBenefit / nIndividuals] %>%
+  # Shorten
+  .[, Occupation := sub("^[0-9]+ ", "", Occupation)] %>%
+  .[, Occupation := sub("- type not specified", 
+                        " (other)",
+                        Occupation,
+                        fixed = TRUE)] %>%
   .[]
 
 
 
-
+heading <- "Negative gearing 2015-16"
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-
-    # Application title
-    titlePanel("Negative gearing 2015-16"),
-
+  includeCSS("styles.css"),
+  
+  tags$head(tags$style("
+                       table.dataTable thead th {
+                       padding: 8px 10px !important;
+                       }
+                       ")),
+  
+  tags$head(HTML('<link rel="icon" type="image/png" href="https://grattan.edu.au/wp-content/themes/grattan_responsive/images/fav.jpg" sizes="16x16">'),
+            HTML('<link rel="icon" type="image/png" href="https://grattan.edu.au/wp-content/themes/grattan_responsive/images/fav.jpg" sizes="32x32">')),
+  
+  #tagList(tags$head(HTML('<h1><div style="vertical-align:text-bottom;"><div style="float:left;">Hospital complication calculator</div><div style="float:right;vertical-align:text-bottom;"><img src="GrattanLogo_right.png" type = "image/png" align="right; vertical-align:bottom;"/></div></div></h1>'))),
+ 
+  # Application title 
+  tagList(tags$head(tags$title(heading))),
+  
+  fluidRow(
+    column(7),
+    column(3,
+           div(img(src = "GrattanLogo_right.png", align = "right", type = "image/png")))
+  ),
+  br(),
+  
+ 
+ 
+  
     # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        shiny::textInput("search_q", label = "Occupation:", value = ""),
-        # Show a plot of the generated distribution
-        mainPanel(
-           DT::dataTableOutput("Table1"),
-           plotlyOutput("Plot1")
-        )
+  fluidRow(
+    column(3, 
+           shiny::textInput("search_q", label = "Occupation (comma or space separated):", value = ""),
+           offset = 1)
+  ),
+  br(),
+  # Show a plot of the generated distribution
+  fluidRow(
+    column(DT::dataTableOutput("Table1"),
+           width = 8,
+           offset = 1)
+  ),
+  br(),
+  fluidRow(
+    mainPanel(
+      plotlyOutput("Plot1")
     )
+  )
 )
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -119,6 +158,12 @@ server <- function(input, output) {
                 setnames(o1, "avgBenefit", "Average benefit from NG")
                 setnames(o1, "avgIncome", "Average taxable income")
                 setnames(o1, "nIndividuals", "Number of taxpayers")
+                setcolorder(o1, 
+                            c("Occupation", 
+                              "Number of taxpayers",
+                              "Average taxable income",
+                              "Average benefit from NG",
+                              "Total benefit from NG"))
                 o1
             },
             rownames = FALSE,
