@@ -68,8 +68,37 @@ NG_Benefit_vs_Occupation <-
   .[]
 
 
-
+grattan.palette <- readRDS("col/grattan-palette.rds")
 heading <- "Negative gearing 2015-16"
+
+gpal <- function(n, dark = TRUE, reverse = FALSE) {
+  grattan.palette <- list(pal.1, pal.2dark, pal.3, pal.4, pal.5, pal.6)
+  
+  if(n > 6) {
+    if(n > 9) {
+      gpalx <- function(n) grDevices::colorRampPalette(colors = pal.6)(n)
+      if (reverse) 
+        return(gpalx(n)) 
+      else 
+        return(rev(gpalx(n)))
+    } 
+  }
+  if (!dark) {
+    if (n == 2){
+      out <- pal.2
+    } else {
+      # warning("no light option for palette ", n)
+      out <- grattan.palette[[n]]
+    }             
+  } else {
+    out <- grattan.palette[[n]]
+  }
+  if (reverse){
+    rev(out)
+  } else {
+    out
+  }
+}
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -102,7 +131,7 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
   fluidRow(
     column(3, 
-           shiny::textInput("search_q", label = "Occupation (comma or space separated):", value = ""),
+           shiny::textInput("search_q", label = "Search for occupations (comma or space separated):", value = ""),
            offset = 1)
   ),
   br(),
@@ -114,8 +143,8 @@ ui <- fluidPage(
   ),
   br(),
   fluidRow(
-    mainPanel(
-      plotlyOutput("Plot1")
+    column(width = 8, offset = 1,
+           plotlyOutput("Plot1")
     )
   )
 )
@@ -180,20 +209,52 @@ server <- function(input, output) {
         FT <- focused_table(.pattern)
         p <- 
           if (FT[[2L]]) {
-            ggplot(FT[[1L]],
-                   aes(avgIncome, avgBenefit, size = nIndividuals,
-                       text = Occupation)) + 
-              geom_point(color = "#6A737B") + 
-              geom_point(data = FT[[3L]],
-                         color = "#A02226") +
-              # geom_label_repel(data = FT[[3L]],
-              #                  mapping = aes(label = sub("^[0-9]+ ([A-Za-z]+).*?$",
-              #                                            "\\1",
-              #                                            Occupation,
-              #                                            perl = TRUE)),
-              #                  fill = "#A02226",
-              #                  color = "white") +
-              theme_bw()
+            if (grepl(" ", .pattern) || grepl(",", .pattern)) {
+              .dat <- FT[[3L]]
+              .patterns <- strsplit(.pattern, split = ",| ")[[1L]]
+              .dat[, color := NA_character_]
+              for (p in seq_along(.patterns)) {
+                .dat[grep(.patterns[p], Occupation, perl = TRUE, ignore.case = TRUE),
+                     color := gpal(length(.patterns))[p]]
+              }
+              ggplot(FT[[1L]],
+                     aes(avgIncome, avgBenefit, size = nIndividuals,
+                         text = Occupation)) + 
+                geom_point(color = "#6A737B") + 
+                geom_point(data = FT[[3L]],
+                           mapping = aes(color = color)) +
+                annotate("text", 
+                         x = double(length(.patterns)), 
+                         y = FT[[1L]][, max(avgBenefit)] - FT[[1L]][, max(avgBenefit) / 3] * (seq_along(.patterns) - 1L), 
+                         label = .patterns,
+                         hjust = 0,
+                         color = gpal(length(.patterns))) +
+                scale_color_identity() +
+                # geom_label_repel(data = FT[[3L]],
+                #                  mapping = aes(label = sub("^[0-9]+ ([A-Za-z]+).*?$",
+                #                                            "\\1",
+                #                                            Occupation,
+                #                                            perl = TRUE)),
+                #                  fill = "#A02226",
+                #                  color = "white") +
+                theme_bw() + 
+                theme(legend.position = "none")
+            } else {
+              ggplot(FT[[1L]],
+                     aes(avgIncome, avgBenefit, size = nIndividuals,
+                         text = Occupation)) + 
+                geom_point(color = "#6A737B") + 
+                geom_point(data = FT[[3L]],
+                           color = "#A02226") +
+                # geom_label_repel(data = FT[[3L]],
+                #                  mapping = aes(label = sub("^[0-9]+ ([A-Za-z]+).*?$",
+                #                                            "\\1",
+                #                                            Occupation,
+                #                                            perl = TRUE)),
+                #                  fill = "#A02226",
+                #                  color = "white") +
+                theme_bw()
+            }
           } else {
             ggplot(FT[[1L]],
                    aes(avgIncome, avgBenefit, size = nIndividuals,
@@ -202,7 +263,10 @@ server <- function(input, output) {
           }
         p <- p + scale_y_continuous("Average benefit", labels = scales::dollar)
         p <- p + scale_x_continuous("Average income", labels = scales::dollar)
-        print(ggplotly(p, tooltip = "text"))
+        print(highlight(ggplotly(p, tooltip = "text"),
+                        on = "plotly_hover",
+                        color = "rgba(255,0,0,1)",
+                        debounce = 10))
       })
     
     # %>%
