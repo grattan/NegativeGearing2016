@@ -65,6 +65,8 @@ NG_Benefit_vs_Occupation <-
                         " (other)",
                         Occupation,
                         fixed = TRUE)] %>%
+  .[grep("legal prof", Occupation, ignore.case = TRUE),
+    Occupation := paste0("Lawyers/", Occupation)] %>%
   .[]
 
 
@@ -155,7 +157,9 @@ server <- function(input, output) {
     focused_table <- function(.pattern) {
       o <- copy(NG_Benefit_vs_Occupation)
       if (is_focused <- nzchar(.pattern)) {
+        
         .patterns <- strsplit(.pattern, split = ",| ")[[1L]]
+
         o[, Occupation := coalesce(Occupation, "(Unknown)")]
         if (length(.patterns) > 1L) {
           o <- o[grep(paste0(.patterns, collapse = "|"), Occupation, ignore.case = TRUE, perl = TRUE)]
