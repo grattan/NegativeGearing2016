@@ -11,7 +11,6 @@ library(magrittr)
 library(hutils)
 library(ggplot2)
 library(plotly)
-library(ggrepel)
 
 library(shiny)
 
@@ -74,11 +73,10 @@ grattan.palette <- readRDS("col/grattan-palette.rds")
 heading <- "Negative gearing 2015-16"
 
 gpal <- function(n, dark = TRUE, reverse = FALSE) {
-  grattan.palette <- list(pal.1, pal.2dark, pal.3, pal.4, pal.5, pal.6)
   
   if(n > 6) {
     if(n > 9) {
-      gpalx <- function(n) grDevices::colorRampPalette(colors = pal.6)(n)
+      gpalx <- function(n) grDevices::colorRampPalette(colors = grattan.palette[[6]])(n)
       if (reverse) 
         return(gpalx(n)) 
       else 
@@ -221,12 +219,32 @@ server <- function(input, output) {
                 .dat[grep(.patterns[p], Occupation, perl = TRUE, ignore.case = TRUE),
                      color := gpal(length(.patterns))[p]]
               }
+              highlight_dat <- 
+                FT[[3L]] %>%
+                copy
+              for (i in seq_along(.patterns)) {
+                highlight_dat[grepl(.patterns[i], Occupation),
+                              Occupation_label := .patterns[i]]
+              }
+              # highlight_dat <- 
+              #   highlight_dat %>%
+              #   .[complete.cases(Occupation_label)] %>%
+              #   .[, .(avgIncome = mean(avgIncome),
+              #         maxIncome = max(avgIncome),
+              #         minIncome = min(avgIncome),
+              #         avgBenefit = mean(avgBenefit),
+              #         minBenefit = min(avgBenefit),
+              #         maxBenefit = max(avgBenefit)),
+              #     keyby = .(Occupation_label)]
+              
+              
               ggplot(FT[[1L]],
                      aes(avgIncome, avgBenefit, size = nIndividuals,
                          text = Occupation)) + 
                 geom_point(color = "#6A737B") + 
                 geom_point(data = FT[[3L]],
-                           mapping = aes(color = color)) +
+                           mapping = aes(fill = color),
+                           color = "black") +
                 annotate("text", 
                          x = double(length(.patterns)), 
                          y = FT[[1L]][, max(avgBenefit)] - FT[[1L]][, max(avgBenefit) / 3] * (seq_along(.patterns) - 1L), 
@@ -234,13 +252,7 @@ server <- function(input, output) {
                          hjust = 0,
                          color = gpal(length(.patterns))) +
                 scale_color_identity() +
-                # geom_label_repel(data = FT[[3L]],
-                #                  mapping = aes(label = sub("^[0-9]+ ([A-Za-z]+).*?$",
-                #                                            "\\1",
-                #                                            Occupation,
-                #                                            perl = TRUE)),
-                #                  fill = "#A02226",
-                #                  color = "white") +
+                scale_fill_identity() +
                 theme_bw() + 
                 theme(legend.position = "none")
             } else {
@@ -272,10 +284,6 @@ server <- function(input, output) {
                         color = "rgba(255,0,0,1)",
                         debounce = 10))
       })
-    
-    # %>%
-    #     DT::formatCurrency(columns = "Average benefit from NG", digits = 0) %>%
-    #     DT::formatRound(columns = "Number of taxpayers", digits = 0)
 }
 
 # Run the application 
