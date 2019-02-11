@@ -295,7 +295,7 @@ server <- function(input, output) {
               geom_point(color = "#6A737B")
           }
         p <- p + scale_y_continuous("Average benefit", labels = scales::dollar)
-        p <- p + scale_x_continuous("Average income", labels = scales::dollar)
+        p <- p + scale_x_continuous("Average taxable income", labels = scales::dollar)
         print(highlight(ggplotly(p, tooltip = "text"),
                         on = "plotly_hover",
                         color = "rgba(255,0,0,1)",
