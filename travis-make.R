@@ -79,9 +79,9 @@ left_remaining <-
 
 
 if (!requireNamespace("shinytest", quietly = TRUE) || 
-    !requireNamespace("plotly") ||
+    !requireNamespace("plotly", quietly = TRUE) ||
     length(left_remaining)) {
-  cat("Installing shinytest...\n")
+  cat("Installing ", length(left_remaining), " packages and shinytest...\n")
   if (!requireNamespace("devtools", quietly = TRUE)) {
     if (requireNamespace("crayon", quietly = TRUE)) {
       cat(crayon::red("devtools not installed\n"))
@@ -90,7 +90,7 @@ if (!requireNamespace("shinytest", quietly = TRUE) ||
     }
     install.packages("devtools", quiet = TRUE)
   }
-  install.packages(left_remaining, quick = TRUE, quiet = TRUE)
+  install.packages(left_remaining, quick = TRUE)
   devtools::install_github("rstudio/shinytest", quick = TRUE, quiet = TRUE)
 }
 
