@@ -1651,7 +1651,7 @@
             "gridwidth": 0.66417600664176,
             "zeroline": false,
             "anchor": "y",
-            "title": "Average income",
+            "title": "Average taxable income",
             "titlefont": {
               "color": "rgba(0,0,0,1)",
               "family": "",
@@ -1768,7 +1768,7 @@
         },
         "source": "A",
         "attrs": {
-          "5fa04404252d": {
+          "65284dc65a2b": {
             "x": {
 
             },
@@ -1783,7 +1783,7 @@
             },
             "type": "scatter"
           },
-          "5fa03237a1d": {
+          "652840d95a8e": {
             "x": {
 
             },
@@ -1798,13 +1798,13 @@
             }
           }
         },
-        "cur_data": "5fa04404252d",
+        "cur_data": "65284dc65a2b",
         "visdat": {
-          "5fa04404252d": [
+          "65284dc65a2b": [
             "function (y) ",
             "x"
           ],
-          "5fa03237a1d": [
+          "652840d95a8e": [
             "function (y) ",
             "x"
           ]

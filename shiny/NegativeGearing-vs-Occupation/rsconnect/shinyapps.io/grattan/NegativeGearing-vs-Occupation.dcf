@@ -5,8 +5,8 @@ account: grattan
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 703238
-bundleId: 1868127
+bundleId: 1868296
 url: https://grattan.shinyapps.io/NegativeGearing-vs-Occupation/
-when: 1549855540.07884
+when: 1549864651.40111
 asMultiple: FALSE
 asStatic: FALSE

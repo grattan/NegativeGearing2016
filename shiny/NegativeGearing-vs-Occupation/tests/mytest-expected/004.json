@@ -16,7 +16,7 @@
       },
       "debounce": 10
     },
-    "search_q": "teach lawy",
+    "search_q": "teach law",
     "Table1_cell_clicked": {
 
     },
@@ -1644,7 +1644,7 @@
             "y": [
               2499.71796210495
             ],
-            "text": "lawy",
+            "text": "law",
             "hovertext": "",
             "textfont": {
               "size": 14.6645669291339,
@@ -1729,7 +1729,7 @@
             "gridwidth": 0.66417600664176,
             "zeroline": false,
             "anchor": "y",
-            "title": "Average income",
+            "title": "Average taxable income",
             "titlefont": {
               "color": "rgba(0,0,0,1)",
               "family": "",
@@ -1846,7 +1846,7 @@
         },
         "source": "A",
         "attrs": {
-          "5fa025282f75": {
+          "65282c9c702e": {
             "x": {
 
             },
@@ -1861,7 +1861,7 @@
             },
             "type": "scatter"
           },
-          "5fa04768597": {
+          "65287afe758c": {
             "fill": {
 
             },
@@ -1878,7 +1878,7 @@
 
             }
           },
-          "5fa01988218c": {
+          "65286057913": {
             "x": {
 
             },
@@ -1887,17 +1887,17 @@
             }
           }
         },
-        "cur_data": "5fa025282f75",
+        "cur_data": "65282c9c702e",
         "visdat": {
-          "5fa025282f75": [
+          "65282c9c702e": [
             "function (y) ",
             "x"
           ],
-          "5fa04768597": [
+          "65287afe758c": [
             "function (y) ",
             "x"
           ],
-          "5fa01988218c": [
+          "65286057913": [
             "function (y) ",
             "x"
           ]

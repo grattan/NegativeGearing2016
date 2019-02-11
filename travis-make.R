@@ -58,7 +58,8 @@ if (length(packages_) > 0) {
 }
 
 # For shinytest
-if (!requireNamespace("shinytest", quietly = TRUE)) {
+if (!requireNamespace("shinytest", quietly = TRUE) || 
+    !requireNamespace("plotly")) {
   cat("Installing shinytest...\n")
   if (!requireNamespace("devtools", quietly = TRUE)) {
     if (requireNamespace("crayon", quietly = TRUE)) {
@@ -69,6 +70,7 @@ if (!requireNamespace("shinytest", quietly = TRUE)) {
     install.packages("devtools", quiet = TRUE)
   }
   devtools::install_github("rstudio/shinytest", quick = TRUE, quiet = TRUE)
+  install.packages("plotly", quick = TRUE)
 }
 
 

@@ -16,41 +16,12 @@
       },
       "debounce": 10
     },
-    "search_q": "teach nurs",
+    "search_q": "teach nur",
     "Table1_cell_clicked": {
 
     },
-    "Table1_rows_all": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17
-    ],
-    "Table1_rows_current": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10
-    ],
+    "Table1_rows_all": null,
+    "Table1_rows_current": null,
     "Table1_search": "",
     "Table1_state": null
   },
@@ -1683,7 +1654,7 @@
             "y": [
               2499.71796210495
             ],
-            "text": "nurs",
+            "text": "nur",
             "hovertext": "",
             "textfont": {
               "size": 14.6645669291339,
@@ -1768,7 +1739,7 @@
             "gridwidth": 0.66417600664176,
             "zeroline": false,
             "anchor": "y",
-            "title": "Average income",
+            "title": "Average taxable income",
             "titlefont": {
               "color": "rgba(0,0,0,1)",
               "family": "",
@@ -1885,7 +1856,7 @@
         },
         "source": "A",
         "attrs": {
-          "5fa029f2a5c": {
+          "65283dc141be": {
             "x": {
 
             },
@@ -1900,7 +1871,7 @@
             },
             "type": "scatter"
           },
-          "5fa097166ed": {
+          "652878c55bea": {
             "fill": {
 
             },
@@ -1917,7 +1888,7 @@
 
             }
           },
-          "5fa0607d2f8b": {
+          "6528328e725c": {
             "x": {
 
             },
@@ -1926,17 +1897,17 @@
             }
           }
         },
-        "cur_data": "5fa029f2a5c",
+        "cur_data": "65283dc141be",
         "visdat": {
-          "5fa029f2a5c": [
+          "65283dc141be": [
             "function (y) ",
             "x"
           ],
-          "5fa097166ed": [
+          "652878c55bea": [
             "function (y) ",
             "x"
           ],
-          "5fa0607d2f8b": [
+          "6528328e725c": [
             "function (y) ",
             "x"
           ]
