@@ -1,4 +1,10 @@
 
+if (!requireNamespace("devtools") ||
+    !requireNamespace("hunspell") || 
+    !requireNamespace("haven")) {
+  system("sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell r-cran-survey r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven r-cran-survival")
+}
+
 
 # First remove all but the CGT_parent
 vapply(dir(path = ".", pattern = "\\.tex$"), function(x) {
@@ -54,6 +60,13 @@ if (!requireNamespace("showtext", quietly = TRUE)) {
 if (length(packages_) > 0) {
   install.packages(packages_, repos = "https://cran.rstudio.com", quiet = TRUE)
 }
+
+# For shinytest
+if (!requireNamespace("shinytest", quietly = TRUE)) {
+  cat("Installing shinytest...\n")
+  devtools::install_github("rstudio/shinytest", quick = TRUE, quiet = TRUE)
+}
+
 
 # Wait until we work out hilda
 # knitr::knit("CGT_and_neg_gearing_parent.Rnw")
