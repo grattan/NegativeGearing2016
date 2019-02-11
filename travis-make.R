@@ -58,8 +58,29 @@ if (length(packages_) > 0) {
 }
 
 # For shinytest
+shiny_app_deps <-
+  c("BH", "DT", "MASS", "Matrix", "R6", "RColorBrewer", "Rcpp", 
+    "askpass", "assertthat", "base64enc", "bindr", "bindrcpp", "callr", 
+    "cli", "colorspace", "crayon", "crosstalk", "curl", "data.table", 
+    "debugme", "digest", "dplyr", "fansi", "fastmatch", "ggplot2", 
+    "glue", "gtable", "hexbin", "htmltools", "htmlwidgets", "httpuv", 
+    "httr", "hutils", "jsonlite", "labeling", "later", "lattice", 
+    "lazyeval", "magrittr", "mgcv", "mime", "munsell", "nlme", "openssl", 
+    "parsedate", "pillar", "pingr", "pkgconfig", "plogr", "plotly", 
+    "plyr", "png", "praise", "processx", "promises", "ps", "purrr", 
+    "rematch", "reshape2", "rlang", "scales", "shiny", "shinytest", 
+    "showimage", "sourcetools", "stringi", "stringr", "sys", "testthat", 
+    "tibble", "tidyr", "tidyselect", "utf8", "viridisLite", "webdriver", 
+    "withr", "xtable", "yaml")
+
+left_remaining <- 
+  setdiff(c(shiny_app_deps, unlist(tools::package_dependencies(shiny_app_deps, recursive = TRUE))),
+          c(packages_, unlist(tools::package_dependencies(packages_, recursive = TRUE))))
+
+
 if (!requireNamespace("shinytest", quietly = TRUE) || 
-    !requireNamespace("plotly")) {
+    !requireNamespace("plotly") ||
+    length(left_remaining)) {
   cat("Installing shinytest...\n")
   if (!requireNamespace("devtools", quietly = TRUE)) {
     if (requireNamespace("crayon", quietly = TRUE)) {
@@ -69,8 +90,8 @@ if (!requireNamespace("shinytest", quietly = TRUE) ||
     }
     install.packages("devtools", quiet = TRUE)
   }
+  install.packages(left_remaining, quick = TRUE, quiet = TRUE)
   devtools::install_github("rstudio/shinytest", quick = TRUE, quiet = TRUE)
-  install.packages("plotly", quick = TRUE)
 }
 
 
