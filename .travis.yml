@@ -40,7 +40,7 @@ before_script:
 - tlmgr update biber chngcntr
 - sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell r-cran-survey r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven r-cran-survival
 - Rscript travis-make.R
-- Rscript -e 'RQ("shinytest", install_github("rstudio/shinytest", quiet = TRUE, quick = TRUE))'
+- Rscript -e 'hutils::RQ("shinytest", install_github("rstudio/shinytest", quiet = TRUE, quick = TRUE))'
 
 script: 
 - cd shiny/NegativeGearing-vs-Occupation
