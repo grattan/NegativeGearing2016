@@ -38,6 +38,7 @@ before_script:
 - tar xzf biber-linux_x86_64.tar.gz
 - export PATH=$PATH:$PWD
 - tlmgr update biber chngcntr
+- Rscript travis-pre-make.R
 - Rscript travis-make.R
 
 script: 
