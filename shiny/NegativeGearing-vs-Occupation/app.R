@@ -6,6 +6,7 @@
 #
 #    http://shiny.rstudio.com/
 #
+
 library(data.table)
 library(magrittr)
 library(hutils)
@@ -45,6 +46,7 @@ NG_Benefit_vs_Occupation <-
   .[, .(Occupation, TaxBracket, Gender, variable, value, unit)] %>%
   dcast.data.table(... ~ variable + unit) %>%
   setnames("Net rent - loss_dollar", "NetRentDollar") %>%
+  setnames("Net rent - loss_number", "nNG") %>%
   setnames("Number of individuals_number", "nIndividuals") %>%
   .[TaxBracket %enotin% "All"] %>% # some small occupations have 'all' rather than brackets
   .[, TaxBracketA := sub("^([a-e]).*$", "\\1", TaxBracket)] %>%
@@ -52,12 +54,14 @@ NG_Benefit_vs_Occupation <-
   # minus because losses are reported as negatives
   .[, benefit := -avgMarginalRate * NetRentDollar] %>%
   .[] %>%
-  .[, .(totBenefit = sum(benefit)), 
+  .[, .(totBenefit = sum(benefit),
+        nNG = sum(nNG)), 
     keyby = "Occupation"] %>%
   .[avgIncome_vs_Occupation_201516, on = "Occupation", 
     nomatch = 0L] %>%
   .[nIndividuals_by_Occupation, on = "Occupation", nomatch = 0L] %>%
   .[, avgBenefit := totBenefit / nIndividuals] %>%
+  .[, propNG := nNG / nIndividuals] %>%
   # Shorten
   .[, Occupation := sub("^[0-9]+ ", "", Occupation)] %>%
   .[, Occupation := sub("- type not specified", 
@@ -130,8 +134,11 @@ ui <- fluidPage(
   
     # Sidebar with a slider input for number of bins 
   fluidRow(
-    column(3, 
-           shiny::textInput("search_q", label = "Search for occupations (comma or space separated):", value = ""),
+    column(8, 
+           shiny::textInput("search_q", 
+                            label = "Search for occupations (comma or space separated):",
+                            width = "40%",
+                            value = ""),
            offset = 1)
   ),
   br(),
@@ -146,7 +153,13 @@ ui <- fluidPage(
     column(width = 8, offset = 1,
            plotlyOutput("Plot1")
     )
-  )
+  ),
+  br(),
+  HTML(paste0('<p><sup>Built with shiny. Code here: ', 
+              '<a href="https://github.com/grattan/NegativeGearing2016">',
+              'https://github.com/grattan/NegativeGearing2016',
+              '</a></sup></p>')),
+  br()
 )
 
 
@@ -185,14 +198,17 @@ server <- function(input, output) {
                 need(length(.pattern) == 1L, label = "Occupation:")
                 o1 <- focused_table(.pattern)[[3L]]
                 o1 <- copy(o1)
+                o1[, nNG := NULL] # not used
                 setnames(o1, "totBenefit", "Total benefit from NG")
                 setnames(o1, "avgBenefit", "Average benefit from NG")
                 setnames(o1, "avgIncome", "Average taxable income")
                 setnames(o1, "nIndividuals", "Number of taxpayers")
+                setnames(o1, "propNG", "% NG")
                 setcolorder(o1, 
                             c("Occupation", 
                               "Number of taxpayers",
                               "Average taxable income",
+                              "% NG",
                               "Average benefit from NG",
                               "Total benefit from NG"))
                 o1
@@ -203,6 +219,7 @@ server <- function(input, output) {
                 DT::formatCurrency(., columns = "Total benefit from NG", currency = "$", digits = 0) %>%
                 DT::formatCurrency(., columns = "Average taxable income", currency = "$", digits = 0) %>%
                 DT::formatCurrency(., columns = "Average benefit from NG", currency = "$", digits = 0) %>%
+                DT::formatPercentage(., columns = "% NG", digits = 0) %>%
                 DT::formatRound(columns = "Number of taxpayers", digits = 0))
     
     output$Plot1 <- 

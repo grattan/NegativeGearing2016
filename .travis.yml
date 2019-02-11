@@ -20,6 +20,18 @@ before_install:
 - tlmgr update --all
 - sudo apt-get update
 - sudo apt-get install texlive-bibtex-extra
+#
+# Shiny testing:
+- "export PHANTOMJS_VERSION=2.1.1"
+- "phantomjs --version"
+- "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
+- "hash -r"
+- "phantomjs --version"
+- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
+- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then wget https://github.com/Medium/phantomjs/releases/download/v$PHANTOMJS_VERSION/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2; fi"
+- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
+- "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then hash -r; fi"
+- "phantomjs --version"
 install: echo Installation step
 before_script:
 - wget http://mirrors.ctan.org/biblio/biber/binaries/Linux/biber-linux_x86_64.tar.gz
@@ -28,8 +40,12 @@ before_script:
 - tlmgr update biber chngcntr
 - sudo apt-get install -y r-cran-devtools r-cran-rcpp r-cran-bh r-cran-stringi r-cran-hunspell r-cran-survey r-cran-dplyr r-cran-tidyr r-cran-readr r-cran-ggplot2 r-cran-ggrepel r-cran-haven r-cran-survival
 - Rscript travis-make.R
+- Rscript -e 'RQ("shinytest", install_github("rstudio/shinytest", quiet = TRUE, quick = TRUE))'
 
 script: 
+- cd shiny/NegativeGearing-vs-Occupation
+- R -f run_tests.R
+- cd ../..
 - Rscript -e 'knitr::knit("CGT_and_neg_gearing_parent.Rnw", quiet = TRUE)'
 - pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex > /dev/null
 - pdflatex -interaction=nonstopmode CGT_and_neg_gearing_parent.tex
