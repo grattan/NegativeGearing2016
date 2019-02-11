@@ -41,22 +41,6 @@ packages_ <-
     "showtext", "sysfonts",
     "data.table", "sessioninfo")
 
-# Remove already installed packages
-packages_to_install <- packages_
-for (i in seq_along(packages_)) {
-  packages_to_install[i] <- if (!length(find.package(packages_[i], quiet = TRUE))) "" else "(installed)"
-}
-packages_ <- packages_[packages_to_install == ""]
-
-cat("packages_\t", paste0(packages_, collapse = " "), "\n")
-if (!requireNamespace("showtext", quietly = TRUE)) {
-  install.packages("showtext", quiet = TRUE)
-}
-
-if (length(packages_) > 0) {
-  install.packages(packages_, repos = "https://cran.rstudio.com", quiet = TRUE)
-}
-
 # For shinytest
 shiny_app_deps <-
   c("BH", "DT", "MASS", "Matrix", "R6", "RColorBrewer", "Rcpp", 
@@ -73,10 +57,16 @@ shiny_app_deps <-
     "tibble", "tidyr", "tidyselect", "utf8", "viridisLite", "webdriver", 
     "withr", "xtable", "yaml")
 
-left_remaining <- 
-  setdiff(c(shiny_app_deps, unlist(tools::package_dependencies(shiny_app_deps, recursive = TRUE))),
-          c(packages_, unlist(tools::package_dependencies(packages_, recursive = TRUE))))
+left_remaining <- Filter(f = function(x) !requireNamespace(x, quietly = TRUE),
+                         x = c(packages_, shiny_app_deps))
 
+if (length(left_remaining) > 0) {
+  if (left_remaining > 50) {
+    install.packages(left_remaining, quiet = FALSE)
+  } else {
+    install.packages(packages_, quiet = TRUE)
+  }
+}
 
 if (!requireNamespace("shinytest", quietly = TRUE) || 
     !requireNamespace("plotly", quietly = TRUE) ||
@@ -90,7 +80,6 @@ if (!requireNamespace("shinytest", quietly = TRUE) ||
     }
     install.packages("devtools", quiet = TRUE)
   }
-  install.packages(left_remaining, quick = TRUE)
   devtools::install_github("rstudio/shinytest", quick = TRUE, quiet = TRUE)
 }
 
