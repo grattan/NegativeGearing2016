@@ -190,6 +190,12 @@ server <- function(input, output) {
            is_focused = is_focused,
            focus = o[])
     }
+    o_export <- data.table()
+    output$UnusedTable <- renderTable({
+      .pattern <- input$search_q
+      o_export <<- focused_table(.pattern)[[3L]]
+      o_export
+    })
     
     output$Table1 <- 
         DT::renderDataTable(
@@ -198,6 +204,15 @@ server <- function(input, output) {
                 need(length(.pattern) == 1L, label = "Occupation:")
                 o1 <- focused_table(.pattern)[[3L]]
                 o1 <- copy(o1)
+                
+                xround <- function(x) {
+                  if (!is.double(x)) {
+                    return(x)
+                  }
+                  round(x, digits = if (max(x) < 1) 2 else 0)
+                }
+                
+                o_export <<- head(o1)[, lapply(.SD, xround)]
                 o1[, nNG := NULL] # not used
                 setnames(o1, "totBenefit", "Total benefit from NG")
                 setnames(o1, "avgBenefit", "Average benefit from NG")
@@ -301,6 +316,8 @@ server <- function(input, output) {
                         color = "rgba(255,0,0,1)",
                         debounce = 10))
       })
+    
+    exportTestValues(o_export = {o_export})
 }
 
 # Run the application 

@@ -41,26 +41,37 @@ packages_ <-
     "showtext", "sysfonts",
     "data.table", "sessioninfo")
 
-# Remove already installed packages
-packages_to_install <- packages_
-for (i in seq_along(packages_)) {
-  packages_to_install[i] <- if (!length(find.package(packages_[i], quiet = TRUE))) "" else "(installed)"
-}
-packages_ <- packages_[packages_to_install == ""]
-
-cat("packages_\t", paste0(packages_, collapse = " "), "\n")
-if (!requireNamespace("showtext", quietly = TRUE)) {
-  install.packages("showtext", quiet = TRUE)
-}
-
-if (length(packages_) > 0) {
-  install.packages(packages_, repos = "https://cran.rstudio.com", quiet = TRUE)
-}
-
 # For shinytest
+shiny_app_deps <-
+  c("BH", "DT", "MASS", "Matrix", "R6", "RColorBrewer", "Rcpp", 
+    "askpass", "assertthat", "base64enc", "bindr", "bindrcpp", "callr", 
+    "cli", "colorspace", "crayon", "crosstalk", "curl", "data.table", 
+    "debugme", "digest", "dplyr", "fansi", "fastmatch", "ggplot2", 
+    "glue", "gtable", "hexbin", "htmltools", "htmlwidgets", "httpuv", 
+    "httr", "hutils", "jsonlite", "labeling", "later", "lattice", 
+    "lazyeval", "magrittr", "mgcv", "mime", "munsell", "nlme", "openssl", 
+    "parsedate", "pillar", "pingr", "pkgconfig", "plogr", "plotly", 
+    "plyr", "png", "praise", "processx", "promises", "ps", "purrr", 
+    "rematch", "reshape2", "rlang", "scales", "shiny", "shinytest", 
+    "showimage", "sourcetools", "stringi", "stringr", "sys", "testthat", 
+    "tibble", "tidyr", "tidyselect", "utf8", "viridisLite", "webdriver", 
+    "withr", "xtable", "yaml")
+
+left_remaining <- Filter(f = function(x) !requireNamespace(x, quietly = TRUE),
+                         x = c(packages_, shiny_app_deps))
+
+if (length(left_remaining) > 0) {
+  if (left_remaining > 50) {
+    install.packages(left_remaining, quiet = FALSE)
+  } else {
+    install.packages(packages_, quiet = TRUE)
+  }
+}
+
 if (!requireNamespace("shinytest", quietly = TRUE) || 
-    !requireNamespace("plotly")) {
-  cat("Installing shinytest...\n")
+    !requireNamespace("plotly", quietly = TRUE) ||
+    length(left_remaining)) {
+  cat("Installing ", length(left_remaining), " packages and shinytest...\n")
   if (!requireNamespace("devtools", quietly = TRUE)) {
     if (requireNamespace("crayon", quietly = TRUE)) {
       cat(crayon::red("devtools not installed\n"))
@@ -70,7 +81,6 @@ if (!requireNamespace("shinytest", quietly = TRUE) ||
     install.packages("devtools", quiet = TRUE)
   }
   devtools::install_github("rstudio/shinytest", quick = TRUE, quiet = TRUE)
-  install.packages("plotly", quick = TRUE)
 }
 
 
